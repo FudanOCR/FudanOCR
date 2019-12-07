@@ -1,0 +1,7 @@
+*.pth
+*.jpg
+*.png
+/data_cache/*
+*.TTF
+/models/*
+/fudan_ocr_system/*

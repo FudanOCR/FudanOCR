@@ -12,77 +12,12 @@ import tools.utils as utils
 import tools.dataset as dataset
 import time
 from collections import OrderedDict
-from models.moran import MORAN
+
 from yacs.config import CfgNode as CN
 
-def val(dataset, criterion, max_iter=1000):
-    print('Start val')
-    data_loader = torch.utils.data.DataLoader(
-        dataset, shuffle=False, batch_size=opt.batchSize, num_workers=int(opt.workers))  # opt.batchSize
-    val_iter = iter(data_loader)
-    max_iter = min(max_iter, len(data_loader))
-    n_correct = 0
-    n_total = 0
-    loss_avg = utils.averager()
-
-    for i in range(max_iter):
-        data = val_iter.next()
-        if opt.BidirDecoder:
-            cpu_images, cpu_texts, cpu_texts_rev = data
-            utils.loadData(image, cpu_images)
-            t, l = converter.encode(cpu_texts, scanned=True)
-            t_rev, _ = converter.encode(cpu_texts_rev, scanned=True)
-            utils.loadData(text, t)
-            utils.loadData(text_rev, t_rev)
-            utils.loadData(length, l)
-            preds0, preds1 = MORAN(image, length, text, text_rev, test=True)
-            cost = criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
-            preds0_prob, preds0 = preds0.max(1)
-            preds0 = preds0.view(-1)
-            preds0_prob = preds0_prob.view(-1)
-            sim_preds0 = converter.decode(preds0.data, length.data)
-            preds1_prob, preds1 = preds1.max(1)
-            preds1 = preds1.view(-1)
-            preds1_prob = preds1_prob.view(-1)
-            sim_preds1 = converter.decode(preds1.data, length.data)
-            sim_preds = []
-            for j in range(cpu_images.size(0)):
-                text_begin = 0 if j == 0 else length.data[:j].sum()
-                if torch.mean(preds0_prob[text_begin:text_begin + len(sim_preds0[j].split('$')[0] + '$')]).data[0] > \
-                        torch.mean(
-                            preds1_prob[text_begin:text_begin + len(sim_preds1[j].split('$')[0] + '$')]).data[0]:
-                    sim_preds.append(sim_preds0[j].split('$')[0] + '$')
-                else:
-                    sim_preds.append(sim_preds1[j].split('$')[0][-1::-1] + '$')
-        else:
-            cpu_images, cpu_texts = data
-            utils.loadData(image, cpu_images)
-            t, l = converter.encode(cpu_texts, scanned=True)
-            utils.loadData(text, t)
-            utils.loadData(length, l)
-            preds = MORAN(image, length, text, text_rev, test=True)
-            cost = criterion(preds, text)
-            _, preds = preds.max(1)
-            preds = preds.view(-1)
-            sim_preds = converter.decode(preds.data, length.data)
-
-        loss_avg.add(cost)
-        for pred, target in zip(sim_preds, cpu_texts):
-            print("预测 ", pred, " 目标 ", target)
-            if pred == target.lower():
-                # print("预测 ",pred," 目标 ",target)
-                n_correct += 1
-            n_total += 1
-
-    print("correct / total: %d / %d, " % (n_correct, n_total))
-    accuracy = n_correct / float(n_total)
-    print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
-    return accuracy
-
-
-def train_moran_v2(config_file):
+def train_moran_v2(opt):
     # 在这里修改超参数的读入
-
+    from models.moran import MORAN
     print(opt)
 
     # opt.alphabet = result
@@ -316,14 +251,14 @@ def train_moran_v2(config_file):
             i += 1
 
 def read_config_file(config_file):
-    # 用yaml重构
-
+    # 用yaml重构配置文件
     f = open(config_file)
     opt = CN.load_cfg(f)
-    print(opt)
+    return opt
 
 
 if __name__ == '__main__':
-    read_config_file('../config/MORAN_V2_test.yaml')
-    print('hello2')
+    opt = read_config_file('../config/MORAN_V2_test.yaml')
+    # print('hello4')
+    train_moran_v2(opt)
 

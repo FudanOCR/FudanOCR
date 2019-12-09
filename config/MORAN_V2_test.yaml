@@ -1,6 +1,6 @@
-train_nips: '../MORAN_V2/dataset/ic15_2077'
+train_nips: './ic15_2077'
 train_cvpr: ''
-valroot: '../MORAN_V2/dataset/ic15_2077'
+valroot: './ic15_2077'
 workers: 4
 batchSize: 64
 imgH: 64

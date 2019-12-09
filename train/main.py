@@ -6,8 +6,12 @@
 
 from moran_v2 import train_moran_v2
 
-def create
 
 
 if __name__ == '__main__':
-    pass
+    # coding:utf8
+    import os
+
+    # 获取当前目录绝对路径
+    dir_path = os.path.dirname(os.path.abspath(__file__))
+    print('当前目录绝对路径:', dir_path)

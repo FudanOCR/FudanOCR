@@ -1,2 +1,1 @@
-import os
-print(os.path.abspath(__path__))
+print('hello')

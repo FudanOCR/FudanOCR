@@ -4,11 +4,11 @@
 
 此系统集成若干OCR方法，包括检测、识别、端到端框架，旨在为研究人员提供便利性。系统包括的模型既有2019年ICDAR比赛中使用的模型，还有17级毕业师兄师姐毕业论文使用的模型。模型跑通后的实验数据记录在共享文档中，链接如下
 
-### [共享文档](https://www.zybuluo.com/cmd/)
+### [共享文档](https://docs.qq.com/desktop/mydoc/folder/aE338MoFVm_100001)
 
 
 
-###主要文件
+### 主要文件
 > * /config   配置文件，里面应该包含model参数指定使用的模型
 > * /train  主方法从该文件夹中导入训练模型的方法
 > * main.py 使用python main.py --config_file xxx 传入配置文件训练模型  

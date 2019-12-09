@@ -1,0 +1,15 @@
+python main.py \
+	--train_nips ./BaiduNetdiskDownload/reg_dataset/NIPS2014/NIPS2014/data.mdb   \
+	--train_cvpr ./BaiduNetdiskDownload/reg_dataset/CVPR2016/CVPR2016/data.mdb \
+	--valroot ./BaiduNetdiskDownload/reg_dataset/IIIT5K_3000 \
+	--workers 2 \
+	--batchSize 64 \
+	--niter 10 \
+	--lr 1 \
+	--cuda \
+	--experiment output/ \
+	--displayInterval 100 \
+	--valInterval 1000 \
+	--saveInterval 40000 \
+	--adadelta \
+	--BidirDecoder

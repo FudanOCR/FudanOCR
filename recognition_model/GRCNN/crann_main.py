@@ -24,7 +24,7 @@ import time
 #nohup python3 -u crann_main.py >>lsvt_svhn.out &
 #python3 /workspace/mnt/group/ocr/zhangpeiyao/zhang/CRNN/zhangpy/crann_main.py
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--yaml', default='/workspace/mnt/group/ocr/zhangpeiyao/zhang/CRNN/zhangpy/config/icdar/grcnn_art.yml', help='path to config yaml')
@@ -79,7 +79,7 @@ def train(model, train_loader, val_loader, criterion, optimizer, opt, converter,
             save_checkpoint({'epoch': epoch,
                         'state_dict': model.state_dict(),
                         'optimizer': optimizer.state_dict()}, 
-                       '{0}/crann_{1}_{2}_{3}.pth'.format(opt['SAVE_PATH'], epoch, freq, str(accuracy)))
+                       '{0}/crann_{1}_{2}.pth'.format(opt['SAVE_PATH'], epoch, freq))
 
 def val(model, ds_loader, criterion, converter, epoch, iteration, logger, valonly):
     print('Start validating on epoch:{0}/iter:{1}...'.format(epoch, iteration))
@@ -177,7 +177,7 @@ def main(config_yaml):
                                                    imgW=train_cfg['MAX_W']))
 
     val_cfg = opt['VALIDATION']
-    ds_val = dataset.trainDataset(val_cfg['IMG_ROOT'], val_cfg['VAL_SET'],transform=None) #dataset.graybackNormalize()
+    ds_val = dataset.testDataset(val_cfg['IMG_ROOT'], val_cfg['VAL_SET'],transform=None) #dataset.graybackNormalize()
     assert ds_val
     val_loader = torch.utils.data.DataLoader(ds_val, 
                                              batch_size=32, 
@@ -236,8 +236,7 @@ def main(config_yaml):
     elif opt['RESUME']:
         print('=>loading checkpoint from %s for resume training.' %opt['CRANN'])
         checkpoint = torch.load(opt['CRANN'])
-        #start_epoch = checkpoint['epoch'] + 1
-        start_epoch = 0
+        start_epoch = checkpoint['epoch'] + 1
         print('resume from epoch:{}'.format(start_epoch))
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])

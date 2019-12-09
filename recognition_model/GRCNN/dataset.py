@@ -60,14 +60,12 @@ class trainDataset(Dataset):
             img = cv2.imread(os.path.join(self.root, self.images[index]))
             #img = oper.augment_image(img)
             if img is None:
-                print(self.images[index] + ' ---> is None')
                 index += 1
-            #elif img.shape[0] <= 0 or img.shape[1] <= 0 or img.shape[0] > 3 * img.shape[1]:
-                #index += 1
-                #print(self.images[index] + ' ---> is sp')
-            #elif img.shape[1] / float(img.shape[0]) > 30:
-                #print(self.images[index] + ' ---> rua...', img.shape)
-                #index += 1
+            elif img.shape[0] <= 0 or img.shape[1] <= 0 or img.shape[0] > img.shape[1]:
+                index += 1
+            elif img.shape[1] / float(img.shape[0]) > 30:
+                print(self.images[index] + ' ---> rua...', img.shape)
+                index += 1
             else:
                 #img = Image.open(os.path.join(self.root, self.images[index]))#.convert('L')
                 #img = iaa.CoarseDropout(p=0.2, size_percent=0.02).augment_image(img)
@@ -81,6 +79,62 @@ class trainDataset(Dataset):
         if self.transform is not None:
             img = self.transform(img)
         return (img, self.labels[index])
+
+class testDataset(Dataset):
+    def __init__(self, root, mapping, transform=None, target_transform=None):
+        """Initialization for image Dataset.
+        args
+        root (string): directory of images
+        mapping (string): file of mapping filename and its labels
+
+        """
+        self.root = root
+        self.transform = transform
+        self.target_transform = target_transform
+        self.images = list()
+        self.labels = list()
+        with open(mapping, encoding='utf-8') as f:
+            pair_list = f.readlines()
+            self.nSample = len(pair_list)
+        
+        print('pair_list:', len(pair_list))
+
+        for pair in pair_list:
+            
+            items = pair.strip().split()
+            if len(items) == 0:
+                print(items)
+                continue
+            img = items[0]
+            label = ' '.join(items[1:])
+            self.images.append(img)
+            self.labels.append(keyFilte(label, keys.alphabet))
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, index):
+        img = None
+        data_size = len(self.images)
+        while(True):
+            index = index % data_size
+            img = cv2.imread(os.path.join(self.root, self.images[index]))
+            '''
+            if img is None:
+                index += 1
+            elif img.shape[0] <= 0 or img.shape[1] <= 0 or img.shape[0] > img.shape[1]:
+                index += 1
+            elif img.shape[1] / float(img.shape[0]) > 30:
+                print(self.images[index] + ' ---> rua...', img.shape)
+                index += 1
+            else:
+                break
+            '''
+
+        if self.transform is not None:
+            img = self.transform(img)
+        return (img, self.labels[index])
+
 
 class synthDataset(Dataset):
     def __init__(self, fontpath, fontsize_range='32-36', text_generator=None, transform=None, target_transform=None):

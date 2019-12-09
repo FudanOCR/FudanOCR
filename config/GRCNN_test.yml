@@ -1,0 +1,37 @@
+model: 'GRCNN'
+TRAIN:
+        BATCH_SIZE: 64
+        IMG_H: 32
+        MAX_W: 280
+        LR: 0.0001
+        BETA1: 0.5
+        DATA_SOURCE:
+                TYPE: "IMG_DATA"
+                IMG_ROOT: ""
+                TRAIN_SET: "../../captcha/captcha_train.txt" #path for train dataset
+VALIDATION:
+        IMG_ROOT: ""
+        VAL_SET: "../../captcha/captcha_test.txt" #path for validation dataset
+EPOCHS: 30
+STEP: 10
+LOG_FREQ: 50
+SAVE_FREQ: 1
+SAVE_PATH: "./checkpoints/default"  #path for model
+CUDA: True
+WORKERS: 4
+OPTIMIZER: "Adam"
+LOGGER_PATH: "./logger/default"  #path for logger
+VAL_ONLY: FALSE
+FINETUNE: FALSE
+RESUME: FALSE
+CRANN: ""
+N_GPU: 1 
+
+CNN: 
+    MODEL: "grcnn"
+RNN:
+    MODEL: "compositelstm"
+    n_In: 512
+    n_Hidden: 256
+    n_Layer: "Number: for multi layer lstm."
+    

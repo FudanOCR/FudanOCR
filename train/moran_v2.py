@@ -19,7 +19,10 @@ from collections import OrderedDict
 
 from yacs.config import CfgNode as CN
 
-def train_moran_v2(opt):
+def train_moran_v2(config_file):
+
+    opt = read_config_file(config_file)
+
     # 在这里修改超参数的读入
     from models.moran import MORAN
     print(opt)

@@ -1,4 +1,8 @@
 from __future__ import print_function
+
+import sys
+sys.path.append('./recognition_model/MORAN_V2')
+
 import argparse
 import random
 import torch

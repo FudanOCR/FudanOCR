@@ -1,6 +1,7 @@
-train_nips: './ic15_2077'
+model: 'MORAN'
+train_nips: '/home/cjy/ic03_test_lmdb'
 train_cvpr: ''
-valroot: './ic15_2077'
+valroot: '/home/cjy/ic03_test_lmdb'
 workers: 4
 batchSize: 64
 imgH: 64

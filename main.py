@@ -4,6 +4,9 @@ from train.grcnn import train_grcnn
 import argparse
 import re
 
+import sys
+sys.path.append('./recognition_model/GRCNN')
+
 # 在这个位置扩充函数
 function_dict = {
 
@@ -11,6 +14,14 @@ function_dict = {
     'GRCNN': train_grcnn,
     'Your Model Name': 'Your Model Function'
 }
+
+def read_config_file(config_file):
+    # 用yaml重构配置文件
+    f = open(config_file)
+    result = CN.load_cfg(f)
+    return result
+
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config_file', required=True, help='path to config file')

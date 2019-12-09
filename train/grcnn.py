@@ -4,7 +4,7 @@
 from __future__ import print_function
 
 import sys
-sys.path.append('./recognition_model/GRCNN')
+sys.path.append('/home/cjy/FudanOCR/recognition_model/GRCNN')
 
 import argparse
 import random
@@ -14,7 +14,7 @@ import torch.utils.data
 import numpy as np
 import Levenshtein
 from torch.autograd import Variable
-from warpctc_pytorch import CTCLoss
+# from warpctc_pytorch import CTCLoss
 from utils.Logger import Logger
 
 import utils.keys as keys
@@ -150,7 +150,7 @@ def save_checkpoint(state, file_name):
         pass
 
 
-def main(config_yaml):
+def train_grcnn(config_yaml):
     '''
     Training/Finetune CNN_RNN_Attention Model.
     '''
@@ -212,6 +212,7 @@ def main(config_yaml):
 
     #### Train/Val the model. ####
     converter = util.strLabelConverter(alphabet)
+    from warpctc_pytorch import CTCLoss
     criterion = CTCLoss()
     if opt['CUDA']:
         model.cuda()
@@ -264,5 +265,5 @@ def main(config_yaml):
 
 if __name__ == '__main__':
     opt = parser.parse_args()
-    main(opt.yaml)
+    train_grcnn(opt.yaml)
 

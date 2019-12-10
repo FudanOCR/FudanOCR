@@ -1,6 +1,6 @@
 from yacs.config import CfgNode as CN
 from train.moran_v2 import train_moran_v2
-from train.grcnn import train_grcnn
+from train.grcnn import train_grcnn 
 import argparse
 import re
 

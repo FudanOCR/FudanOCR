@@ -1,0 +1,11 @@
+/dataset
+/result
+/cache
+/.vscode
+/__pycache__
+/*/__pycache__
+/*/build
+/nms/nms.c
+/nms/nms.cpp
+/nms/nms.html
+/nms/*.so

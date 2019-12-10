@@ -1,6 +1,7 @@
 from yacs.config import CfgNode as CN
 from train.moran_v2 import train_moran_v2
-from train.grcnn import train_grcnn 
+from train.grcnn import train_grcnn
+from train.moran_v2_xuxixi import train_moran_v2_xuxixi
 import argparse
 import re
 
@@ -12,6 +13,7 @@ print("当前系统环境变量为：",sys.path)
 function_dict = {
 
     'MORAN_V2': train_moran_v2,
+    'MORAN_V2_xuxixi' : train_moran_v2_xuxixi,
     'GRCNN': train_grcnn,
     'Your Model Name': 'Your Model Function'
 }
@@ -21,11 +23,6 @@ def read_config_file(config_file):
     f = open(config_file)
     result = CN.load_cfg(f)
     return result
-
-def add_path():
-    pass
-
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config_file', required=True, help='path to config file')

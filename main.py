@@ -2,6 +2,7 @@ from yacs.config import CfgNode as CN
 from train.moran_v2 import train_moran_v2
 from train.grcnn import train_grcnn
 from train.moran_v2_xuxixi import train_moran_v2_xuxixi
+from train.
 from train import AdvancedEAST
 import argparse
 import re
@@ -17,6 +18,7 @@ function_dict = {
     'MORAN_V2_xuxixi' : train_moran_v2_xuxixi,
     'GRCNN': train_grcnn,
     'AdvancedEAST': AdvancedEAST,
+    'TextSnake':
     'Your Model Name': 'Your Model Function'
 }
 

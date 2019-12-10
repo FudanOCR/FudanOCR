@@ -1,4 +1,4 @@
-model: 'MORAN'
+model: 'MORAN_V2'
 train_nips: '/home/cjy/ic03_test_lmdb'
 train_cvpr: ''
 valroot: '/home/cjy/ic03_test_lmdb'

@@ -16,11 +16,11 @@ EPOCHS: 30
 STEP: 10
 LOG_FREQ: 50
 SAVE_FREQ: 1
-SAVE_PATH: "./checkpoints/default"  #path for model
+SAVE_PATH: "./checkpoints/"  #path for model
 CUDA: True
 WORKERS: 4
 OPTIMIZER: "Adam"
-LOGGER_PATH: "./logger/default"  #path for logger
+LOGGER_PATH: "./logger/"  #path for logger
 VAL_ONLY: FALSE
 FINETUNE: FALSE
 RESUME: FALSE

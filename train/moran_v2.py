@@ -2,24 +2,30 @@ from __future__ import print_function
 
 import sys
 sys.path.append('./recognition_model/MORAN_V2')
-
-import argparse
-import random
-import torch
-import torch.backends.cudnn as cudnn
-import torch.optim as optim
-import torch.utils.data
-from torch.autograd import Variable
-import numpy as np
-import os
-import tools.utils as utils
-import tools.dataset as dataset
-import time
-from collections import OrderedDict
-
-from yacs.config import CfgNode as CN
-
 def train_moran_v2(config_file):
+
+    import argparse
+    import random
+    import torch
+    import torch.backends.cudnn as cudnn
+    import torch.optim as optim
+    import torch.utils.data
+    from torch.autograd import Variable
+    import numpy as np
+    import os
+    import GRCNN.tools.utils as utils
+    import GRCNN.tools.dataset as dataset
+    import time
+    from collections import OrderedDict
+
+    from yacs.config import CfgNode as CN
+
+
+    def read_config_file(config_file):
+        # 用yaml重构配置文件
+        f = open(config_file)
+        opt = CN.load_cfg(f)
+        return opt
 
     opt = read_config_file(config_file)
 
@@ -257,15 +263,8 @@ def train_moran_v2(config_file):
 
             i += 1
 
-def read_config_file(config_file):
-    # 用yaml重构配置文件
-    f = open(config_file)
-    opt = CN.load_cfg(f)
-    return opt
 
 
-if __name__ == '__main__':
-    opt = read_config_file('../config/MORAN_V2_test.yaml')
-    # print('hello4')
-    train_moran_v2(opt)
+
+
 

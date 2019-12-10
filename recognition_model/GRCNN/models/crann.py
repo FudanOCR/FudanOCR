@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # encoding: utf-8
 
-import models.convnet as ConvNets
-import models.recurrent as SeqNets
+import GRCNN.models.convnet as ConvNets
+import GRCNN.models.recurrent as SeqNets
 import torch.nn as nn
 import torch.nn.parallel
 import torch.distributed as dist

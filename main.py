@@ -5,12 +5,13 @@ import argparse
 import re
 
 import sys
-sys.path.append('./recognition_model/GRCNN')
+sys.path.append('./recognition_model/')
+print("当前系统环境变量为：",sys.path)
 
 # 在这个位置扩充函数
 function_dict = {
 
-    'MORAN': train_moran_v2,
+    'MORAN_V2': train_moran_v2,
     'GRCNN': train_grcnn,
     'Your Model Name': 'Your Model Function'
 }
@@ -20,6 +21,9 @@ def read_config_file(config_file):
     f = open(config_file)
     result = CN.load_cfg(f)
     return result
+
+def add_path():
+    pass
 
 
 

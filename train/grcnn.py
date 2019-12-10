@@ -1,116 +1,50 @@
-# -*- coding:utf-8 -*-
-# !/usr/bin/env python
-
 from __future__ import print_function
 
-import sys
-sys.path.append('/home/cjy/FudanOCR/recognition_model/GRCNN')
 
-import argparse
-import random
-import torch.backends.cudnn as cudnn
-import torch.optim as optim
-import torch.utils.data
-import numpy as np
-import Levenshtein
-from torch.autograd import Variable
-# from warpctc_pytorch import CTCLoss
-from utils.Logger import Logger
+def train_grcnn(config_yaml):
 
-import utils.keys as keys
-import utils.util as util
-import dataset
-import models.crann as crann
-import yaml
-import os
-import time
+    import random
+    import torch.backends.cudnn as cudnn
+    import torch.optim as optim
+    import torch.utils.data
+    import numpy as np
+    import Levenshtein
+    from torch.autograd import Variable
+    # from warpctc_pytorch import CTCLoss
+    from GRCNN.utils.Logger import Logger
 
-# nohup python3 -u crann_main.py >>lsvt_svhn.out &
-# python3 /workspace/mnt/group/ocr/zhangpeiyao/zhang/CRNN/zhangpy/crann_main.py
+    import GRCNN.utils.keys as keys
+    import GRCNN.utils.util as util
+    import dataset
+    import GRCNN.models.crann as crann
+    import yaml
+    import os
+    import time
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    def adjust_lr(optimizer, base_lr, epoch, step):
+        lr = base_lr * (0.1 ** (epoch // step))
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--yaml',
-                    default='/workspace/mnt/group/ocr/zhangpeiyao/zhang/CRNN/zhangpy/config/icdar/grcnn_art.yml',
-                    help='path to config yaml')
+    def train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch, logger):
+        # Set up training phase.
+        interval = int(len(train_loader) / opt['SAVE_FREQ'])
+        model.train()
 
-
-def adjust_lr(optimizer, base_lr, epoch, step):
-    lr = base_lr * (0.1 ** (epoch // step))
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
-
-
-def train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch, logger):
-    # Set up training phase.
-    interval = int(len(train_loader) / opt['SAVE_FREQ'])
-    model.train()
-
-    for i, (cpu_images, cpu_gt) in enumerate(train_loader, 1):
-        # print('iter {} ...'.format(i))
-        bsz = cpu_images.size(0)
-        text, text_len = converter.encode(cpu_gt)
-        v_images = Variable(cpu_images.cuda())
-        v_gt = Variable(text)
-        v_gt_len = Variable(text_len)
-
-        model = model.cuda()
-        predict = model(v_images)
-        predict_len = Variable(torch.IntTensor([predict.size(0)] * bsz))
-
-        loss = criterion(predict, v_gt, predict_len, v_gt_len)
-        logger.scalar_summary('train_loss', loss.data[0], i + epoch * len(train_loader))
-
-        # Compute accuracy
-        _, acc = predict.max(2)
-        acc = acc.transpose(1, 0).contiguous().view(-1)
-        sim_preds = converter.decode(acc.data, predict_len.data, raw=False)
-        n_correct = 0
-        for pred, target in zip(sim_preds, cpu_gt):
-            if pred.lower() == target.lower():
-                n_correct += 1
-        accuracy = n_correct / float(bsz)
-
-        logger.scalar_summary('train_accuray', accuracy, i + epoch * len(train_loader))
-
-        # Backpropagate
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        if i % interval == 0 and i > 0:
-            print('Training @ Epoch: [{0}][{1}/{2}]; Train Accuracy:{3}'.format(epoch, i, len(train_loader), accuracy))
-            val(model, val_loader, criterion, converter, epoch, i + epoch * len(train_loader), logger, False)
-            model.train()
-            freq = int(i / interval)
-            save_checkpoint({'epoch': epoch,
-                             'state_dict': model.state_dict(),
-                             'optimizer': optimizer.state_dict()},
-                            '{0}/crann_{1}_{2}.pth'.format(opt['SAVE_PATH'], epoch, freq))
-
-
-def val(model, ds_loader, criterion, converter, epoch, iteration, logger, valonly):
-    print('Start validating on epoch:{0}/iter:{1}...'.format(epoch, iteration))
-    model.eval()
-    ave_loss = 0.0
-    ave_accuracy = 0.0
-    err_sim = []
-    err_gt = []
-    distance = 0
-    length = 0
-    with torch.no_grad():
-        for i, (cpu_images, cpu_gt) in enumerate(ds_loader):
+        for i, (cpu_images, cpu_gt) in enumerate(train_loader, 1):
+            # print('iter {} ...'.format(i))
             bsz = cpu_images.size(0)
             text, text_len = converter.encode(cpu_gt)
-            v_Images = Variable(cpu_images.cuda())
+            v_images = Variable(cpu_images.cuda())
             v_gt = Variable(text)
             v_gt_len = Variable(text_len)
 
-            predict = model(v_Images)
+            model = model.cuda()
+            predict = model(v_images)
             predict_len = Variable(torch.IntTensor([predict.size(0)] * bsz))
+
             loss = criterion(predict, v_gt, predict_len, v_gt_len)
-            ave_loss += loss.data[0]
+            logger.scalar_summary('train_loss', loss.data[0], i + epoch * len(train_loader))
 
             # Compute accuracy
             _, acc = predict.max(2)
@@ -118,39 +52,91 @@ def val(model, ds_loader, criterion, converter, epoch, iteration, logger, valonl
             sim_preds = converter.decode(acc.data, predict_len.data, raw=False)
             n_correct = 0
             for pred, target in zip(sim_preds, cpu_gt):
-                length += len(target)
                 if pred.lower() == target.lower():
-                    n_correct += 1.0
-                else:
-                    err_sim.append(pred)
-                    err_gt.append(target)
-            ave_accuracy += n_correct / float(bsz)
-        for pred, gt in zip(err_sim, err_gt):
-            print('pred: %-20s, gt: %-20s' % (pred, gt))
-            distance += Levenshtein.distance(pred, gt)
-        # print("The Levenshtein distance is:",distance)
-        print("The average Levenshtein distance is:", distance / length)
-        if not valonly:
-            logger.scalar_summary('validation_loss', ave_loss / len(ds_loader), iteration)
-            logger.scalar_summary('validation_accuracy', ave_accuracy / len(ds_loader), iteration)
-            logger.scalar_summary('Ave_Levenshtein_distance', distance / length, iteration)
-        print('Testing Accuracy:{0}, Testing Loss:{1} @ Epoch{2}, Iteration{3}'.format(ave_accuracy / len(ds_loader),
-                                                                                       ave_loss / len(ds_loader),
-                                                                                       epoch, iteration))
+                    n_correct += 1
+            accuracy = n_correct / float(bsz)
+
+            logger.scalar_summary('train_accuray', accuracy, i + epoch * len(train_loader))
+
+            # Backpropagate
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            if i % interval == 0 and i > 0:
+                print('Training @ Epoch: [{0}][{1}/{2}]; Train Accuracy:{3}'.format(epoch, i, len(train_loader),
+                                                                                    accuracy))
+                val(model, val_loader, criterion, converter, epoch, i + epoch * len(train_loader), logger, False)
+                model.train()
+                freq = int(i / interval)
+                save_checkpoint({'epoch': epoch,
+                                 'state_dict': model.state_dict(),
+                                 'optimizer': optimizer.state_dict()},
+                                '{0}/crann_{1}_{2}.pth'.format(opt['SAVE_PATH'], epoch, freq))
+
+    def val(model, ds_loader, criterion, converter, epoch, iteration, logger, valonly):
+        print('Start validating on epoch:{0}/iter:{1}...'.format(epoch, iteration))
+        model.eval()
+        ave_loss = 0.0
+        ave_accuracy = 0.0
+        err_sim = []
+        err_gt = []
+        distance = 0
+        length = 0
+        with torch.no_grad():
+            for i, (cpu_images, cpu_gt) in enumerate(ds_loader):
+                bsz = cpu_images.size(0)
+                text, text_len = converter.encode(cpu_gt)
+                v_Images = Variable(cpu_images.cuda())
+                v_gt = Variable(text)
+                v_gt_len = Variable(text_len)
+
+                predict = model(v_Images)
+                predict_len = Variable(torch.IntTensor([predict.size(0)] * bsz))
+                loss = criterion(predict, v_gt, predict_len, v_gt_len)
+                ave_loss += loss.data[0]
+
+                # Compute accuracy
+                _, acc = predict.max(2)
+                acc = acc.transpose(1, 0).contiguous().view(-1)
+                sim_preds = converter.decode(acc.data, predict_len.data, raw=False)
+                n_correct = 0
+                for pred, target in zip(sim_preds, cpu_gt):
+                    length += len(target)
+                    if pred.lower() == target.lower():
+                        n_correct += 1.0
+                    else:
+                        err_sim.append(pred)
+                        err_gt.append(target)
+                ave_accuracy += n_correct / float(bsz)
+            for pred, gt in zip(err_sim, err_gt):
+                print('pred: %-20s, gt: %-20s' % (pred, gt))
+                distance += Levenshtein.distance(pred, gt)
+            # print("The Levenshtein distance is:",distance)
+            print("The average Levenshtein distance is:", distance / length)
+            if not valonly:
+                logger.scalar_summary('validation_loss', ave_loss / len(ds_loader), iteration)
+                logger.scalar_summary('validation_accuracy', ave_accuracy / len(ds_loader), iteration)
+                logger.scalar_summary('Ave_Levenshtein_distance', distance / length, iteration)
+            print(
+                'Testing Accuracy:{0}, Testing Loss:{1} @ Epoch{2}, Iteration{3}'.format(ave_accuracy / len(ds_loader),
+                                                                                         ave_loss / len(ds_loader),
+                                                                                         epoch, iteration))
+
+    def save_checkpoint(state, file_name):
+        # time.sleep(0.01)
+        # torch.save(state, file_name)
+        try:
+            time.sleep(0.01)
+            torch.save(state, file_name)
+        except RuntimeError:
+            print("RuntimeError")
+            pass
 
 
-def save_checkpoint(state, file_name):
-    # time.sleep(0.01)
-    # torch.save(state, file_name)
-    try:
-        time.sleep(0.01)
-        torch.save(state, file_name)
-    except RuntimeError:
-        print("RuntimeError")
-        pass
 
 
-def train_grcnn(config_yaml):
+
     '''
     Training/Finetune CNN_RNN_Attention Model.
     '''

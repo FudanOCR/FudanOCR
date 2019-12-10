@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch.nn.functional as F
 from collections import OrderedDict
-from models.se_module import SELayer
+from GRCNN.models.se_module import SELayer
 
 class DefaultCNN(nn.Module):
     def __init__(self, imgH, nc, leakyRelu=False):

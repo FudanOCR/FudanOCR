@@ -1,0 +1,37 @@
+INPUT:
+  MIN_SIZE_TRAIN: (600,800)
+  MAX_SIZE_TRAIN: 1333
+  ROTATION_RANGE: (40, 20)
+
+MODEL:
+  META_ARCHITECTURE: "RRPN"
+  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-50" # models/IRRA_anchor_strategy_changed/model_0050000.pth
+  RPN:
+    PRE_NMS_TOP_N_TEST: 3000
+    POST_NMS_TOP_N_TEST: 300
+    RPN_HEAD: "SingleConvRRPNHead"
+
+  ROI_BOX_HEAD:
+    NUM_CLASSES: 2
+  ROI_HEADS:
+    NMS: 0.2
+    BATCH_SIZE_PER_IMAGE: 128
+  RRPN:
+    ASPECT_RATIOS: (0.5, 1.0)
+    # ANCHOR_STRIDE: (8, 16, 32)
+    ANCHOR_ANGLE: (-30.0, 0.0, 30.0, 60.0, 90.0, 120.0,)
+    ANCHOR_SIZES: (8, 16, 32)
+    GT_BOX_MARGIN: 1.2
+DATASETS:
+  TRAIN: ("IRRA", )
+SOLVER:
+  BASE_LR: 0.002
+  WEIGHT_DECAY: 0.0001
+  STEPS: (20000, 40000)
+  MAX_ITER: 50000
+  IMS_PER_BATCH: 1
+
+OUTPUT_DIR: './models/IRRA_anchor_strategy_changed_nofilter/'
+
+DATALOADER:
+  SIZE_DIVISIBILITY: 1

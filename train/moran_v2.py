@@ -1,8 +1,9 @@
 from __future__ import print_function
 
-import sys
-sys.path.append('./recognition_model/MORAN_V2')
 def train_moran_v2(config_file):
+
+    import sys
+    sys.path.append('./recognition_model/MORAN_V2')
 
     import argparse
     import random
@@ -13,8 +14,8 @@ def train_moran_v2(config_file):
     from torch.autograd import Variable
     import numpy as np
     import os
-    import GRCNN.tools.utils as utils
-    import GRCNN.tools.dataset as dataset
+    import MORAN_V2.tools.utils as utils
+    import MORAN_V2.tools.dataset as dataset
     import time
     from collections import OrderedDict
 
@@ -30,7 +31,7 @@ def train_moran_v2(config_file):
     opt = read_config_file(config_file)
 
     # 在这里修改超参数的读入
-    from models.moran import MORAN
+    from MORAN_V2.models.moran import MORAN
     print(opt)
 
     # opt.alphabet = result

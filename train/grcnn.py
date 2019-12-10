@@ -2,6 +2,8 @@ from __future__ import print_function
 
 
 def train_grcnn(config_yaml):
+    import sys
+    sys.path.append('./recognition_model/GRCNN')
 
     import random
     import torch.backends.cudnn as cudnn

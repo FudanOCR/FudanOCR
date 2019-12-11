@@ -4,12 +4,16 @@ from train.grcnn import train_grcnn
 from train.moran_v2_xuxixi import train_moran_v2_xuxixi
 #from train import AdvancedEAST
 from train.fasterrcnn import train_fasterrcnn
+# from train import AdvancedEAST
+from train.TextSnake import TextSnake
+# from train import AdvancedEAST
 import argparse
 import re
 
 import sys
 sys.path.append('./recognition_model/')
 sys.path.append("./maskrcnn_benchmark_architecture/")
+sys.path.append('./detection_model/')
 print("当前系统环境变量为：",sys.path)
 
 # 在这个位置扩充函数
@@ -22,6 +26,8 @@ function_dict = {
     #'AdvancedEAST': AdvancedEAST,
     #'TextSnake':,
     'fasterrcnn': train_fasterrcnn,
+   # 'AdvancedEAST': AdvancedEAST,
+    'TextSnake': TextSnake,
     'Your Model Name': 'Your Model Function'
 }
 

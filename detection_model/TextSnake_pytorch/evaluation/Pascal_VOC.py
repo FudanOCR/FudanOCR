@@ -3,8 +3,8 @@ import numpy as np
 from evaluation.polygon_wrapper import iou
 from evaluation.polygon_wrapper import iod
 
-input_json_path = '/home/shf/fudan_ocr_system/textsnake_pytorch/output/ICDAR19/result.json'
-gt_json_path = '/home/shf/fudan_ocr_system/datasets/ICDAR19/train_images/train_labels.json'
+input_json_path = '/home/shf/fudan_ocr_system/TextSnake_pytorch/output/result.json'
+gt_json_path = '/home/shf/fudan_ocr_system/datasets/ICDAR19/train_labels.json'
 # input_json_path = '/workspace/mnt/group/ocr/qiutairu/code/textsnake_pytorch/output/lsvt_0318_test/result.json'
 # gt_json_path = '/workspace/mnt/group/ocr/qiutairu/dataset/LSVT_full_train/train_labels.json'
 save_img_path = '/home/shf/fudan_ocr_system/TextSnake_pytorch/vis/{}'.format(input_json_path.split('/')[-2])

@@ -1,0 +1,1 @@
+python3 /workspace/mnt/group/general-reg/denglei/code/EAST-master/test.py

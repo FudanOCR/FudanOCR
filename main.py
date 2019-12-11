@@ -2,6 +2,7 @@ from yacs.config import CfgNode as CN
 from train.moran_v2 import train_moran_v2
 from train.grcnn import train_grcnn
 from train.moran_v2_xuxixi import train_moran_v2_xuxixi
+from train.east import train_east
 # from train import AdvancedEAST
 # from train.
 # from train import AdvancedEAST
@@ -10,6 +11,7 @@ import re
 
 import sys
 sys.path.append('./recognition_model/')
+sys.path.append('./detection_model/')
 print("当前系统环境变量为：",sys.path)
 
 # 在这个位置扩充函数
@@ -18,6 +20,7 @@ function_dict = {
     'MORAN_V2': train_moran_v2,
     'MORAN_V2_xuxixi' : train_moran_v2_xuxixi,
     'GRCNN': train_grcnn,
+    'EAST': train_east,
     #  'AdvancedEAST': AdvancedEAST
    # 'AdvancedEAST': AdvancedEAST,
    # 'TextSnake':, 

@@ -4,9 +4,9 @@ import cv2
 import pycocotools.mask as maskUtils
 
 if __name__ == '__main__':
-    result_json_path = '/home/shf/fudan_ocr_system/TextSnake_pytorch/output/art_0429/result.json'
-    img_josn_path = '/workspace/mnt/group/ocr/qiutairu/dataset/LSVT_test/new_train_labels.json'
-    output_json_path = '/workspace/mnt/group/ocr/qiutairu/code/textsnake_pytorch/output/art_0429/coco_result.json'
+    result_json_path = '/home/shf/fudan_ocr_system/TextSnake_pytorch/output/result.json'
+    img_josn_path = '/home/shf/fudan_ocr_system/datasets/ICDAR19/train_labels.json'
+    output_json_path = '/home/shf/fudan_ocr_system/TextSnake_pytorch/output/coco_result.json'
 
     # load json file including prediction results
     with open(result_json_path, 'r') as f:
@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
         coco_image_id = int(img_key.lstrip('res_'))
 
-        # image size
+        # im    age size
         img_id = img_key.replace('res', 'gt')
         img_h, img_w = img_info_dict[img_id]['height'], img_info_dict[img_id]['width']
         coco_segm_size = [img_h, img_w]

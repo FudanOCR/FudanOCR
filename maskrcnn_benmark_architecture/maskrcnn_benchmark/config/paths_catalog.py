@@ -94,8 +94,10 @@ class DatasetCatalog(object):
             "split": 'train'
         },
         "ICDAR2015_train": {  #test icdar15
-            "img_dir": '../datasets/ICDAR15/e2e/ch4_training_images/',
-            "ann_dir": '../datasets/ICDAR15/e2e/ch4_training_localization_transcription_gt/',
+            "img_dir": '/home/wxc/FudanOCR/maskrcnn_benmark_architecture/datasets/ICDAR15/e2e/ch4_training_images/' ,
+            "ann_dir": '/home/wxc/FudanOCR/maskrcnn_benmark_architecture//datasets/ICDAR15/e2e/ch4_training_localization_transcription_gt/',
+            #"img_dir": '../datasets/ICDAR15/e2e/ch4_training_images/',
+            #"ann_dir": '../datasets/ICDAR15/e2e/ch4_training_localization_transcription_gt/',
             "split": 'train'
         },
         "ICDAR2015_test": {

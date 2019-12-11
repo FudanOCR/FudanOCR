@@ -20,6 +20,9 @@ from yacs.config import CfgNode as CN
 
 _C = CN()
 
+#融合系统新添model名
+_C.model = " "
+
 _C.MODEL = CN()
 _C.MODEL.RPN_ONLY = False
 _C.MODEL.MASK_ON = False

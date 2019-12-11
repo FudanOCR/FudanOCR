@@ -1,0 +1,13 @@
+.pth
+*.jpg
+*.png
+/data_cache/*
+*.TTF
+**/log.txt
+models/*
+eval.json
+**/last_checkpoint
+*.pth
+datasets/
+data_catch/
+*.pkl

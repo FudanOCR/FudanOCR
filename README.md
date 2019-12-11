@@ -10,6 +10,12 @@
 
 ### 主要文件
 > * /config   配置文件，里面应该包含model参数指定使用的模型
+> * /technical_report 技术报告，包括复旦OCR白皮书与若干毕业论文
+> * /documents 各种模型配置文档
+> * /detection_model 检测模型
+> * /recognition_model 识别模型
+> * /end2end_model 结合检测和识别功能的端到端模型
+> * /maskrcnn_benchmark_architecture 使用开源架构的模型
 > * /train  主方法从该文件夹中导入训练模型的方法
 > * main.py 使用python main.py --config_file xxx 传入配置文件训练模型  
 
@@ -30,3 +36,7 @@ function_dict = {
     # 添加'Your Model Name': 'Your Model Function'
 }
 ```
+
+
+### 注意事项
+> * /train下的文件最好不要在函数外包含import语句，否则会出现例如执行MORAN_V2模型却要安装GRCNN模型的相关包

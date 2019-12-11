@@ -1,0 +1,57 @@
+model: 'TextSnake'
+num_workers: 4
+batch_size: 4
+max_epoch: 200
+start_epoch: 0
+lr: 0.0001
+cuda: True
+device: 'cuda:2'
+num_device: 3
+vis_num: 3
+n_disk: 50
+input_size: 512
+dataset: 'ICDAR19'
+data_root: '/home/shf/fudan_ocr_system/datasets/'
+exp_name: 'example'
+net: 'depcit'
+gpu_list: '0'
+backbone: 'vgg'
+resume: False
+save_dir: '/home/shf/FudanOCR/detection_model/TextSnake_pytorch/save/'
+vis_dir: '/home/shf/FudanOCR/detection_model/TextSnake_pytorch/vis/'
+summary_dir: '/home/shf/FudanOCR/detection_model/TextSnake_pytorch/summary/'
+train_csv: '/home/shf/FudanOCR/detection_model/TextSnake_pytorch/data/train.csv'
+val_csv: '/home/shf/FudanOCR/detection_model/TextSnake_pytorch/data/val.csv'
+loss: 'CrossEntropyLoss'
+soft_ce: True
+input_channel: 1
+pretrain: False
+verbose: True
+viz: 'store_true'
+
+# train opts
+start_iter: 0
+max_iters: 50000
+lr_adjust: 'fix'
+stepvalues: []
+weight_decay: '0.'
+wd: '0.'
+gamma: 0.1
+momentum: 0.9
+optim: 'SGD'
+save_freq: 5
+summary_freq: 100
+display_freq: 10
+val_freq: 100
+
+# data args
+rescale: 255.0
+means: [0.474, 0.445, 0.418]
+stds: [1., 1., 1.]
+
+ # test args
+checkepoch: 25
+output_dir: '/home/shf/FudanOCR/detection_model/TextSnake_pytorch/output/'
+multi_scale: 'store_true'
+
+fixed: None

@@ -4,8 +4,8 @@ from evaluation.polygon_wrapper import iod
 from evaluation.polygon_wrapper import area_of_intersection
 from evaluation.polygon_wrapper import area
 
-input_json_path = '/home/shf/fudan_ocr_system/textsnake_pytorch/output/ICDAR19/result.json'
-gt_json_path = '/home/shf/fudan_ocr_system/datasets/ICDAR19/train_images/train_labels.json'
+input_json_path = '/home/shf/fudan_ocr_system/TextSnake_pytorch/output/result.json'
+gt_json_path = '/home/shf/fudan_ocr_system/datasets/ICDAR19/train_labels.json'
 
 
 def input_reading(polygons):

@@ -4,6 +4,7 @@ import cv2
 import numpy.random as random
 import time
 
+from yacs.config import CfgNode as CN
 
 class Compose(object):
     """Composes several augmentations together.

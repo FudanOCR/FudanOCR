@@ -4,7 +4,7 @@ from train.grcnn import train_grcnn
 from train.moran_v2_xuxixi import train_moran_v2_xuxixi
 from train.east import train_east
 # from train import AdvancedEAST
-# from train.
+from train.TextSnake import TextSnake
 # from train import AdvancedEAST
 import argparse
 import re
@@ -23,7 +23,7 @@ function_dict = {
     'EAST': train_east,
     #  'AdvancedEAST': AdvancedEAST
    # 'AdvancedEAST': AdvancedEAST,
-   # 'TextSnake':, 
+    'TextSnake': TextSnake,
     'Your Model Name': 'Your Model Function'
 }
 

@@ -21,7 +21,7 @@ class TotalText(TextDataset):
         else:
             ignore_list = []
 
-        self.image_root = os.path.join(data_root, 'train_images' if is_training else 'demo_images')
+        self.image_root = os.path.join(data_root, 'train_images' if is_training else 'test_images')
         #self.image_root = os.path.join(data_root, 'crop_images_new')
         self.image_list = os.listdir(self.image_root)
         self.image_list = list(filter(lambda img: img.replace('.jpg', '') not in ignore_list, self.image_list))

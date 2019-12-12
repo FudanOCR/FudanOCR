@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 def train_east(config_yaml):
     import sys
     sys.path.append('./detection_model/EAST')

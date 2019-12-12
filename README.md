@@ -39,4 +39,4 @@ function_dict = {
 
 
 ### 注意事项
-> * /train下的文件最好不要在函数外包含import语句，否则会出现例如执行MORAN_V2模型却要安装GRCNN模型的相关包
+* /train下的文件最好不要在函数外包含import语句，否则会出现例如执行MORAN_V2模型却要安装GRCNN模型的相关包

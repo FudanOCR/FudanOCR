@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 def train_moran_v2_xuxixi(config_file):
 
     import sys

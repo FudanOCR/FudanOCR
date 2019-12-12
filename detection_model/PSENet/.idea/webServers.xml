@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="e90e374f-b39b-4602-ad6f-0aa6b5d2e3fc" name="PSENet" url="http://ssh.ava.atlab.ai">
+        <fileTransfer host="ssh.ava.atlab.ai" port="52830" privateKey="$USER_HOME$/.ssh/id_rsa" rootFolder="/workspace/mnt/group/general-reg/denglei" accessType="SFTP" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="52830" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

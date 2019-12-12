@@ -9,10 +9,10 @@ assert train_size in size_group, f'input size shall be in {size_group}'
 
 # === Dataset ===
 dset_name = 'ICADR15'
-train_img = '/home/msy/ICDAR15/Text_Localization/train/img/'
-train_gt = '/home/msy/ICDAR15/Text_Localization/train/gt/'
-val_img = '/home/msy/ICDAR15/Text_Localization/val/img/'
-val_gt = '/home/msy/ICDAR15/Text_Localization/val/gt/'
+train_img = '/home/msy/datasets/ICDAR15/Text_Localization/train/img/'
+train_gt = '/home/msy/datasets/ICDAR15/Text_Localization/train/gt/'
+val_img = '/home/msy/datasets/ICDAR15/Text_Localization/val/img/'
+val_gt = '/home/msy/datasets/ICDAR15/Text_Localization/val/gt/'
 
 # dset_name = 'LSVT'
 # train_img = './dataset/LSVT/train/img/'
@@ -60,7 +60,7 @@ epsilon = 1e-4
 pixel_size = 4
 
 # === Evaluation ===
-gt_json_path = './dataset/LSVT/train_full_labels.json'   # 没有，自己生成
+gt_json_path = '/home/msy/datasets/ICDAR15/Text_Localization/val/res.json'   # 没有，自己生成
 iou_threshold = 0.5
 
 pixel_threshold = 0.9  # pixel activation threshold

@@ -14,9 +14,13 @@ from train.moran_v2_xuxixi import train_moran_v2_xuxixi
 from train.fasterrcnn import train_fasterrcnn
 from train.east import train_east
 from train.TextSnake import TextSnake
+from train.AdvancedEAST import train_AEAST
 from train.PSENet import train_psenet
 
 from yacs.config import CfgNode as CN
+
+
+
 import argparse
 import re
 
@@ -27,13 +31,12 @@ function_dict = {
     'MORAN_V2_xuxixi': train_moran_v2_xuxixi,
     'GRCNN': train_grcnn,
     'EAST': train_east,
-    #  'AdvancedEAST': AdvancedEAST
-    # 'AdvancedEAST': AdvancedEAST,
-    # 'TextSnake':,
     'fasterrcnn': train_fasterrcnn,
-    # 'AdvancedEAST': AdvancedEAST,
     'TextSnake': TextSnake,
     'PSENet': train_psenet,
+    'fasterrcnn': train_fasterrcnn,
+    'TextSnake': TextSnake,
+    'AdvancedEAST': train_AEAST,
     'Your Model Name': 'Your Model Function'
 }
 

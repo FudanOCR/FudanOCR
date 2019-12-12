@@ -3,3 +3,4 @@
 *.png
 /data_cache/*
 *.TTF
+.pyc

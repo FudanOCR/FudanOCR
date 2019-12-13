@@ -18,6 +18,7 @@
 > * /detection_model 检测模型
 > * /recognition_model 识别模型
 > * /end2end_model 结合检测和识别功能的端到端模型
+> * /super_resulution_model 超分辨率模型
 > * /maskrcnn_benchmark_architecture 使用开源架构的模型
 > * /train  主方法从该文件夹中导入训练模型的方法
 > * /val 主方法从该文件夹中导入测试模型的方法

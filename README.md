@@ -27,7 +27,7 @@
 > * train_entry.py 使用python train_entry.py --config_file xxx 传入配置文件训练模型
 > * test_entry.py  使用python test_entry.py --config_file xxx 传入配置文件测试模型
 
-### 导入模型需要修改main.py的部分   
+### 导入模型需要修改train_entry.py的部分   
 
 ```python
 import re

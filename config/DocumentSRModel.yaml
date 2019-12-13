@@ -1,0 +1,25 @@
+model: 'DocumentSRModel'
+env: 'SREdgeResNet'
+
+num_threads: 4
+num_epochs: 50
+pretrain_epochs: 2
+save_epochs: 1
+batch_size: 4
+valid_batch_size: 1
+test_batch_size: 1
+plot_iter: 10
+crop_size: 128
+scale_factor: 4
+lr: 0.00005
+
+#;train_dataset = rvl-cdip_t
+#;valid_dataset = rvl-cdip_t
+#;test_dataset = doc
+
+train_dataset: 'AB'
+valid_dataset: 'AB'
+test_dataset: 'AB'
+
+data_dir: '/home/cjy/kongyu/datasets/'
+save_dir: '/home/cjy/kongyu/results/'

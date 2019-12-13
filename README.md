@@ -6,6 +6,9 @@
 
 ### [记录实验数据的共享文档](https://docs.qq.com/desktop/mydoc/folder/aE338MoFVm_100001)
 
+### 注意事项 :wink:
+* /train下的文件最好不要在函数外包含import语句，否则会出现例如执行MORAN_V2模型却要安装GRCNN模型的相关包
+* 在train文件夹下编写文件时，文件头请加入# -*- coding: utf-8 -*-
 
 
 ### 主要文件
@@ -17,6 +20,8 @@
 > * /end2end_model 结合检测和识别功能的端到端模型
 > * /maskrcnn_benchmark_architecture 使用开源架构的模型
 > * /train  主方法从该文件夹中导入训练模型的方法
+> * /val 主方法从该文件夹中导入测试模型的方法
+> * /demo 实验结果可视化
 > * main.py 使用python main.py --config_file xxx 传入配置文件训练模型  
 
 ### 导入模型需要修改main.py的部分   
@@ -38,5 +43,3 @@ function_dict = {
 ```
 
 
-### 注意事项
-* /train下的文件最好不要在函数外包含import语句，否则会出现例如执行MORAN_V2模型却要安装GRCNN模型的相关包

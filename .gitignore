@@ -3,4 +3,6 @@
 *.png
 /data_cache/*
 *.TTF
-.pyc
+*.pyc
+*.pkl
+*.out

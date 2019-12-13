@@ -63,7 +63,7 @@ def train_AEAST(config_file):
                     tqdm.write("Validating pretrained model.")
                     self.validate(0)
                 if epoch > 1 and epoch % opt.decay_step == 0:
-                    tqdm.write(f"Learning rate - Epoch: [{epoch - 1}]: {self.optimizer.param_groups[0]['lr']:.6f}")
+                    tqdm.write("Learning rate - Epoch: [{0}]: {1}".format(epoch - 1,self.optimizer.param_groups[0]['lr']))
                 self.train(epoch)
                 if self.validate(epoch):  # if earlystop
                     print('Earlystopping activates. Training stopped.')
@@ -79,7 +79,7 @@ def train_AEAST(config_file):
                 east_detect = self.model(img)
                 loss = self.criterion(gt, east_detect)
                 losses.update(loss.item(), img.size(0))
-            tqdm.write(f'Validate Loss - Epoch: [{epoch}]  Avg Loss {losses.avg:.4f}')
+            tqdm.write('Validate Loss - Epoch: [{0}]  Avg Loss {1}'.format(epoch,losses.avg))
             save_log(losses, epoch, i + 1, len(self.val_loader), self.tick, split='Validation')
 
             earlystop, save = self.earlystopping(losses.avg)
@@ -127,9 +127,9 @@ def train_AEAST(config_file):
 
     # args = parse_args()
     print('=== AdvancedEAST ===')
-    print(f'Task id: {opt.task_id}')
+    print('Task id: {0}'.format(opt.task_id))
     print('=== Initialzing DataLoader ===')
-    print(f'Multi-processing on {opt.num_process} cores')
+    print('Multi-processing on {0} cores'.format(opt.num_process))
     # batch_size = 1
     # batch_size = opt.batch_size_per_gpu * len(opt.gpu_ids)
     batch_size = opt.batch_size_per_gpu
@@ -151,7 +151,7 @@ def train_AEAST(config_file):
     # model = nn.DataParallel(model)
     model = nn.DataParallel(model, device_ids=opt.gpu_ids)
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f'Total parameters: {params}')
+    print('Total parameters: {0}'.format(params))
     '''
     if args.pretrain:
         print('=== Loading Pretrained Model ===')
@@ -167,7 +167,7 @@ def train_AEAST(config_file):
     # decay every opt.decay_step epoch / every decay_step iter
     decay_step = len(train_loader) * opt.decay_step
     scheduler = LambdaLR(optimizer, lr_lambda=LRPolicy(rate=opt.decay_rate, step=decay_step))
-    print(f'Batch size: {batch_size}')
+    print('Batch size: {0}'.format(batch_size))
     print('Initial learning rate: {0}\nDecay step: {1}\nDecay rate: {2}\nPatience: {3}'.format(
         opt.lr_rate, opt.decay_step, opt.decay_rate, opt.patience))
     '''

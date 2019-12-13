@@ -24,8 +24,8 @@
 > * /train  主方法从该文件夹中导入训练模型的方法
 > * /test 主方法从该文件夹中导入测试模型的方法
 > * /demo 实验结果可视化
-> * train_entry.py 使用python main.py --config_file xxx 传入配置文件训练模型
-> * test_entry.py  使用python test.py --config_file xxx 传入配置文件测试模型
+> * train_entry.py 使用python train_entry.py --config_file xxx 传入配置文件训练模型
+> * test_entry.py  使用python test_entry.py --config_file xxx 传入配置文件测试模型
 
 ### 导入模型需要修改main.py的部分   
 

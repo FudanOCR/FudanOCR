@@ -1,0 +1,34 @@
+model: 'HARN'
+train_nips: '/home/msy/datasets/OCR_dataset/train'
+valroot: '/home/msy/datasets/OCR_dataset/test'
+
+workers: 4
+batchSize: 128
+imgH: 32
+imgW: 100
+targetH: 32
+targetW: 100
+
+nh: 256  # 隐藏层单元数
+niter: 300   # 迭代次数
+lr: 1   # 学习率
+
+cuda: 'store_false'
+ngpu: 1
+MORAN: ''
+alphabet: '0:1:2:3:4:5:6:7:8:9:a:b:c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:v:w:x:y:z:$'  # main.py中overwrite
+
+sep: ':'
+experiment: '/home/msy/HARN_Moran/checkpoints/asrn_se50_OCRdata_50'   # Where to store samples and models
+
+displayInterval: 100
+n_test_disp: 10
+valInterval: 1000
+saveInterval: 4000
+IndividualStep: 50
+
+adam: 'store_true'
+beta1: 0.5
+adadelta: 'store_false'
+sgd: 'store_true'
+BidirDecoder: 'store_false'

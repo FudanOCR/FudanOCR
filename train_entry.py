@@ -18,6 +18,7 @@ from train.TextSnake import TextSnake
 from train.PSENet import train_psenet
 from train.AdvancedEAST import train_AEAST
 from train.DocumentSRModel import train_documentsrmodel
+from train.HARN import train_HARN
 
 from yacs.config import CfgNode as CN
 import argparse
@@ -35,6 +36,7 @@ function_dict = {
     'TextSnake': TextSnake,
     'PSENet' : train_psenet,
     'DocumentSRModel' : train_documentsrmodel,
+    'HARN': train_HARN,
     'Your Model Name': 'Your Model Function'
 }
 

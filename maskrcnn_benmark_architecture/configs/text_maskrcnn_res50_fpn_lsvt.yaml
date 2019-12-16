@@ -1,6 +1,6 @@
 MODEL:
   META_ARCHITECTURE: "GeneralizedRCNN"
-  WEIGHT: "demo/model_0240000.pth"
+  WEIGHT: "/home/cjy/FudanOCR/demo/client_server/model_0240000.pth"
   BACKBONE:
     CONV_BODY: "R-50-FPN"
     OUT_CHANNELS: 256

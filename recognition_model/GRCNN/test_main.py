@@ -11,7 +11,8 @@ import numpy as np
 import torch.nn.functional as F
 #import Levenshtein
 from torch.autograd import Variable
-from warpctc_pytorch import CTCLoss
+#from warpctc_pytorch import CTCLoss
+from torch.nn import CTCLoss
 from utils.Logger import Logger
 
 import utils.keys as keys

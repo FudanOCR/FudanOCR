@@ -14,7 +14,7 @@ from test.AdvancedEAST import test_AdvancedEAST
 from test.grcnn import test_grcnn
 from test.moran_v2_xuxixi import test_moran_v2_xuxixi
 # from train.fasterrcnn import train_fasterrcnn
-# from train.east import train_east
+from test.east import test_east
 # from train.TextSnake import TextSnake
 # from train.PSENet import train_psenet
 # from train.AdvancedEAST import train_AEAST
@@ -31,7 +31,7 @@ function_dict = {
     'AdvancedEAST': test_AdvancedEAST,
     'MORAN_V2_xuxixi' : test_moran_v2_xuxixi,
     'GRCNN': test_grcnn,
-    # 'EAST': train_east,
+    'EAST': test_east,
     # 'fasterrcnn': train_fasterrcnn,
     # 'AdvancedEAST': train_AEAST,
     # 'TextSnake': TextSnake,

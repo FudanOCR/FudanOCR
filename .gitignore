@@ -6,3 +6,5 @@
 *.pyc
 *.pkl
 *.out
+log.txt
+/None

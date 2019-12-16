@@ -2,7 +2,8 @@ import tensorflow as tf
 import numpy as np
 
 from tensorflow.contrib import slim
-from main import opt
+from __main__ import opt
+print("opt的值是  ",opt)
 from yacs.config import CfgNode as CN
 
 def read_config_file(config_file):

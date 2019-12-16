@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-def train_documentsrmodel(config_file):
+def test_documentsrmodel(config_file):
     import sys
     sys.path.append('./super_resolution_model/DocumentSRModel')
 
@@ -44,13 +44,13 @@ def train_documentsrmodel(config_file):
     # cfg = ConfigLoader(config_file, 'rvl_cdip')
     # cfg = ConfigLoader('configs/default.cfg', 'test')
     model = Model(cfg)
-    model.train(sr2x1_path=sr2x1_path, sr2x2_path=sr2x2_path, edgenetpath=edgenet_path, srcnn_path=srcnn_path, srresnet_path=srresnet_path,
-                random_scale=False, is_fine_tune=False, rotate=False, fliplr=False, fliptb=False)
+    # model.train(sr2x1_path=sr2x1_path, sr2x2_path=sr2x2_path, edgenetpath=edgenet_path, srcnn_path=srcnn_path, srresnet_path=srresnet_path,
+    #             random_scale=False, is_fine_tune=False, rotate=False, fliplr=False, fliptb=False)
     # model.train(sr2x1_path=sr2x1_path, sr2x2_path=sr2x2_path, edgenetpath=edgenet_path,
     #             random_scale=False, is_fine_tune=True, rotate=False, fliplr=False, fliptb=False)
     # model.train(sr2x1_path=sr2x1_path, sr2x2_path=sr2x2_path, edgenetpath=edgenet_path,
     #             random_scale=False, is_fine_tune=True, rotate=False, fliplr=False, fliptb=False)
-    # model.test(sr2x1_path=sr2x1_path, sr2x2_path=sr2x2_path)
+    model.test(sr2x1_path=sr2x1_path, sr2x2_path=sr2x2_path)
     # model.test(srcnn_path=srcnn_path)
 
     # sr2x1_edge_path = "results/checkpoints/srunitnet/srnet2x1_param_batch4_lr0.0005_epoch47.pkl"

@@ -18,7 +18,7 @@ from test.moran_v2_xuxixi import test_moran_v2_xuxixi
 # from train.TextSnake import TextSnake
 # from train.PSENet import train_psenet
 # from train.AdvancedEAST import train_AEAST
-# from train.DocumentSRModel import train_documentsrmodel
+from test.DocumentSRModel import test_documentsrmodel
 
 from yacs.config import CfgNode as CN
 import argparse
@@ -36,7 +36,7 @@ function_dict = {
     # 'AdvancedEAST': train_AEAST,
     # 'TextSnake': TextSnake,
     # 'PSENet' : train_psenet,
-    # 'DocumentSRModel' : train_documentsrmodel,
+    'DocumentSRModel' : test_documentsrmodel,
     'Your Model Name': 'Your Model Function'
 }
 

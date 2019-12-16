@@ -1,11 +1,11 @@
 model: 'PSENet'
 arch: 'resnet50'
-img_size: 640
-n_epoch: 5
-schedule: [20,40]
-batch_size: 5
-lr: 0.001
-resume: none
-pretrain: '/home/cjy/PSENet-master/resnet50.pth'
-checkpoint: '/home/cjy/PSENet-master/workspace/'
-dataset_root_dir: '/home/cjy/PSENet-master/icdar2015/'
+resume:  './epoch_19_checkpoint.pth.tar'
+binary_th: 1.0
+kernel_num: 7
+scale: 1
+long_size: 2224
+min_kernel_area: 5.0
+min_area: 800.0
+min_score: 0.93
+

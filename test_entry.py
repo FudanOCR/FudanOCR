@@ -16,7 +16,7 @@ from test.moran_v2_xuxixi import test_moran_v2_xuxixi
 # from train.fasterrcnn import train_fasterrcnn
 from test.east import test_east
 # from train.TextSnake import TextSnake
-# from train.PSENet import train_psenet
+from test.PSENet import test_psenet
 # from train.AdvancedEAST import train_AEAST
 from test.DocumentSRModel import test_documentsrmodel
 
@@ -35,7 +35,7 @@ function_dict = {
     # 'fasterrcnn': train_fasterrcnn,
     # 'AdvancedEAST': train_AEAST,
     # 'TextSnake': TextSnake,
-    # 'PSENet' : train_psenet,
+    'PSENet' : test_psenet,
     'DocumentSRModel' : test_documentsrmodel,
     'Your Model Name': 'Your Model Function'
 }

@@ -22,5 +22,5 @@ def findSuffix(suffix, maxlen , path, ret):
             if len(ret) > maxlen:
                 return
         else:
-            findtxt(suffix, maxlen, de_path, ret)
+            findSuffix(suffix, maxlen, de_path, ret)
 

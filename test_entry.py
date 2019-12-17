@@ -17,7 +17,6 @@ from test.moran_v2_xuxixi import test_moran_v2_xuxixi
 from test.east import test_east
 from test.TextSnake import test_TextSnake
 from test.PSENet import test_psenet
-# from train.AdvancedEAST import train_AEAST
 from test.DocumentSRModel import test_documentsrmodel
 
 from yacs.config import CfgNode as CN
@@ -33,8 +32,12 @@ function_dict = {
     'GRCNN': test_grcnn,
     'EAST': test_east,
     # 'fasterrcnn': train_fasterrcnn,
+<<<<<<< HEAD
     # 'AdvancedEAST': train_AEAST,
     'TextSnake': test_TextSnake,
+=======
+    # 'TextSnake': TextSnake,
+>>>>>>> origin/master
     'PSENet' : test_psenet,
     'DocumentSRModel' : test_documentsrmodel,
     'Your Model Name': 'Your Model Function'

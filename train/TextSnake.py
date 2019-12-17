@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-def TextSnake(config_file):
+def train_TextSnake(config_file):
 
     import sys
     sys.path.append('./detection_model/TextSnake_pytorch')

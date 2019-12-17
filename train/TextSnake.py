@@ -207,7 +207,7 @@ def train_TextSnake(config_file):
 
     # Model
     model = TextNet(backbone=opt.backbone, output_channel=7)
-    model = model.to("cuda:2")
+    model = model.to(opt.device)
     if opt.cuda:
         cudnn.benchmark = True
 

@@ -32,12 +32,7 @@ function_dict = {
     'GRCNN': test_grcnn,
     'EAST': test_east,
     # 'fasterrcnn': train_fasterrcnn,
-<<<<<<< HEAD
-    # 'AdvancedEAST': train_AEAST,
     'TextSnake': test_TextSnake,
-=======
-    # 'TextSnake': TextSnake,
->>>>>>> origin/master
     'PSENet' : test_psenet,
     'DocumentSRModel' : test_documentsrmodel,
     'Your Model Name': 'Your Model Function'

@@ -11,7 +11,7 @@ import torch
 import pyclipper
 import Polygon as plg
 from yacs.config import CfgNode as CN
-from main import opt
+from __main__ import opt
 
 def read_config_file(config_file):
  f = open(config_file)

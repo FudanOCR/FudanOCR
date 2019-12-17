@@ -1,5 +1,5 @@
+# -- coding: utf-8 --
 from __future__ import print_function
-
 
 def train_grcnn(config_yaml):
     import sys
@@ -13,8 +13,8 @@ def train_grcnn(config_yaml):
     import Levenshtein
     from torch.autograd import Variable
     # from warpctc_pytorch import CTCLoss
-    from GRCNN.utils.Logger import Logger
-
+    # from GRCNN.utils.Logger import Logger
+    from torch.nn import CTCLoss
     import GRCNN.utils.keys as keys
     import GRCNN.utils.util as util
     import dataset
@@ -28,7 +28,7 @@ def train_grcnn(config_yaml):
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
-    def train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch, logger):
+    def train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch):
         # Set up training phase.
         interval = int(len(train_loader) / opt['SAVE_FREQ'])
         model.train()
@@ -46,7 +46,7 @@ def train_grcnn(config_yaml):
             predict_len = Variable(torch.IntTensor([predict.size(0)] * bsz))
 
             loss = criterion(predict, v_gt, predict_len, v_gt_len)
-            logger.scalar_summary('train_loss', loss.data[0], i + epoch * len(train_loader))
+            # logger.scalar_summary('train_loss', loss.data[0], i + epoch * len(train_loader))
 
             # Compute accuracy
             _, acc = predict.max(2)
@@ -58,7 +58,7 @@ def train_grcnn(config_yaml):
                     n_correct += 1
             accuracy = n_correct / float(bsz)
 
-            logger.scalar_summary('train_accuray', accuracy, i + epoch * len(train_loader))
+            # logger.scalar_summary('train_accuray', accuracy, i + epoch * len(train_loader))
 
             # Backpropagate
             optimizer.zero_grad()
@@ -68,7 +68,7 @@ def train_grcnn(config_yaml):
             if i % interval == 0 and i > 0:
                 print('Training @ Epoch: [{0}][{1}/{2}]; Train Accuracy:{3}'.format(epoch, i, len(train_loader),
                                                                                     accuracy))
-                val(model, val_loader, criterion, converter, epoch, i + epoch * len(train_loader), logger, False)
+                val(model, val_loader, criterion, converter, epoch, i + epoch * len(train_loader), False)
                 model.train()
                 freq = int(i / interval)
                 save_checkpoint({'epoch': epoch,
@@ -76,7 +76,7 @@ def train_grcnn(config_yaml):
                                  'optimizer': optimizer.state_dict()},
                                 '{0}/crann_{1}_{2}.pth'.format(opt['SAVE_PATH'], epoch, freq))
 
-    def val(model, ds_loader, criterion, converter, epoch, iteration, logger, valonly):
+    def val(model, ds_loader, criterion, converter, epoch, iteration, valonly):
         print('Start validating on epoch:{0}/iter:{1}...'.format(epoch, iteration))
         model.eval()
         ave_loss = 0.0
@@ -117,9 +117,10 @@ def train_grcnn(config_yaml):
             # print("The Levenshtein distance is:",distance)
             print("The average Levenshtein distance is:", distance / length)
             if not valonly:
-                logger.scalar_summary('validation_loss', ave_loss / len(ds_loader), iteration)
-                logger.scalar_summary('validation_accuracy', ave_accuracy / len(ds_loader), iteration)
-                logger.scalar_summary('Ave_Levenshtein_distance', distance / length, iteration)
+                pass
+                # logger.scalar_summary('validation_loss', ave_loss / len(ds_loader), iteration)
+                #logger.scalar_summary('validation_accuracy', ave_accuracy / len(ds_loader), iteration)
+                # logger.scalar_summary('Ave_Levenshtein_distance', distance / length, iteration)
             print(
                 'Testing Accuracy:{0}, Testing Loss:{1} @ Epoch{2}, Iteration{3}'.format(ave_accuracy / len(ds_loader),
                                                                                          ave_loss / len(ds_loader),
@@ -145,9 +146,9 @@ def train_grcnn(config_yaml):
     #### Load config settings. ####
     f = open(config_yaml, encoding='utf-8')
     opt = yaml.load(f)
-    if os.path.isdir(opt['LOGGER_PATH']) == False:
-        os.mkdir(opt['LOGGER_PATH'])
-    logger = Logger(opt['LOGGER_PATH'])
+    # if os.path.isdir(opt['LOGGER_PATH']) == False:
+    #     os.mkdir(opt['LOGGER_PATH'])
+    # logger = Logger(opt['LOGGER_PATH'])
     if os.path.isdir(opt['SAVE_PATH']) == False:
         os.system('mkdir -p {0}'.format(opt['SAVE_PATH']))
     manualSeed = random.randint(1, 10000)
@@ -200,7 +201,7 @@ def train_grcnn(config_yaml):
 
     #### Train/Val the model. ####
     converter = util.strLabelConverter(alphabet)
-    from warpctc_pytorch import CTCLoss
+    # from warpctc_pytorch import CTCLoss
     criterion = CTCLoss()
     if opt['CUDA']:
         model.cuda()
@@ -221,7 +222,7 @@ def train_grcnn(config_yaml):
         print('=>loading pretrained model from %s for val only.' % opt['CRANN'])
         checkpoint = torch.load(opt['CRANN'])
         model.load_state_dict(checkpoint['state_dict'])
-        val(model, val_loader, criterion, converter, 0, 0, logger, True)
+        val(model, val_loader, criterion, converter, 0, 0, True)
     elif opt['FINETUNE']:
         print('=>loading pretrained model from %s for finetuen.' % opt['CRANN'])
         checkpoint = torch.load(opt['CRANN'])
@@ -233,7 +234,7 @@ def train_grcnn(config_yaml):
         model.load_state_dict(model_dict)
         for epoch in range(start_epoch, opt['EPOCHS']):
             adjust_lr(optimizer, opt['TRAIN']['LR'], epoch, opt['STEP'])
-            train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch, logger)
+            train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch)
     elif opt['RESUME']:
         print('=>loading checkpoint from %s for resume training.' % opt['CRANN'])
         checkpoint = torch.load(opt['CRANN'])
@@ -243,15 +244,12 @@ def train_grcnn(config_yaml):
         optimizer.load_state_dict(checkpoint['optimizer'])
         for epoch in range(start_epoch, opt['EPOCHS']):
             adjust_lr(optimizer, opt['TRAIN']['LR'], epoch, opt['STEP'])
-            train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch, logger)
+            train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch)
     else:
         print('train from scratch.')
         for epoch in range(start_epoch, opt['EPOCHS']):
             adjust_lr(optimizer, opt['TRAIN']['LR'], epoch, opt['STEP'])
-            train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch, logger)
+            train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch)
 
 
-if __name__ == '__main__':
-    opt = parser.parse_args()
-    train_grcnn(opt.yaml)
 

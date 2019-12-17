@@ -14,11 +14,12 @@ from train.grcnn import train_grcnn
 from train.moran_v2_xuxixi import train_moran_v2_xuxixi
 from train.maskrcnn_architecture import train_maskrcnn_architecture
 from train.east import train_east
-from train.TextSnake import TextSnake
+from train.TextSnake import train_TextSnake
 from train.PSENet import train_psenet
 from train.AdvancedEAST import train_AEAST
 from train.DocumentSRModel import train_documentsrmodel
 from train.HARN import train_HARN
+from train.LSN import train_LSN
 
 from yacs.config import CfgNode as CN
 import argparse
@@ -33,10 +34,11 @@ function_dict = {
     'EAST': train_east,
     'maskrcnn_architecture': train_maskrcnn_architecture,
     'AdvancedEAST': train_AEAST,
-    'TextSnake': TextSnake,
+    'TextSnake': train_TextSnake,
     'PSENet' : train_psenet,
     'DocumentSRModel' : train_documentsrmodel,
     'HARN': train_HARN,
+    'LSN': train_LSN,
     'Your Model Name': 'Your Model Function'
 }
 

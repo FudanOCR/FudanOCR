@@ -7,11 +7,11 @@ TRAIN:
         BETA1: 0.5
         DATA_SOURCE:
                 TYPE: "IMG_DATA"
-                IMG_ROOT: ""
-                TRAIN_SET: "../../captcha/captcha_train.txt" #path for train dataset
+                IMG_ROOT: "/home/cjy/Word_recognition/ch4_training_word_images_gt/"
+                TRAIN_SET: "/home/cjy/Word_recognition/train_label.txt" #path for train dataset
 VALIDATION:
-        IMG_ROOT: ""
-        VAL_SET: "../../captcha/captcha_test.txt" #path for validation dataset
+        IMG_ROOT: "/home/cjy/Word_recognition/ch4_training_word_images_gt/"
+        VAL_SET: "/home/cjy/Word_recognition/train_label.txt" #path for validation dataset
 EPOCHS: 30
 STEP: 10
 LOG_FREQ: 50

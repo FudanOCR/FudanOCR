@@ -11,13 +11,12 @@ print("当前系统环境变量为：",sys.path)
 
 from test.moran_v2 import test_moran_v2
 from test.AdvancedEAST import test_AdvancedEAST
-# from train.grcnn import train_grcnn
+from test.grcnn import test_grcnn
 from test.moran_v2_xuxixi import test_moran_v2_xuxixi
 # from train.fasterrcnn import train_fasterrcnn
-# from train.east import train_east
+from test.east import test_east
 # from train.TextSnake import TextSnake
-# from train.PSENet import train_psenet
-# from train.AdvancedEAST import train_AEAST
+from test.PSENet import test_psenet
 from test.DocumentSRModel import test_documentsrmodel
 
 from yacs.config import CfgNode as CN
@@ -30,12 +29,11 @@ function_dict = {
     'MORAN_V2': test_moran_v2,
     'AdvancedEAST': test_AdvancedEAST,
     'MORAN_V2_xuxixi' : test_moran_v2_xuxixi,
-    # 'GRCNN': train_grcnn,
-    # 'EAST': train_east,
+    'GRCNN': test_grcnn,
+    'EAST': test_east,
     # 'fasterrcnn': train_fasterrcnn,
-    # 'AdvancedEAST': train_AEAST,
     # 'TextSnake': TextSnake,
-    # 'PSENet' : train_psenet,
+    'PSENet' : test_psenet,
     'DocumentSRModel' : test_documentsrmodel,
     'Your Model Name': 'Your Model Function'
 }

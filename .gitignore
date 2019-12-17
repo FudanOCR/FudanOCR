@@ -6,3 +6,8 @@
 *.pyc
 *.pkl
 *.out
+log.txt
+/None
+/cjytest
+/runs
+*.swp

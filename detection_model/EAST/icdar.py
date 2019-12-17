@@ -44,7 +44,7 @@ def read_config_file(config_file):
     opt_ = CN.load_cfg(f)
     return opt_
 
-from main import opt
+from __main__ import opt
 
 
 FLAGS = read_config_file(opt.config_file)

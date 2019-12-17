@@ -1,0 +1,23 @@
+model: 'LSN'
+net : 'resnet50'
+data : 'icdar' #synthtext
+filename : 'config'
+
+datasetroot : '/home/shf/fudan_ocr_system/datasets/ICDAR15/Text_Localization'
+trainDatasetroot : '/home/shf/fudan_ocr_system/datasets/ICDAR15/Text_Localization/test'
+testDatasetroot : '/home/shf/fudan_ocr_system/datasets/ICDAR15/Text_Localization/train'
+modelHome : '/home/shf/fudan_ocr_system/LSN/pretrainmodel'
+outputModelHome : '/home/shf/fudan_ocr_system/LSN/lib/model/data/2019AAAI/output/'
+outputLogHome : '/home/shf/fudan_ocr_system/LSN/lib/model/data/2019AAAI/output/'
+
+bbox: '/home/shf/fudan_ocr_system/LSN/lib/model/utils/bbox.pyx'
+modelPath: '/home/shf/fudan_ocr_system/LSN/pretrainmodel/resnet50.pth'
+epoch : 0
+maxEpoch : 1000
+
+baselr: 0.0001
+steps: [1000]
+decayRate: 0.1
+valDuration: 5
+snapshot : 5
+resize_type : 'normal'

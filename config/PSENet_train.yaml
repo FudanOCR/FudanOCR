@@ -1,0 +1,11 @@
+model: 'PSENet'
+arch: 'resnet50'
+img_size: 640
+n_epoch: 5
+schedule: [20,40]
+batch_size: 5
+lr: 0.001
+resume: none
+pretrain: '/home/cjy/PSENet-master/resnet50.pth'
+checkpoint: '/home/cjy/PSENet-master/workspace/'
+dataset_root_dir: '/home/cjy/PSENet-master/icdar2015/'

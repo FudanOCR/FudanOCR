@@ -31,7 +31,7 @@ config.input_size = 512
 
 config.dataset = 'ICDAR19'
 
-config.device = 'cuda:2'
+config.device = 'cuda:1'
 
 config.vis_dir = ''
 
@@ -39,9 +39,9 @@ config.vis_dir = ''
 def init_config(config, config_file):
     f = open(config_file)
     opt = CN.load_cfg(f)
-    # config.device = opt.device
+    config.device = opt.device
     # config.vis_dir = opt.vis_dir
-    # config.out_dir = opt.out_dir
+    config.out_dir = opt.out_dir
     # config.num_workers = opt.num_workers
     config.exp_name = opt.exp_name
     config.net = opt.net

@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from util.misc import fill_hole, regularize_sin_cos
 from util.misc import norm2
+import random
 
 class TextDetector(object):
 

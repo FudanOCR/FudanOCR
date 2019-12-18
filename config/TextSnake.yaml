@@ -5,8 +5,8 @@ max_epoch: 200
 start_epoch: 0
 lr: 0.0001
 cuda: True
-device: 'cuda:2'
-num_device: 3
+device: 'cuda:1'
+num_device: 2
 vis_num: 3
 n_disk: 50
 input_size: 512
@@ -27,7 +27,7 @@ soft_ce: True
 input_channel: 1
 pretrain: False
 verbose: True
-viz: 'store_true'
+viz: False
 
 # train opts
 start_iter: 0
@@ -50,7 +50,7 @@ means: [0.474, 0.445, 0.418]
 stds: [1., 1., 1.]
 
  # test args
-checkepoch: 25
+checkepoch: 24
 output_dir: '/home/shf/FudanOCR/detection_model/TextSnake_pytorch/output/'
 multi_scale: 'store_true'
 

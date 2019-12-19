@@ -26,6 +26,7 @@
 > * /demo 实验结果可视化
 > * train_entry.py 使用python train_entry.py --config_file xxx 传入配置文件训练模型
 > * test_entry.py  使用python test_entry.py --config_file xxx 传入配置文件测试模型
+> * demo_entry.py 使用python demo_entry.py --config_file xxx 传入配置文件测试模型，用于显示结果（部分模型运行结果于test阶段显示）
 
 ### 导入模型需要修改train_entry.py的部分   
 

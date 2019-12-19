@@ -18,6 +18,7 @@ def demo_grcnn(config_yaml):
     import tools.dataset_lmdb as dataset_lmdb
     import torchvision.transforms as transforms
     import lmdb
+    import cv2
 
     # 需要在配置文件里体现
     # opt.model_path = 'checkpoints/grcnn_art/crann_11_1.pth'
@@ -76,8 +77,25 @@ def demo_grcnn(config_yaml):
                                                   imgW=opt['TRAIN']['MAX_W']))
 
     file = open('./pred.txt', 'w', encoding='utf-8')
+
+    try:
+        import shutil
+        shutil.rmtree('./GRCNN_DEMO')
+        # os.makedirs('./MORAN_DEMO')
+    except:
+        pass
+    os.makedirs('./GRCNN_DEMO')
+    record_file = open('./GRCNN_DEMO/result.txt', 'a', encoding='utf-8')
+
+
+
     index = 0
-    for i, (cpu_images, _) in enumerate(test_loader):
+    for i, (cpu_images, targets) in enumerate(test_loader):
+
+        # 还可以再改造一下
+
+
+
         bsz = cpu_images.size(0)
         images = cpu_images.cuda()
 
@@ -88,8 +106,20 @@ def demo_grcnn(config_yaml):
         prob, _ = F.softmax(predict, dim=2).max(2)
         probilities = torch.mean(prob, dim=1)
         sim_preds = converter.decode(acc.data, predict_len.data, raw=False)
-        for probility, pred in zip(probilities, sim_preds):
+
+        cnt = 0
+        for probility, pred, target in zip(probilities, sim_preds, targets):
             index += 1
             img_key = 'gt_%d' % index
             file.write('%s:\t\t\t\t%.3f%%\t%-20s\n' % (img_key, probility.item() * 100, pred))
+
+            # print("调试开始")
+            # print(images[0].size)
+            # print("调试结束")
+
+            # cv2.imwrite('./GRCNN_DEMO/' + str(index) + '.jpg', (images[cnt].cpu().numpy() + 1.0) * 128)
+            record_file.write('./GRCNN_DEMO/' + str(index) + '.jpg' + '  ' + pred + '   ' + target + ' \n')
+            cnt += 1
+
+
     file.close()

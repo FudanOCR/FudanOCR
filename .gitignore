@@ -12,4 +12,5 @@ log.txt
 /runs
 *.swp
 /MORAN_DEMO
+/GRCNN_DEMO
 pred.txt

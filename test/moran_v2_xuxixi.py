@@ -161,6 +161,7 @@ def test_moran_v2_xuxixi(config_file):
         f.close()
 
         print("correct / total: %d / %d, " % (n_correct, n_total))
+        print('levenshtein distance: %f' % (distance/n_total))
         accuracy = n_correct / float(n_total)
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
         return accuracy

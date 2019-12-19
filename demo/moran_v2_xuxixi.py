@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-def demo_moran_v2(config_file):
+def demo_moran_v2_xuxixi(config_file):
     import sys
-    sys.path.append('./recognition_model/MORAN_V2')
+    sys.path.append('./recognition_model/MORAN_V2_xuxixi')
 
     import argparse
     import random
@@ -13,11 +13,11 @@ def demo_moran_v2(config_file):
     from torch.autograd import Variable
     import numpy as np
     import os
-    import MORAN_V2.tools.utils as utils
-    import MORAN_V2.tools.dataset as dataset
+    import MORAN_V2_xuxixi.tools.utils as utils
+    import MORAN_V2_xuxixi.tools.dataset as dataset
     import time
-    import cv2
     from collections import OrderedDict
+    import cv2
 
     from yacs.config import CfgNode as CN
 
@@ -30,12 +30,13 @@ def demo_moran_v2(config_file):
     opt = read_config_file(config_file)
     nclass = len(opt.alphabet.split(opt.sep))
     nc = 1
+    f = open('./log.txt','a',encoding='utf-8')
 
     converter = utils.strLabelConverterForAttention(opt.alphabet, opt.sep)
     criterion = torch.nn.CrossEntropyLoss()
 
     # 在这里修改超参数的读入
-    from MORAN_V2.models.moran import MORAN
+    from MORAN_V2_xuxixi.models.moran import MORAN
     print(opt)
 
     test_dataset = dataset.lmdbDataset(root=opt.valroot,
@@ -78,6 +79,26 @@ def demo_moran_v2(config_file):
     text_rev = Variable(text_rev)
     length = Variable(length)
 
+    def levenshtein(s1, s2):
+        if len(s1) < len(s2):
+            return levenshtein(s2, s1)
+
+        # len(s1) >= len(s2)
+        if len(s2) == 0:
+            return len(s1)
+
+        previous_row = range(len(s2) + 1)
+        for i, c1 in enumerate(s1):
+            current_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (c1 != c2)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+
+        return previous_row[-1]
+
     def val(dataset, criterion, max_iter=1000):
         print('Start val')
         data_loader = torch.utils.data.DataLoader(
@@ -86,6 +107,7 @@ def demo_moran_v2(config_file):
         max_iter = min(max_iter, len(data_loader))
         n_correct = 0
         n_total = 0
+        distance = 0.0
         loss_avg = utils.averager()
 
         # 生成一个临时文件夹，如果已经存在则将其清空
@@ -140,29 +162,31 @@ def demo_moran_v2(config_file):
                 preds = preds.view(-1)
                 sim_preds = converter.decode(preds.data, length.data)
 
+            debug_list = ['885','886']
             loss_avg.add(cost)
             for img, pred, target in zip(cpu_images, sim_preds, cpu_texts):
-                # TODO
-                print("图片 ", img, "预测 ", pred, " 目标 ", target)
+
+                if str(n_total) in debug_list:
+                    print("图片 ", img, "预测 ", pred, " 目标 ", target)
                 # print("图片的尺寸为",img.size())
                 img = img.permute(1,2,0)
 
-                cv2.imwrite('./MORAN_DEMO/'+str(img_cnt)+'.jpg', (img.numpy()+1.0)*128)
+                cv2.imwrite('./MORAN_DEMO/'+str(img_cnt)+'.jpg', (img.numpy()+1)*128)
                 record_file.write('./MORAN_DEMO/'+str(img_cnt)+'.jpg' + '  ' + pred + '  ' + target + ' \n')
                 img_cnt += 1
 
-
                 if pred == target.lower():
-                    # print("预测 ",pred," 目标 ",target)
                     n_correct += 1
+                # f.write("预测 %s      目标 %s\n" % ( pred,target ) )
+                distance += levenshtein(pred,target) / max(len(pred),len(target))
                 n_total += 1
+
+        f.close()
 
         print("correct / total: %d / %d, " % (n_correct, n_total))
         accuracy = n_correct / float(n_total)
+        print('levenshtein distance: %f' % (distance/n_total))
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
-
-        record_file.close()
-        
         return accuracy
 
     for p in MORAN.parameters():

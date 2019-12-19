@@ -64,16 +64,16 @@ def demo_grcnn(config_yaml):
 
     # root, mappinggit
 
-    train_set = dataset_lmdb.lmdbDataset(opt['DEMO']['test_set_lmdb'],transform=dataset_lmdb.resizeNormalize((opt['TRAIN']['MAX_W'], opt['TRAIN']['IMG_H'])))
+    train_set = dataset_lmdb.lmdbDataset(opt['DEMO']['test_set_lmdb'])
 
     # train_set = dataset.testDataset(opt['test_set'])  # dataset.graybackNormalize()
     test_loader = torch.utils.data.DataLoader(train_set,
                                               batch_size=opt['TRAIN']['BATCH_SIZE'],
                                               shuffle=False,
-                                              num_workers=opt['WORKERS'],)
-                                              # collate_fn=dataset.alignCollate(
-                                              #     imgH=opt['TRAIN']['IMG_H'],
-                                              #     imgW=opt['TRAIN']['MAX_W']))
+                                              num_workers=opt['WORKERS'],
+                                              collate_fn=dataset.alignCollate(
+                                                  imgH=opt['TRAIN']['IMG_H'],
+                                                  imgW=opt['TRAIN']['MAX_W']))
 
     file = open('./pred.txt', 'w', encoding='utf-8')
     index = 0

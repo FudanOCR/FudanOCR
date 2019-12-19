@@ -39,5 +39,5 @@ RNN:
 DEMO:
   test_set_image: ''
   test_set_mapping: './art_test.txt'
-  test_set_lmdb: '/home/cjy/ic15_test_lmdb'
+  test_set_lmdb: '/home/cjy/ic03_test_lmdb'
   model_path: '/home/cjy/grcnn/checkpoints/crann_11_1.pth'

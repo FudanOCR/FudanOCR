@@ -240,28 +240,36 @@ class hyperDataset(Dataset):
 
 class resizeNormalize(object):
 
-	def __init__(self, maxW, imgH, interpolation=Image.BILINEAR):
-		self.imgH = imgH
-		self.maxW = maxW
-		self.interpolation = interpolation
-		self.toTensor = transforms.ToTensor()
+    def __init__(self, maxW, imgH, interpolation=Image.BILINEAR):
+        self.imgH = imgH
+        self.maxW = maxW
+        self.interpolation = interpolation
+        self.toTensor = transforms.ToTensor()
 
-	def __call__(self, img):
-		ratio = img.shape[1] / img.shape[0]
-		# print(img.size)
-		imgW = int(self.imgH * ratio)
-		# print("resize weight:", img.shape, imgW, self.imgH)
-		# img = img.resize((imgW, self.imgH), self.interpolation)
+    def __call__(self, img):
+        # ratio = img.shape[1] / img.shape[0]
+        ratio = img.size[1] / img.size[0]
+        # print(img.size)
+        imgW = int(self.imgH * ratio)
+        # print("resize weight:", img.shape, imgW, self.imgH)
+        # img = img.resize((imgW, self.imgH), self.interpolation)
 
-		img = cv2.resize(img, (imgW, self.imgH))
-		img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-		img = Image.fromarray(img)
+        # print("插入调试信息")
+        # print(type(img))
+        # # print(imgW)
+        # print("结束调试信息")
 
-		padding = (0, 0, self.maxW - imgW, 0)
-		img = ImageOps.expand(img, border=padding, fill='black')
-		img = self.toTensor(img)
-		img.sub_(0.5).div_(0.5)
-		return img
+        img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+
+        img = cv2.resize(img, (imgW, self.imgH))
+        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(img)
+
+        padding = (0, 0, self.maxW - imgW, 0)
+        img = ImageOps.expand(img, border=padding, fill='black')
+        img = self.toTensor(img)
+        img.sub_(0.5).div_(0.5)
+        return img
 
 class graybackNormalize(object):
 
@@ -275,65 +283,67 @@ class graybackNormalize(object):
 
 class randomSequentialSampler(sampler.Sampler):
 
-	def __init__(self, data_source, batch_size):
-		self.num_samples = len(data_source)
-		self.batch_size = batch_size
+    def __init__(self, data_source, batch_size):
+        self.num_samples = len(data_source)
+        self.batch_size = batch_size
 
-	def __iter__(self):
-		n_batch = len(self) // self.batch_size
-		tail = len(self) % self.batch_size
-		index = torch.LongTensor(len(self)).fill_(0)
-		for i in range(n_batch):
-			random_start = random.randint(0, len(self) - self.batch_size)
-			batch_index = random_start + torch.range(0, self.batch_size - 1)
-			index[i * self.batch_size:(i + 1) * self.batch_size] = batch_index
-		# deal with tail
-		if tail:
-			random_start = random.randint(0, len(self) - self.batch_size)
-			tail_index = random_start + torch.range(0, tail - 1)
-			index[(i + 1) * self.batch_size:] = tail_index
+    def __iter__(self):
+        n_batch = len(self) // self.batch_size
+        tail = len(self) % self.batch_size
+        index = torch.LongTensor(len(self)).fill_(0)
+        for i in range(n_batch):
+            random_start = random.randint(0, len(self) - self.batch_size)
+            batch_index = random_start + torch.range(0, self.batch_size - 1)
+            index[i * self.batch_size:(i + 1) * self.batch_size] = batch_index
+        # deal with tail
+        if tail:
+            random_start = random.randint(0, len(self) - self.batch_size)
+            tail_index = random_start + torch.range(0, tail - 1)
+            index[(i + 1) * self.batch_size:] = tail_index
 
-		return iter(index)
+        return iter(index)
 
-	def __len__(self):
-		return self.num_samples
+    def __len__(self):
+        return self.num_samples
 
 
 class alignCollate(object):
 
-	def __init__(self, imgH=32, imgW=100, keep_ratio=True, min_ratio=1):
-		"""
-		args:
-			imgH: can be divided by 32
-			maxW: the maximum width of the collection
-			keep_ratio: 
-			min_ratio:
-		"""
-		self.imgH = imgH
-		self.imgW = imgW
-		self.keep_ratio = keep_ratio
-		self.min_ratio = min_ratio
+    def __init__(self, imgH=32, imgW=100, keep_ratio=True, min_ratio=1):
+        """
+        args:
+            imgH: can be divided by 32
+            maxW: the maximum width of the collection
+            keep_ratio:
+            min_ratio:
+        """
+        self.imgH = imgH
+        self.imgW = imgW
+        self.keep_ratio = keep_ratio
+        self.min_ratio = min_ratio
 
-	def __call__(self, batch):
-		images, labels = zip(*batch)
+    # 解耦
+    def __call__(self, batch):
+        images, labels = zip(*batch)
 
-		imgH = self.imgH
-		imgW = self.imgW
-		if self.keep_ratio:
-			ratios = []
-			for image in images:
-				w, h = image.shape[1], image.shape[0] #image.size
-				ratios.append(w / float(h))
-			ratios.sort()
-			max_ratio = ratios[-1]
-			imgW = int(np.floor(max_ratio * imgH))
-			imgW = max(self.min_ratio*imgH, imgW)  # assure imgW >= imgH
+        imgH = self.imgH
+        imgW = self.imgW
+        if self.keep_ratio:
+            ratios = []
+            for image in images:
+                # w, h = image.shape[1], image.shape[0] #image.size
+                w, h = image.size  # image.size
+                ratios.append(w / float(h))
+            ratios.sort()
+            max_ratio = ratios[-1]
+            imgW = int(np.floor(max_ratio * imgH))
+            imgW = max(self.min_ratio*imgH, imgW)  # assure imgW >= imgH
 
-		transform = resizeNormalize(imgW, imgH)
-		images = [transform(image) for image in images]
-		images = torch.cat([t.unsqueeze(0) for t in images], 0)
+        transform = resizeNormalize(imgW, imgH)
+        images = [transform(image) for image in images]
+        images = torch.cat([t.unsqueeze(0) for t in images], 0)
 
-		return images, labels
+        return images, labels
 
 
 def keyFilte(text, alphabet):

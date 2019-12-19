@@ -14,6 +14,10 @@ def demo_grcnn(config_yaml):
     import torch.nn.functional as F
     import io
     import yaml
+    import tools.utils as utils
+    import tools.dataset_lmdb as dataset_lmdb
+    import torchvision.transforms as transforms
+    import lmdb
 
     # 需要在配置文件里体现
     # opt.model_path = 'checkpoints/grcnn_art/crann_11_1.pth'
@@ -47,9 +51,9 @@ def demo_grcnn(config_yaml):
     converter = util.strLabelConverter(alphabet)
 
     model = crann.CRANN(opt, nClass).cuda()
-    if os.path.isfile(opt['model_path']):
-        print("=> loading checkpoint '{}'".format(opt['model_path']))
-        checkpoint = torch.load(opt['model_path'])
+    if os.path.isfile(opt['DEMO']['model_path']):
+        print("=> loading checkpoint '{}'".format(opt['DEMO']['model_path']))
+        checkpoint = torch.load(opt['DEMO']['model_path'])
         start_epoch = checkpoint['epoch']
         # best_pred = checkpoint['best_pred']
         model.load_state_dict(checkpoint['state_dict'])
@@ -58,14 +62,18 @@ def demo_grcnn(config_yaml):
 
     model.eval()
 
-    train_set = dataset.testDataset(opt['test_set'])  # dataset.graybackNormalize()
+    # root, mappinggit
+
+    train_set = dataset_lmdb.lmdbDataset(opt['DEMO']['test_set_lmdb'],transform=dataset_lmdb.resizeNormalize((opt['TRAIN']['MAX_W'], opt['TRAIN']['IMG_H'])))
+
+    # train_set = dataset.testDataset(opt['test_set'])  # dataset.graybackNormalize()
     test_loader = torch.utils.data.DataLoader(train_set,
                                               batch_size=opt['TRAIN']['BATCH_SIZE'],
                                               shuffle=False,
-                                              num_workers=opt['WORKERS'],
-                                              collate_fn=dataset.alignCollate(
-                                                  imgH=opt['TRAIN']['IMG_H'],
-                                                  imgW=opt['TRAIN']['MAXW']))
+                                              num_workers=opt['WORKERS'],)
+                                              # collate_fn=dataset.alignCollate(
+                                              #     imgH=opt['TRAIN']['IMG_H'],
+                                              #     imgW=opt['TRAIN']['MAX_W']))
 
     file = open('./pred.txt', 'w', encoding='utf-8')
     index = 0

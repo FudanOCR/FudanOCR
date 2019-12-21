@@ -18,6 +18,8 @@ from test.east import test_east
 from test.TextSnake import test_TextSnake
 from test.PSENet import test_psenet
 from test.DocumentSRModel import test_documentsrmodel
+from test.HARN import test_HARN
+from test.PixelLink import test_PixelLink
 
 from yacs.config import CfgNode as CN
 import argparse
@@ -35,6 +37,8 @@ function_dict = {
     'TextSnake': test_TextSnake,
     'PSENet' : test_psenet,
     'DocumentSRModel' : test_documentsrmodel,
+    'HARN': test_HARN,
+    'PixelLink': test_PixelLink,
     'Your Model Name': 'Your Model Function'
 }
 

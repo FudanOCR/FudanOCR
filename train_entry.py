@@ -20,6 +20,7 @@ from train.AdvancedEAST import train_AEAST
 from train.DocumentSRModel import train_documentsrmodel
 from train.HARN import train_HARN
 from train.LSN import train_LSN
+from train.PixelLink import train_PixelLink
 
 from yacs.config import CfgNode as CN
 import argparse
@@ -39,6 +40,7 @@ function_dict = {
     'DocumentSRModel' : train_documentsrmodel,
     'HARN': train_HARN,
     'LSN': train_LSN,
+    'PixelLink': train_PixelLink,
     'Your Model Name': 'Your Model Function'
 }
 

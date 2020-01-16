@@ -101,7 +101,7 @@ _C.MODEL.RPN.USE_FPN = False
 _C.MODEL.RPN.ANCHOR_SIZES = (32, 64, 128, 256, 512)
 # Stride of the feature map that RPN is attached.
 # For FPN, number of strides should match number of scales
-_C.MODEL.RPN.ANCHOR_STRIDE = (16,)
+_C.MODEL.RPN.ANCHOR_STRIDE = (4, 8, 16, 32, 64)
 # RPN anchor aspect ratios
 _C.MODEL.RPN.ASPECT_RATIOS = (0.5, 1.0, 2.0)
 # Remove RPN anchors that go outside the image by RPN_STRADDLE_THRESH pixels

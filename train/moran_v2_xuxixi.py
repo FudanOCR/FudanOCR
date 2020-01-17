@@ -21,6 +21,9 @@ def train_moran_v2_xuxixi(config_file):
     from wordlist import result
     from yacs.config import CfgNode as CN
 
+    # from wordlistart import result
+    from wordlistlsvt import result
+
     def read_config_file(config_file):
         # 用yaml重构配置文件
         f = open(config_file)
@@ -28,6 +31,10 @@ def train_moran_v2_xuxixi(config_file):
         return opt
 
     opt = read_config_file(config_file)
+
+
+    # Modify
+    opt.alphabet = result
 
     assert opt.ngpu == 1, "Multi-GPU training is not supported yet, due to the variant lengths of the text in a batch."
 
@@ -42,6 +49,8 @@ def train_moran_v2_xuxixi(config_file):
     torch.manual_seed(opt.manualSeed)
 
     cudnn.benchmark = True
+
+    print(opt)
 
     if not torch.cuda.is_available():
         assert not opt.cuda, 'You don\'t have a CUDA device.'

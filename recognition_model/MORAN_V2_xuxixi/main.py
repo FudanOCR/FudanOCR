@@ -13,7 +13,8 @@ import tools.dataset as dataset
 import time
 from collections import OrderedDict
 from models.moran import MORAN
-from wordlist import result
+# from wordlist import result
+from wordlistart import result
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--train_nips', required=True, help='path to dataset')
@@ -45,10 +46,10 @@ parser.add_argument('--sgd', action='store_true', help='Whether to use sgd (defa
 parser.add_argument('--BidirDecoder', action='store_true', help='Whether to use BidirDecoder')
 opt = parser.parse_args()
 
-'''
+
 # Modify
 opt.alphabet = result
-'''
+
 
 print(opt)
 

@@ -1,3 +1,7 @@
+'''
+定义了一系列特征提取网络架构
+'''
+
 import torch
 import torch.nn as nn
 import torch.nn.init as init
@@ -6,9 +10,20 @@ from collections import OrderedDict
 from GRCNN.models.se_module import SELayer
 
 class DefaultCNN(nn.Module):
+    '''
+    基础CNN架构
+    组成部分有：卷积层，池化层，激活层
+    '''
     def __init__(self, imgH, nc, leakyRelu=False):
         super(DefaultCNN, self).__init__()
         assert imgH % 16 == 0, 'Image height has to be a multiple of 16'
+
+        '''
+        ks: kernel size
+        ps: padding size
+        ss: stride size
+        nm: chanel number
+        '''
 
         ks = [3, 3, 3, 3, 3, 3, 2]
         ps = [1, 1, 1, 1, 1, 1, 0]
@@ -30,17 +45,28 @@ class DefaultCNN(nn.Module):
             else:
                 cnn.add_module('relu{0}'.format(i), nn.ReLU(True))
 
+        # 32 * 100
         convRelu(0, True)
+        # 32 * 100
         cnn.add_module('pooling{0}'.format(0), nn.MaxPool2d(2,2))
+        # 16 * 50
         convRelu(1, True)
+        # 16 * 50
         cnn.add_module('pooling{0}'.format(1), nn.MaxPool2d(2,2))
+        # 8 * 25
         convRelu(2, True)
         convRelu(3, True)
+        # 8 * 25
         cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d((2,2), (2,1), (0,1)))
+        # 4 * 27
         convRelu(4, True)
         convRelu(5, True)
+        # 4 * 27
         cnn.add_module('pooling{0}'.format(3), nn.MaxPool2d((2,2), (2,1), (0,1)))
+        # 2 * 29
         convRelu(6, True)
+        # 1 * ?
+        # 也就是说，当图片的高为32时，经过卷积层之后，输出的特征图维度的高将变为1
 
         self.cnn = cnn
         print("Initializing cnn net weights...")
@@ -61,9 +87,21 @@ def defaultcnn(**kwargs):
 
 #-----------------------------------GRCNN-------NIPS2017-------------------------------------#
 def conv3x3(in_planes, out_planes, stride = (1,1)):
+    '''
+
+    kernel size: 3
+    stride: 1
+    padding: 1
+    '''
     return nn.Conv2d(in_planes, out_planes, kernel_size = 3,
                      stride = stride, padding = 1, bias = False)
 def conv1x1(in_planes, out_planes, stride = (1,1)):
+    '''
+
+    kernel size: 3
+    stride: 1
+    padding: 1
+    '''
     return nn.Conv2d(in_planes, out_planes, kernel_size = 1,
                      stride = stride, padding = 0, bias = False)
    
@@ -128,7 +166,7 @@ class GRCNN(nn.Module):
         #self.layer3 = RCL(256, 256)
         self.pool2 = nn.MaxPool2d((2,2), (2,1), (0,1))
         self.layer4 = GRCL(256, 512)
-        #self.layer5 = RCL(512, 512)
+        #self.layer5 = GRCL(512, 512)
         self.pool3 = nn.MaxPool2d((2,2), (2,1), (0,1))
         self.conv6 = nn.Conv2d(512, 512, 2, 1, 0)
         self.bn6 = nn.BatchNorm2d(512)
@@ -495,6 +533,11 @@ def ResNet152(**kwargs):
     return model
 '''
 #-------------------------------ResNet+GRCL------------------------------------------#
+
+'''
+GRCL与ResNet的结合
+'''
+
 def conv3x3(in_planes, out_planes, stride = (1,1)):
     return nn.Conv2d(in_planes, out_planes, kernel_size = 3,
                      stride = stride, padding = 1, bias = False)
@@ -551,6 +594,9 @@ class GRCL(nn.Module):
 
 
 class BasicBlock(nn.Module):
+    '''
+    构成ResNet的残差快
+    '''
     expansion = 1
 
     def __init__(self, inplanes, planes, stride = (1,1), downsample = None):

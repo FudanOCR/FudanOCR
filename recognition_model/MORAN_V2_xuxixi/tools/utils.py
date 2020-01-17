@@ -35,6 +35,7 @@ class strLabelConverterForAttention(object):
             for j in range(len(text_tmp[i])):
                 chara = text_tmp[i][j].lower() if self._ignore_case else text_tmp[i][j]
                 if chara not in self.alphabet:
+                    # 在这里处理
                     if chara in self._out_of_list:
                         continue
                     else:
@@ -77,6 +78,7 @@ class strLabelConverterForAttention(object):
                     # if char !=
                     #print(char)
                     text0.append(self.dict[char.lower()])
+                # 把所有找不到的字符都当成'0'
                 except KeyError:
                     text0.append(self.dict['0'.lower()])
             text=text0

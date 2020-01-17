@@ -36,10 +36,8 @@ class CRANN(nn.Module):
         return output
 
 def data_parallel(model, input, ngpu, dim=0):
-    #dist.init_process_group(init_method='file:///workspace/mnt/group/ocr-fd-group/zhangpeiyao/CRNN/zhang/sharedfile',backend="gloo",world_size=4,group_name="pytorch_test")
     if isinstance(input.data, torch.cuda.FloatTensor) and ngpu > 1:
         output = nn.parallel.data_parallel(model, input, range(ngpu), dim=dim)
-        #output = nn.parallel.DistributedDataParallel(model, input, range(ngpu), dim=dim)
     else:
         output = model(input)
     return output

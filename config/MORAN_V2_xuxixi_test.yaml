@@ -1,7 +1,7 @@
 model: 'MORAN_V2_xuxixi'
-train_nips: '/home/cjy/ic13_test_lmdb'
+train_nips: '/home/cjy/xuxixidatasets/LSVT_train'
 train_cvpr: ''
-valroot: '/home/cjy/ic13_test_lmdb'
+valroot: '/home/cjy/xuxixidatasets/LSVT_test'
 workers: 4
 batchSize: 64
 imgH: 64
@@ -9,8 +9,8 @@ imgW: 200
 targetH: 32
 targetW: 100
 nh: 256
-niter: 10
-lr: 0.01
+niter: 100000
+lr: 1
 cuda: true
 ngpu: 1
 MORAN: ''

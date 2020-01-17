@@ -1,3 +1,6 @@
+'''
+压缩激励网络
+'''
 from torch import nn
 
 
@@ -13,6 +16,12 @@ class SELayer(nn.Module):
         )
 
     def forward(self, x):
+        '''
+        batch size
+        channel
+        height
+        width
+        '''
         b, c, _, _ = x.size()
         y = self.avg_pool(x).view(b, c)
         y = self.fc(y).view(b, c, 1, 1)

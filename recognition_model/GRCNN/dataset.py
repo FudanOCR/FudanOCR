@@ -42,8 +42,10 @@ class trainDataset(Dataset):
                 print(items)
                 continue
             img = items[0]
+
             #label = items[1] # No blank in the middle of the label string.
             label = ' '.join(items[1:])
+            # print(img,'   ',label)
             self.images.append(img)
             self.labels.append(keyFilte(label, keys.alphabet))
 
@@ -247,8 +249,8 @@ class resizeNormalize(object):
         self.toTensor = transforms.ToTensor()
 
     def __call__(self, img):
-        # ratio = img.shape[1] / img.shape[0]
-        ratio = img.size[1] / img.size[0]
+        ratio = img.shape[1] / img.shape[0]
+        # ratio = img.size[1] / img.size[0]
         # print(img.size)
         imgW = int(self.imgH * ratio)
         # print("resize weight:", img.shape, imgW, self.imgH)
@@ -332,7 +334,7 @@ class alignCollate(object):
             ratios = []
             for image in images:
                 # w, h = image.shape[1], image.shape[0] #image.size
-                w, h = image.size  # image.size
+                w, h = image.shape[1], image.shape[0]  # image.size
                 ratios.append(w / float(h))
             ratios.sort()
             max_ratio = ratios[-1]

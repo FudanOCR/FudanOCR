@@ -31,9 +31,11 @@ def train_grcnn(config_yaml):
     def train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch):
         # Set up training phase.
         interval = int(len(train_loader) / opt['SAVE_FREQ'])
+        print("interval为",interval)
         model.train()
 
         for i, (cpu_images, cpu_gt) in enumerate(train_loader, 1):
+            print(i)
             # print('iter {} ...'.format(i))
             bsz = cpu_images.size(0)
             text, text_len = converter.encode(cpu_gt)

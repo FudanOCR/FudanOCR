@@ -29,12 +29,13 @@ def test_moran_v2(config_file):
     opt = read_config_file(config_file)
     nclass = len(opt.alphabet.split(opt.sep))
     nc = 1
+    f = open('./log.txt','a',encoding='utf-8')
 
     converter = utils.strLabelConverterForAttention(opt.alphabet, opt.sep)
     criterion = torch.nn.CrossEntropyLoss()
 
     # 在这里修改超参数的读入
-    from MORAN_V2.models.moran import MORAN
+    from MORAN_V2_xuxixi.models.moran import MORAN
     print(opt)
 
     test_dataset = dataset.lmdbDataset(root=opt.valroot,
@@ -77,6 +78,26 @@ def test_moran_v2(config_file):
     text_rev = Variable(text_rev)
     length = Variable(length)
 
+    def levenshtein(s1, s2):
+        if len(s1) < len(s2):
+            return levenshtein(s2, s1)
+
+        # len(s1) >= len(s2)
+        if len(s2) == 0:
+            return len(s1)
+
+        previous_row = range(len(s2) + 1)
+        for i, c1 in enumerate(s1):
+            current_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (c1 != c2)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+
+        return previous_row[-1]
+
     def val(dataset, criterion, max_iter=1000):
         print('Start val')
         data_loader = torch.utils.data.DataLoader(
@@ -85,6 +106,7 @@ def test_moran_v2(config_file):
         max_iter = min(max_iter, len(data_loader))
         n_correct = 0
         n_total = 0
+        distance = 0.0
         loss_avg = utils.averager()
 
         for i in range(max_iter):
@@ -130,13 +152,16 @@ def test_moran_v2(config_file):
 
             loss_avg.add(cost)
             for pred, target in zip(sim_preds, cpu_texts):
-                print("预测 ", pred, " 目标 ", target)
                 if pred == target.lower():
-                    # print("预测 ",pred," 目标 ",target)
                     n_correct += 1
+                f.write("预测 %s      目标 %s\n" % ( pred,target ) )
+                distance += levenshtein(pred,target) / max(len(pred),len(target))
                 n_total += 1
 
+        f.close()
+
         print("correct / total: %d / %d, " % (n_correct, n_total))
+        print('levenshtein distance: %f' % (distance/n_total))
         accuracy = n_correct / float(n_total)
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
         return accuracy

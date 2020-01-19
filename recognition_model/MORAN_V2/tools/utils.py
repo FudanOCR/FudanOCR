@@ -1,3 +1,7 @@
+'''
+utils.py 定义了一系列的工具函数
+'''
+
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -35,6 +39,7 @@ class strLabelConverterForAttention(object):
             for j in range(len(text_tmp[i])):
                 chara = text_tmp[i][j].lower() if self._ignore_case else text_tmp[i][j]
                 if chara not in self.alphabet:
+                    # 在这里处理
                     if chara in self._out_of_list:
                         continue
                     else:
@@ -64,12 +69,38 @@ class strLabelConverterForAttention(object):
         self._scanned_list = scanned
         if not self._scanned_list:
             text = self.scan(text)
-
+            
         if isinstance(text, str):
-            text = [
-                self.dict[char.lower() if self._ignore_case else char]
-                for char in text
-            ]
+            #*************************************
+
+            text0 = []
+            for char in text:
+                if char == '\'':
+                    pass
+                try:
+                    #print(type(char))
+                    # if char !=
+                    #print(char)
+                    text0.append(self.dict[char.lower()])
+                # 把所有找不到的字符都当成'0'
+                except KeyError:
+                    text0.append(self.dict['0'.lower()])
+            text=text0
+
+            '''
+            for char in text:
+                try:
+                    print(char)
+                    text = [
+                        self.dict[char.lower() if self._ignore_case else char]
+                    ]
+                except KeyError:
+                    print('KeyError')
+            '''
+            #text=list(text)
+            #for ti in range(0,len(text)):
+                #if text[ti] =
+
             length = [len(text)]
         elif isinstance(text, collections.Iterable):
             length = [len(s) for s in text]
@@ -109,6 +140,9 @@ class strLabelConverterForAttention(object):
 
 class averager(object):
     """Compute average for `torch.Variable` and `torch.Tensor`. """
+    '''
+    一个用于对torch.Variable或者torch.Tensor求平均值的类
+    '''
 
     def __init__(self):
         self.reset()
@@ -135,4 +169,10 @@ class averager(object):
         return res
 
 def loadData(v, data):
+    '''
+    将数据data搬运到v中
+
+    :param torch.Tensor v 目标张量
+    :param torch.Tensor data 源张量
+    '''
     v.data.resize_(data.size()).copy_(data)

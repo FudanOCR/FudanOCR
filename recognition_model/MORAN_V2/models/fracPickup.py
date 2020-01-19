@@ -26,8 +26,9 @@ class fracPickup(nn.Module):
             beta = npr.rand()/4.
             value0 = (beta*w_list[idx] + (1-beta)*w_list[idx-1])
             value1 = (beta*w_list[idx-1] + (1-beta)*w_list[idx])
-            w_list[idx-1] = value0
-            w_list[idx] = value1
+            # Modified
+            w_list[idx-1] = value1
+            w_list[idx] = value0
 
         grid = np.meshgrid(
                 w_list, 

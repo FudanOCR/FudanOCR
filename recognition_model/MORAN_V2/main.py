@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 import argparse
 import random
@@ -14,6 +13,8 @@ import tools.dataset as dataset
 import time
 from collections import OrderedDict
 from models.moran import MORAN
+# from wordlist import result
+from alphabet.wordlistart import result
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--train_nips', required=True, help='path to dataset')
@@ -44,14 +45,14 @@ parser.add_argument('--adadelta', action='store_true', help='Whether to use adad
 parser.add_argument('--sgd', action='store_true', help='Whether to use sgd (default is rmsprop)')
 parser.add_argument('--BidirDecoder', action='store_true', help='Whether to use BidirDecoder')
 opt = parser.parse_args()
-'''
-# 在这里修改字符表
-from wordlistart import result
+
+
+# Modify
 opt.alphabet = result
-'''
+
+
 print(opt)
 
-# opt.alphabet = result
 
 assert opt.ngpu == 1, "Multi-GPU training is not supported yet, due to the variant lengths of the text in a batch."
 
@@ -81,10 +82,10 @@ train_cvpr_dataset = dataset.lmdbDataset(root=opt.train_cvpr,
     transform=dataset.resizeNormalize((opt.imgW, opt.imgH)), reverse=opt.BidirDecoder)
 assert train_cvpr_dataset
 '''
-
+'''
+train_dataset = torch.utils.data.ConcatDataset([train_nips_dataset, train_cvpr_dataset])
+'''
 train_dataset = train_nips_dataset
-
-# train_dataset = torch.utils.data.ConcatDataset([train_nips_dataset, train_cvpr_dataset])
 
 train_loader = torch.utils.data.DataLoader(
     train_dataset, batch_size=opt.batchSize,
@@ -148,6 +149,31 @@ elif opt.sgd:
 else:
     optimizer = optim.RMSprop(MORAN.parameters(), lr=opt.lr)
 
+
+def levenshtein(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
+
+    # len(s1) >= len(s2)
+    if len(s2) == 0:
+        return len(s1)
+
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+
+    return previous_row[-1]
+
+
+
+
+
 def val(dataset, criterion, max_iter=1000):
     print('Start val')
     data_loader = torch.utils.data.DataLoader(
@@ -156,8 +182,11 @@ def val(dataset, criterion, max_iter=1000):
     max_iter = min(max_iter, len(data_loader))
     n_correct = 0
     n_total = 0
+    distance = 0.0
     loss_avg = utils.averager()
     
+    f = open('./log.txt','a',encoding='utf-8')
+
     for i in range(max_iter):
         data = val_iter.next()
         if opt.BidirDecoder:
@@ -200,13 +229,17 @@ def val(dataset, criterion, max_iter=1000):
 
         loss_avg.add(cost)
         for pred, target in zip(sim_preds, cpu_texts):
-            print("预测 ",pred," 目标 ",target)
             if pred == target.lower():
-                # print("预测 ",pred," 目标 ",target)
                 n_correct += 1
+            f.write("预测 %s      目标 %s\n" % ( pred,target ) )
+            distance += levenshtein(pred,target) / max(len(pred),len(target))
             n_total += 1
 
+    f.close()
+
     print("correct / total: %d / %d, "  % (n_correct, n_total))
+    print('levenshtein distance: %f' % (distance/n_total))
+
     accuracy = n_correct / float(n_total)
     print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
     return accuracy
@@ -245,6 +278,7 @@ for epoch in range(opt.niter):
     train_iter = iter(train_loader)
     i = 0
     while i < len(train_loader):
+        # print("main函数里,可迭代次数为 %d" %  len(train_loader))
 
         if i % opt.valInterval == 0:
             for p in MORAN.parameters():
@@ -255,12 +289,12 @@ for epoch in range(opt.niter):
             if acc_tmp > acc:
                 acc = acc_tmp
                 torch.save(MORAN.state_dict(), '{0}/{1}_{2}.pth'.format(
-                        opt.experiment ,i, str(acc)[:6]))
-        '''      
+                        opt.experiment, i, str(acc)[:6]))
+
         if i % opt.saveInterval == 0:
             torch.save(MORAN.state_dict(), '{0}/{1}_{2}.pth'.format(
                         opt.experiment, epoch, i))
-        '''
+
         for p in MORAN.parameters():
             p.requires_grad = True
         MORAN.train()

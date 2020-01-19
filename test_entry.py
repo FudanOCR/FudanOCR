@@ -12,7 +12,6 @@ print("当前系统环境变量为：",sys.path)
 from test.moran_v2 import test_moran_v2
 from test.AdvancedEAST import test_AdvancedEAST
 from test.grcnn import test_grcnn
-from test.moran_v2_xuxixi import test_moran_v2_xuxixi
 # from train.fasterrcnn import train_fasterrcnn
 from test.east import test_east
 from test.TextSnake import test_TextSnake
@@ -31,7 +30,6 @@ function_dict = {
 
     'MORAN_V2': test_moran_v2,
     'AdvancedEAST': test_AdvancedEAST,
-    'MORAN_V2_xuxixi' : test_moran_v2_xuxixi,
     'GRCNN': test_grcnn,
     'EAST': test_east,
     # 'fasterrcnn': train_fasterrcnn,

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-
 def train_moran_v2(config_file):
 
     import sys
@@ -15,13 +13,16 @@ def train_moran_v2(config_file):
     from torch.autograd import Variable
     import numpy as np
     import os
-    import MORAN_V2.tools.utils as utils
-    import MORAN_V2.tools.dataset as dataset
+    import tools.utils as utils
+    import tools.dataset as dataset
     import time
     from collections import OrderedDict
-
+    from models.moran import MORAN
+    from alphabet.wordlist import result
     from yacs.config import CfgNode as CN
 
+    # from wordlistart import result
+    from alphabet.wordlistlsvt import result
 
     def read_config_file(config_file):
         # 用yaml重构配置文件
@@ -31,11 +32,9 @@ def train_moran_v2(config_file):
 
     opt = read_config_file(config_file)
 
-    # 在这里修改超参数的读入
-    from MORAN_V2.models.moran import MORAN
-    print(opt)
 
-    # opt.alphabet = result
+    # Modify
+    opt.alphabet = result
 
     assert opt.ngpu == 1, "Multi-GPU training is not supported yet, due to the variant lengths of the text in a batch."
 
@@ -51,6 +50,8 @@ def train_moran_v2(config_file):
 
     cudnn.benchmark = True
 
+    print(opt)
+
     if not torch.cuda.is_available():
         assert not opt.cuda, 'You don\'t have a CUDA device.'
 
@@ -58,18 +59,17 @@ def train_moran_v2(config_file):
         print("WARNING: You have a CUDA device, so you should probably run with --cuda")
 
     train_nips_dataset = dataset.lmdbDataset(root=opt.train_nips,
-                                             transform=dataset.resizeNormalize((opt.imgW, opt.imgH)),
-                                             reverse=opt.BidirDecoder)
+        transform=dataset.resizeNormalize((opt.imgW, opt.imgH)), reverse=opt.BidirDecoder)
     assert train_nips_dataset
     '''
-    train_cvpr_dataset = dataset.lmdbDataset(root=opt.train_cvpr, 
+    train_cvpr_dataset = dataset.lmdbDataset(root=opt.train_cvpr,
         transform=dataset.resizeNormalize((opt.imgW, opt.imgH)), reverse=opt.BidirDecoder)
     assert train_cvpr_dataset
     '''
-
+    '''
+    train_dataset = torch.utils.data.ConcatDataset([train_nips_dataset, train_cvpr_dataset])
+    '''
     train_dataset = train_nips_dataset
-
-    # train_dataset = torch.utils.data.ConcatDataset([train_nips_dataset, train_cvpr_dataset])
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=opt.batchSize,
@@ -77,8 +77,7 @@ def train_moran_v2(config_file):
         num_workers=int(opt.workers))
 
     test_dataset = dataset.lmdbDataset(root=opt.valroot,
-                                       transform=dataset.resizeNormalize((opt.imgW, opt.imgH)),
-                                       reverse=opt.BidirDecoder)
+        transform=dataset.resizeNormalize((opt.imgW, opt.imgH)), reverse=opt.BidirDecoder)
 
     nclass = len(opt.alphabet.split(opt.sep))
     nc = 1
@@ -89,8 +88,7 @@ def train_moran_v2(config_file):
     if opt.cuda:
         MORAN = MORAN(nc, nclass, opt.nh, opt.targetH, opt.targetW, BidirDecoder=opt.BidirDecoder, CUDA=opt.cuda)
     else:
-        MORAN = MORAN(nc, nclass, opt.nh, opt.targetH, opt.targetW, BidirDecoder=opt.BidirDecoder,
-                      inputDataType='torch.FloatTensor', CUDA=opt.cuda)
+        MORAN = MORAN(nc, nclass, opt.nh, opt.targetH, opt.targetW, BidirDecoder=opt.BidirDecoder, inputDataType='torch.FloatTensor', CUDA=opt.cuda)
 
     if opt.MORAN != '':
         print('loading pretrained model from %s' % opt.MORAN)
@@ -100,7 +98,7 @@ def train_moran_v2(config_file):
             state_dict = torch.load(opt.MORAN, map_location='cpu')
         MORAN_state_dict_rename = OrderedDict()
         for k, v in state_dict.items():
-            name = k.replace("module.", "")  # remove `module.`
+            name = k.replace("module.", "") # remove `module.`
             MORAN_state_dict_rename[name] = v
         MORAN.load_state_dict(MORAN_state_dict_rename, strict=True)
 
@@ -135,15 +133,43 @@ def train_moran_v2(config_file):
     else:
         optimizer = optim.RMSprop(MORAN.parameters(), lr=opt.lr)
 
+
+    def levenshtein(s1, s2):
+        if len(s1) < len(s2):
+            return levenshtein(s2, s1)
+
+        # len(s1) >= len(s2)
+        if len(s2) == 0:
+            return len(s1)
+
+        previous_row = range(len(s2) + 1)
+        for i, c1 in enumerate(s1):
+            current_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (c1 != c2)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+
+        return previous_row[-1]
+
+
+
+
+
     def val(dataset, criterion, max_iter=1000):
         print('Start val')
         data_loader = torch.utils.data.DataLoader(
-            dataset, shuffle=False, batch_size=opt.batchSize, num_workers=int(opt.workers))  # opt.batchSize
+            dataset, shuffle=False, batch_size=opt.batchSize, num_workers=int(opt.workers)) # opt.batchSize
         val_iter = iter(data_loader)
         max_iter = min(max_iter, len(data_loader))
         n_correct = 0
         n_total = 0
+        distance = 0.0
         loss_avg = utils.averager()
+
+        f = open('./log.txt','a',encoding='utf-8')
 
         for i in range(max_iter):
             data = val_iter.next()
@@ -168,12 +194,11 @@ def train_moran_v2(config_file):
                 sim_preds = []
                 for j in range(cpu_images.size(0)):
                     text_begin = 0 if j == 0 else length.data[:j].sum()
-                    if torch.mean(preds0_prob[text_begin:text_begin + len(sim_preds0[j].split('$')[0] + '$')]).data[0] > \
-                            torch.mean(
-                                preds1_prob[text_begin:text_begin + len(sim_preds1[j].split('$')[0] + '$')]).data[0]:
-                        sim_preds.append(sim_preds0[j].split('$')[0] + '$')
+                    if torch.mean(preds0_prob[text_begin:text_begin+len(sim_preds0[j].split('$')[0]+'$')]).data[0] >\
+                     torch.mean(preds1_prob[text_begin:text_begin+len(sim_preds1[j].split('$')[0]+'$')]).data[0]:
+                        sim_preds.append(sim_preds0[j].split('$')[0]+'$')
                     else:
-                        sim_preds.append(sim_preds1[j].split('$')[0][-1::-1] + '$')
+                        sim_preds.append(sim_preds1[j].split('$')[0][-1::-1]+'$')
             else:
                 cpu_images, cpu_texts = data
                 utils.loadData(image, cpu_images)
@@ -188,13 +213,17 @@ def train_moran_v2(config_file):
 
             loss_avg.add(cost)
             for pred, target in zip(sim_preds, cpu_texts):
-                print("预测 ", pred, " 目标 ", target)
                 if pred == target.lower():
-                    # print("预测 ",pred," 目标 ",target)
                     n_correct += 1
+                f.write("预测 %s      目标 %s\n" % ( pred,target ) )
+                distance += levenshtein(pred,target) / max(len(pred),len(target))
                 n_total += 1
 
-        print("correct / total: %d / %d, " % (n_correct, n_total))
+        f.close()
+
+        print("correct / total: %d / %d, "  % (n_correct, n_total))
+        print('levenshtein distance: %f' % (distance/n_total))
+
         accuracy = n_correct / float(n_total)
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
         return accuracy
@@ -233,6 +262,7 @@ def train_moran_v2(config_file):
         train_iter = iter(train_loader)
         i = 0
         while i < len(train_loader):
+            # print("main函数里,可迭代次数为 %d" %  len(train_loader))
 
             if i % opt.valInterval == 0:
                 for p in MORAN.parameters():
@@ -243,12 +273,12 @@ def train_moran_v2(config_file):
                 if acc_tmp > acc:
                     acc = acc_tmp
                     torch.save(MORAN.state_dict(), '{0}/{1}_{2}.pth'.format(
-                        opt.experiment, i, str(acc)[:6]))
-            '''      
+                            opt.experiment, i, str(acc)[:6]))
+
             if i % opt.saveInterval == 0:
                 torch.save(MORAN.state_dict(), '{0}/{1}_{2}.pth'.format(
                             opt.experiment, epoch, i))
-            '''
+
             for p in MORAN.parameters():
                 p.requires_grad = True
             MORAN.train()
@@ -258,15 +288,9 @@ def train_moran_v2(config_file):
 
             if i % opt.displayInterval == 0:
                 t1 = time.time()
-                print('Epoch: %d/%d; iter: %d/%d; Loss: %f; time: %.2f s;' %
-                      (epoch, opt.niter, i, len(train_loader), loss_avg.val(), t1 - t0)),
+                print ('Epoch: %d/%d; iter: %d/%d; Loss: %f; time: %.2f s;' %
+                        (epoch, opt.niter, i, len(train_loader), loss_avg.val(), t1-t0)),
                 loss_avg.reset()
                 t0 = time.time()
 
             i += 1
-
-
-
-
-
-

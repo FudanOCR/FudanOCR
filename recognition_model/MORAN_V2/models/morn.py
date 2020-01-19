@@ -1,10 +1,23 @@
+'''
+morn.py定义了MORN模型
+'''
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
-# TODO：
+#import convnet
 
 class MORN(nn.Module):
+    '''
+    搭建MORN像素调整网络
+
+    :param int nc 传入神经网络的图像通道数量
+    :param int targetH 图片目标高度
+    :param int targetW 图片目标宽度
+    :param str inputDataType 传入图片的数据类型
+    :param int maxBatch 最大batch数量
+    :param bool CUDA 是否使用CUDA
+    '''
     def __init__(self, nc, targetH, targetW, inputDataType='torch.cuda.FloatTensor', maxBatch=256, CUDA=True):
         super(MORN, self).__init__()
         self.targetH = targetH
@@ -21,13 +34,21 @@ class MORN(nn.Module):
             nn.Conv2d(64, 16, 3, 1, 1), nn.BatchNorm2d(16), nn.ReLU(True), 
             nn.Conv2d(16, 1, 3, 1, 1), nn.BatchNorm2d(1)
             )
+        '''
+        self.secnn=convnet.secnn()
+        self.se_resnet18=convnet.se_resnet18()
+        self.se_resnet34 = convnet.se_resnet34()
+        self.se_resnet50 = convnet.se_resnet50()
 
+        self.DenseNet121 = convnet.DenseNet121()
+        self.DenseNet169 = convnet.DenseNet169()
+        self.DenseNet201 = convnet.DenseNet201()
+        '''
         self.pool = nn.MaxPool2d(2, 1)
 
         h_list = np.arange(self.targetH)*2./(self.targetH-1)-1
         w_list = np.arange(self.targetW)*2./(self.targetW-1)-1
 
-        # ？
         grid = np.meshgrid(
                 w_list, 
                 h_list, 
@@ -42,14 +63,12 @@ class MORN(nn.Module):
             grid = grid.cuda()
             
         self.grid = Variable(grid, requires_grad=False)
-        # ?
         self.grid_x = self.grid[:, :, :, 0].unsqueeze(3)
         self.grid_y = self.grid[:, :, :, 1].unsqueeze(3)
 
     def forward(self, x, test, enhance=1, debug=False):
 
         if not test and np.random.random() > 0.5:
-            # 直接 return 掉   原始的插值图片
             return nn.functional.upsample(x, size=(self.targetH, self.targetW), mode='bilinear')
         if not test:
             enhance = 0
@@ -61,8 +80,12 @@ class MORN(nn.Module):
         grid_x = self.grid_x[:x.size(0)]
         grid_y = self.grid_y[:x.size(0)]
         x_small = nn.functional.upsample(x, size=(self.targetH, self.targetW), mode='bilinear')
-
+        #print('x_small', x_small.size())#[64,1,32,100]
         offsets = self.cnn(x_small)
+        #offsets = self.DenseNet121(x_small).permute(0,2,3,1) ############
+        #print('offsets1',type(offsets))
+        #print('offsets1shape', offsets.size()) #[64,1,4,12]
+        #print('offsets11', type(offsets))
         offsets_posi = nn.functional.relu(offsets, inplace=False)
         offsets_nega = nn.functional.relu(-offsets, inplace=False)
         offsets_pool = self.pool(offsets_posi) - self.pool(offsets_nega)
@@ -72,9 +95,12 @@ class MORN(nn.Module):
         offsets_x = torch.cat([grid_x, grid_y + offsets_grid], 3)
         x_rectified = nn.functional.grid_sample(x, offsets_x)
 
-        # 进行1次 enhance （ 也就是重复执行一次代码
         for iteration in range(enhance):
             offsets = self.cnn(x_rectified)
+            #offsets = self.DenseNet121(x_rectified).permute(0,2,3,1)  ############
+            #print('offsets2',type(offsets))
+            #print('offsets2shape', offsets.size())
+            #print('offsets21', type(offsets))
 
             offsets_posi = nn.functional.relu(offsets, inplace=False)
             offsets_nega = nn.functional.relu(-offsets, inplace=False)

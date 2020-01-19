@@ -1,4 +1,4 @@
-model: 'MORAN_V2_xuxixi'
+model: 'MORAN_V2'
 train_nips: '/home/cjy/xuxixidatasets/LSVT_train'
 train_cvpr: ''
 valroot: '/home/cjy/xuxixidatasets/LSVT_test'

@@ -31,11 +31,12 @@ def train_grcnn(config_yaml):
     def train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch):
         # Set up training phase.
         interval = int(len(train_loader) / opt['SAVE_FREQ'])
+        # interval = 1
         print("interval为",interval)
         model.train()
 
         for i, (cpu_images, cpu_gt) in enumerate(train_loader, 1):
-            print(i)
+            # print(i)
             # print('iter {} ...'.format(i))
             bsz = cpu_images.size(0)
             text, text_len = converter.encode(cpu_gt)
@@ -80,6 +81,7 @@ def train_grcnn(config_yaml):
 
     def val(model, ds_loader, criterion, converter, epoch, iteration, valonly):
         print('Start validating on epoch:{0}/iter:{1}...'.format(epoch, iteration))
+        print('len   ',len(ds_loader))
         model.eval()
         ave_loss = 0.0
         ave_accuracy = 0.0
@@ -89,6 +91,7 @@ def train_grcnn(config_yaml):
         length = 0
         with torch.no_grad():
             for i, (cpu_images, cpu_gt) in enumerate(ds_loader):
+                # print(i)
                 bsz = cpu_images.size(0)
                 text, text_len = converter.encode(cpu_gt)
                 v_Images = Variable(cpu_images.cuda())
@@ -98,7 +101,7 @@ def train_grcnn(config_yaml):
                 predict = model(v_Images)
                 predict_len = Variable(torch.IntTensor([predict.size(0)] * bsz))
                 loss = criterion(predict, v_gt, predict_len, v_gt_len)
-                ave_loss += loss.data[0]
+                ave_loss += loss.item()
 
                 # Compute accuracy
                 _, acc = predict.max(2)

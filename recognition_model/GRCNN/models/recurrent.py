@@ -1,3 +1,7 @@
+'''
+recurrent.py 记录了一些循环神经网络组件
+'''
+
 import torch.nn as nn
 import time
 import torch

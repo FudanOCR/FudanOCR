@@ -1,6 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+create_dataset.py文件用于生成数据集的lmdb文件，以供dataset.py中的lmdbDataset使用
+'''
+
+
 import os
 import lmdb  # install lmdb by "pip install lmdb"
 import cv2
@@ -10,6 +15,10 @@ import torch
 
 
 def checkImageIsValid(imageBin):
+    '''
+    核对图片的二进制格式是否合理
+    通过将string还原为图片格式，如果图片的长宽相乘为0，则该图片错误，返回False
+    '''
     if imageBin is None:
         return False
     try:
@@ -29,9 +38,7 @@ def writeCache(env, cache):
             txn.put(k, v)
 
 
-# outputPath:杈撳嚭璺緞
-# imagePathList:鍥剧墖璺緞List
-# labelList:鏍囩List
+
 def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkValid=True):
     """
     Create LMDB dataset for CRNN training.
@@ -89,6 +96,12 @@ def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkV
 
 
 def read_image_label(image_directory, label_address):
+    '''
+    :param str image_directory 图片的目录
+    :param str label_address 标签的目录
+    :return list result1 每张图片目录的列表
+    :return list result2 每张图片标签的列表，其中result1和result2在相同索引的图片-标签是成对的
+    '''
     import os
     image_lis = os.listdir(image_directory)
 

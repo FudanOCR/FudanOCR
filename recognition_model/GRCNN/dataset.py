@@ -119,8 +119,8 @@ class testDataset(Dataset):
         img = None
         data_size = len(self.images)
         while(True):
-            index = index % data_size
-            img = cv2.imread(os.path.join(self.root, self.images[index]))
+            # index = index % data_size
+            # img = cv2.imread(os.path.join(self.root, self.images[index]))
             '''
             if img is None:
                 index += 1
@@ -132,6 +132,30 @@ class testDataset(Dataset):
             else:
                 break
             '''
+
+            index = index % data_size
+            # oper = iaa.Emboss(alpha=(0,1.0), strength=(0,2.0))
+            # oper = iaa.Sharpen(alpha=(0,1.0), lightness=1.0)
+            img = cv2.imread(os.path.join(self.root, self.images[index]))
+            # img = oper.augment_image(img)
+            if img is None:
+                index += 1
+            elif img.shape[0] <= 0 or img.shape[1] <= 0 or img.shape[0] > img.shape[1]:
+                index += 1
+            elif img.shape[1] / float(img.shape[0]) > 30:
+                print(self.images[index] + ' ---> rua...', img.shape)
+                index += 1
+            else:
+                # img = Image.open(os.path.join(self.root, self.images[index]))#.convert('L')
+                # img = iaa.CoarseDropout(p=0.2, size_percent=0.02).augment_image(img)
+                # img = Image.open(os.path.join(self.root, self.images[index]))
+                # policy = SVHNPolicy()
+                # policy = ImageNetPolicy()
+                # img = policy(img)
+                # img = np.array(img)
+                break
+
+
 
         if self.transform is not None:
             img = self.transform(img)

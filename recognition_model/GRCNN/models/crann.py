@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # encoding: utf-8
 
+'''
+crann.py 定义了模型的整体架构，卷积层和循环层由配置文件具体指出
+'''
+
 import GRCNN.models.convnet as ConvNets
 import GRCNN.models.recurrent as SeqNets
 import torch.nn as nn

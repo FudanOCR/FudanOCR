@@ -1,3 +1,8 @@
+'''
+Logger.py定义了一些用于记录的工具
+有多种记录方式，包含记录标量，记录图片，记录直方图
+'''
+
 import tensorflow as tf
 import numpy as np
 import scipy.misc

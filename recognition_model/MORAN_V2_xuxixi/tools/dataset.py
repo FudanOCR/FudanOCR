@@ -1,3 +1,7 @@
+'''
+dataset.py文件定义了一些关于数据集处理的类，功能包括构建lmdb数据集，
+'''
+
 import random
 import torch
 from torch.utils.data import Dataset
@@ -11,8 +15,17 @@ import numpy as np
 from .words import word
 
 class lmdbDataset(Dataset):
+    '''
+    Dataset是torch的数据集基类，lmdbDataset继承该类，通过读取lmdb文件夹，获得图片-标签对
+    '''
 
     def __init__(self, root=None, transform=None, reverse=False, alphabet=word):
+        '''
+        :param str root LMDB文件的路径
+        :param torchvision.transforms transform 对数据集需要做何种变换
+        :param bool reverse 是否需要使用双向LSTM,构造逆标签
+        :param str alphabet 字符表
+        '''
         self.env = lmdb.open(
             root,
             max_readers=1,
@@ -78,28 +91,59 @@ class lmdbDataset(Dataset):
 
 
 class resizeNormalize(object):
+    '''
+    将图片进行放缩，并标准化
+    '''
 
     def __init__(self, size, interpolation=Image.BILINEAR):
+        '''
+
+        :param tuple size 需要将原图变换至目标尺寸
+        :param interpolation 插值方法
+        '''
         self.size = size
         self.interpolation = interpolation
         self.toTensor = transforms.ToTensor()
 
     def __call__(self, img):
+        '''
+        传入一张图片，将图片放缩后并进行标准化，像素放缩到[-1,1]的位置
+
+        :param Image img 图片
+        '''
         img = img.resize(self.size, self.interpolation)
         img = self.toTensor(img)
         img.sub_(0.5).div_(0.5)
         return img
 
 class randomSequentialSampler(sampler.Sampler):
-
+    '''
+    随机序列采样
+    每次采样时随机选定一个起始点，然后根据该起始点采样一个连续序列。有可能采样到连续样本
+    '''
     def __init__(self, data_source, batch_size):
+        '''
+
+        :param torch.utils.data.Dataset data_source 数据集
+        :param int batch_size 批大小
+        '''
         self.num_samples = len(data_source)
         self.batch_size = batch_size
 
     def __len__(self):
+        '''
+        example:
+        sampler = randomSequentialSampler()
+        len(sampler)的值为样本量
+        '''
         return self.num_samples
 
     def __iter__(self):
+        '''
+        构建一个迭代器
+
+        :return iter 返回一个索引列表的迭代器，每个迭代的位置表明该时刻访问的对象下标
+        '''
         n_batch = len(self) // self.batch_size
         tail = len(self) % self.batch_size
         index = torch.LongTensor(len(self)).fill_(0)

@@ -1,8 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+create_dataset.py文件用于生成数据集的lmdb文件，以供dataset.py中的lmdbDataset使用
+'''
+
 import os
-import lmdb # install lmdb by "pip install lmdb"
+import lmdb
 import cv2
 import numpy as np
 import tools.dataset as dataset
@@ -10,14 +14,18 @@ import torch
 
 
 def checkImageIsValid(imageBin):
+    '''
+    核对图片的二进制格式是否合理
+    通过将string还原为图片格式，如果图片的长宽相乘为0，则该图片错误，返回False
+    '''
     if imageBin is None:
         return False
     try:
-    	imageBuf = np.fromstring(imageBin, dtype=np.uint8)
-    	img = cv2.imdecode(imageBuf, cv2.IMREAD_GRAYSCALE)
-    	imgH, imgW = img.shape[0], img.shape[1]
-    	if imgH * imgW == 0:
-        	return False
+        imageBuf = np.fromstring(imageBin, dtype=np.uint8)
+        img = cv2.imdecode(imageBuf, cv2.IMREAD_GRAYSCALE)
+        imgH, imgW = img.shape[0], img.shape[1]
+        if imgH * imgW == 0:
+            return False
     except:
         print("检查出错")
     return True
@@ -33,7 +41,7 @@ def writeCache(env, cache):
 # labelList:标签List
 def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkValid=True):
     """
-    Create LMDB dataset for CRNN training.
+    Create LMDB dataset for training.
     ARGS:
         outputPath    : LMDB output path
         imagePathList : list of image path
@@ -89,6 +97,12 @@ def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkV
 
 
 def read_image_label(image_directory,label_address):
+    '''
+    :param str image_directory 图片的目录
+    :param str label_address 标签的目录
+    :return list result1 每张图片目录的列表
+    :return list result2 每张图片标签的列表，其中result1和result2在相同索引的图片-标签是成对的
+    '''
     import os
     image_lis = os.listdir(image_directory)
 
@@ -98,15 +112,7 @@ def read_image_label(image_directory,label_address):
     for line in f.readlines():
         # TODO
         dict[line[11:].split(" ")[0]] = line.split(' ')[1].replace('\n','').replace('\r','')
-        '''
-        print(dict)
-        
-        i+=1
-        if i==14:
-            break
-        print(dict)
-        '''
-        
+
 
     #print(dict)
     result1 = []

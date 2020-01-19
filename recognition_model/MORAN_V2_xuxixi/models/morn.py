@@ -1,3 +1,6 @@
+'''
+morn.py定义了MORN模型
+'''
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -5,6 +8,16 @@ import numpy as np
 #import convnet
 
 class MORN(nn.Module):
+    '''
+    搭建MORN像素调整网络
+
+    :param int nc 传入神经网络的图像通道数量
+    :param int targetH 图片目标高度
+    :param int targetW 图片目标宽度
+    :param str inputDataType 传入图片的数据类型
+    :param int maxBatch 最大batch数量
+    :param bool CUDA 是否使用CUDA
+    '''
     def __init__(self, nc, targetH, targetW, inputDataType='torch.cuda.FloatTensor', maxBatch=256, CUDA=True):
         super(MORN, self).__init__()
         self.targetH = targetH

@@ -1,3 +1,7 @@
+'''
+asrn_res.py定义了ASRN注意力机制编码解码模型
+'''
+
 import torch
 import torch.nn as nn
 from torch.nn import init
@@ -8,6 +12,13 @@ from models.fracPickup import fracPickup
 import convnet
 
 class BidirectionalLSTM(nn.Module):
+    '''
+    双向LSTM
+
+    :param int nIn 输入层单元数
+    :param int nHidden 隐藏层单元数
+    :param int nOut 输出层单元数
+    '''
 
     def __init__(self, nIn, nHidden, nOut):
         super(BidirectionalLSTM, self).__init__()
@@ -26,6 +37,13 @@ class BidirectionalLSTM(nn.Module):
         return output
 
 class AttentionCell(nn.Module):
+    '''
+    注意力单元
+
+    :param int input_size  输入特征尺寸大小
+    :param int hidden_size 隐藏层单元数量
+    :param int num_embeddings 嵌入维度数量
+    '''
     def __init__(self, input_size, hidden_size, num_embeddings=128, CUDA=True):
         super(AttentionCell, self).__init__()
         self.i2h = nn.Linear(input_size, hidden_size,bias=False)
@@ -38,6 +56,13 @@ class AttentionCell(nn.Module):
         self.fracPickup = fracPickup(CUDA=CUDA)
 
     def forward(self, prev_hidden, feats, cur_embeddings, test=False):
+        '''
+
+        :param torch.Tensor prev_hidden 上一个隐藏状态
+        :param torch.Tensor feats 特征，组成为（time step, batch size, channel）
+        :prarm torch.Tensor cur_embeddings 当前时刻的嵌入特征
+        '''
+
         nT = feats.size(0)
         nB = feats.size(1)
         nC = feats.size(2)
@@ -66,6 +91,15 @@ class AttentionCell(nn.Module):
             return cur_hidden, alpha
 
 class Attention(nn.Module):
+    '''
+    带有注意力机制的解码模块
+
+    :param int input_size 输入层数量
+    :param int hidden_size 隐藏层单元数量
+    :param int num_classes 字符表中的字符数量
+    :param int num_embeddings 字符的嵌入空间
+
+    '''
     def __init__(self, input_size, hidden_size, num_classes, num_embeddings=128, CUDA=True):
         super(Attention, self).__init__()
         self.attention_cell = AttentionCell(input_size, hidden_size, num_embeddings, CUDA=CUDA)
@@ -79,6 +113,13 @@ class Attention(nn.Module):
 
     # targets is nT * nB
     def forward(self, feats, text_length, text, test=False):
+        '''
+        b, c, h, w = conv.size()
+        assert h == 1, "the height of conv must be 1"
+        conv = conv.squeeze(2)
+        conv = conv.permute(2, 0, 1).contiguous()  # [w, b, c]
+        切分的恰到好处
+        '''
 
         nT = feats.size(0)
         nB = feats.size(1)
@@ -211,6 +252,13 @@ class ResNet(nn.Module):
         return block5
 
 class ASRN(nn.Module):
+    '''
+    ASRN模块，包含特征抽取网络与注意力解码网络
+
+    :param int imgH 图片的高
+    :param int nc 图片通道数量
+    :param int nclass 字符表中的字符数量
+    '''
 
     def __init__(self, imgH, nc, nclass, nh, BidirDecoder=False, CUDA=True):
         super(ASRN, self).__init__()

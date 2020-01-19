@@ -1,5 +1,11 @@
 #!/usr/bin/python
 # encoding: utf-8
+
+'''
+util.py 定义了一些工具函数，包含数据集的生成等
+'''
+
+
 import torch
 import torch.nn as nn
 import collections
@@ -63,7 +69,7 @@ class strLabelConverter(object):
 
 class Generator(object):
     """An abstract class for text generator.
-    
+    一个抽象类，用于数据集的生成，等待被实现
     """
     def __getitem__(self):
         raise NotImplementedError
@@ -71,18 +77,18 @@ class Generator(object):
     def __len__(self):
         raise NotImplementedError
 
-#class CnumberGenerator(Generator):
-#    def __init__(self):
-#        self.cnum = cnumber()
-#
-#    def __len__(self):
-#        return 128000
-#    
-#    def __getitem__(self, index):
-#        num = random.randint(100, 9999999)
-#        if random.randint(0, 1):
-#            num = num / 100.0 
-#        return self.cnum.cwchange(num)
+class CnumberGenerator(Generator):
+   def __init__(self):
+       self.cnum = cnumber()
+
+   def __len__(self):
+       return 128000
+
+   def __getitem__(self, index):
+       num = random.randint(100, 9999999)
+       if random.randint(0, 1):
+           num = num / 100.0
+       return self.cnum.cwchange(num)
 
 class TextGenerator(Generator):
     """Invoice message txt generator

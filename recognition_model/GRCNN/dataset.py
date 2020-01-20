@@ -273,8 +273,8 @@ class resizeNormalize(object):
         self.toTensor = transforms.ToTensor()
 
     def __call__(self, img):
-        ratio = img.shape[1] / img.shape[0]
-        # ratio = img.size[1] / img.size[0]
+        # ratio = img.shape[1] / img.shape[0]
+        ratio = img.size[1] / img.size[0]
         # print(img.size)
         imgW = int(self.imgH * ratio)
         # print("resize weight:", img.shape, imgW, self.imgH)
@@ -286,8 +286,18 @@ class resizeNormalize(object):
         # print("结束调试信息")
 
         img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
-
-        img = cv2.resize(img, (imgW, self.imgH))
+        try:
+            # img = cv2.imread('/home/cjy/test.jpg')
+            # img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+            img = cv2.resize(img, (imgW, self.imgH))
+        except:
+            print("读取图片发生错误，使用替代图片")
+            img = cv2.imread('/home/cjy/test.jpg')
+            ratio = img.shape[1] / img.shape[0]
+            # print(img.size)
+            imgW = int(self.imgH * ratio)
+            img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+            img = cv2.resize(img, (imgW, self.imgH))
         img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img)
 
@@ -357,8 +367,8 @@ class alignCollate(object):
         if self.keep_ratio:
             ratios = []
             for image in images:
-                # w, h = image.shape[1], image.shape[0] #image.size
-                w, h = image.shape[1], image.shape[0]  # image.size
+                w, h = image.size
+                # w, h = image.shape[1], image.shape[0]  # image.size
                 ratios.append(w / float(h))
             ratios.sort()
             max_ratio = ratios[-1]

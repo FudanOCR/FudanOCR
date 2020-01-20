@@ -20,7 +20,6 @@ def read_datasets(dir, num, order="chw"):
     if order == "chw":
         # channel, height, width
         res = res.transpose(0, 3, 1, 2)
-    # print(res[0].shape)
     return res
 
 def read_ground_truth(dir, num):
@@ -54,10 +53,6 @@ def trans_all_to_mask(labels, shape=[image_height, image_width]):
     return res
 
 def trans_boxes_to_link_mask(boxes, res, shape=[image_height, image_width], channels=8, neighbors=[0,1,2,3,4,5,6,7]):
-    # assert(len(neighbors) == channels)
-    # shape = [channels,] + shape
-    # res = np.zeros(shape)
-    # bias = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]]
     for box in boxes:
         a_x = (int)((box[0] + box[6]) / 2)
         b_x = (int)((box[2] + box[4]) / 2)

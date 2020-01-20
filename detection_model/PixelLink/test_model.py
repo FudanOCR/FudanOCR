@@ -10,6 +10,10 @@ import torch.nn as nn
 import ImgLib.ImgFormat as ImgFormat
 import ImgLib.ImgTransform as ImgTransform
 
+'''
+这个文件暂时未用
+'''
+
 def cal_label_on_batch(my_net, imgs):
     scale = 2 if config.version == "2s" else 4
     with torch.no_grad():
@@ -28,17 +32,13 @@ def cal_IOU(box1, box2):
     w_max = max(box1_max[0][0], box2_max[0][0])
     h_max = max(box1_max[0][1], box2_max[0][1])
     canvas = np.zeros((h_max + 1, w_max + 1))
-    # print(canvas.shape)
     box1_canvas = canvas.copy()
     box1_area = np.sum(cv2.drawContours(box1_canvas, box1, -1, 1, thickness=-1))
-    # print(box1_area)
     box2_canvas = canvas.copy()
     box2_area = np.sum(cv2.drawContours(box2_canvas, box2, -1, 1, thickness=-1))
-    # print(box2_area)
     cv2.drawContours(canvas, box1, -1, 1, thickness=-1)
     cv2.drawContours(canvas, box2, -1, 1, thickness=-1)
     union = np.sum(canvas)
-    # print(union)
     intersction = box1_area + box2_area - union
     return intersction / union
 
@@ -68,7 +68,6 @@ def comp_gt_and_output(my_labels, gt_labels, threshold):
 
 def test_on_train_dataset(vis_per_img=10):
     dataset = datasets.PixelLinkIC15Dataset(config.train_images_dir, config.train_labels_dir, train=False)
-    # dataloader = DataLoader(dataset, batch_size=config.batch_size, shuffle=False)
     my_net = net.Net()
     if config.gpu:
         device = torch.device("cuda:0")
@@ -84,7 +83,6 @@ def test_on_train_dataset(vis_per_img=10):
         image = sample['image'].to(device)
         image = image.unsqueeze(0)
         my_labels = cal_label_on_batch(my_net, image)[0]
-        # print("my labels num: %d" % len(my_labels))
         res = comp_gt_and_output(my_labels, sample["label"], 0.5)
         if i % vis_per_img == 0:
             image = image.squeeze(0).cpu().numpy()

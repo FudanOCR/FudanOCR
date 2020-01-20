@@ -8,7 +8,6 @@ def test_PixelLink(config_file):
     import numpy as np
     import torch
     import torch.nn as nn
-    # import read_data
     import datasets
     from torch import optim
     from criterion import PixelLinkLoss
@@ -25,10 +24,7 @@ def test_PixelLink(config_file):
     import ImgLib.ImgShow as ImgShow
     import ImgLib.ImgTransform as ImgTransform
     import ImgLib.ImgFormat as ImgFormat
-    # import moduletest.test_postprocess as test_postprocess
-    # from test_model import test_on_train_dataset
 
-    # os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
     os.environ["CUDA_VISIBLE_DEVICES"] = "0,3"
 
     from yacs.config import CfgNode as CN
@@ -99,8 +95,8 @@ def test_PixelLink(config_file):
 
     def test_on_train_dataset(vis_per_img=10):
         dataset = datasets.PixelLinkIC15Dataset(opt.train_images_dir, opt.train_labels_dir, train=False)
-        # dataloader = DataLoader(dataset, batch_size=opt.batch_size, shuffle=False)
         my_net = net.Net()
+
         if opt.gpu:
             device = torch.device("cuda:0")
             my_net = my_net.cuda()
@@ -108,6 +104,7 @@ def test_PixelLink(config_file):
                 my_net = nn.DataParallel(my_net)
         else:
             device = torch.device("cpu")
+
         my_net.load_state_dict(torch.load(opt.saving_model_dir + '%d.mdl' % opt.test_model_index))
         true_pos, true_neg, false_pos, false_neg = [0] * 4
         for i in range(len(dataset)):
@@ -115,7 +112,6 @@ def test_PixelLink(config_file):
             image = sample['image'].to(device)
             image = image.unsqueeze(0)
             my_labels = cal_label_on_batch(my_net, image)[0]
-            # print("my labels num: %d" % len(my_labels))
             res = comp_gt_and_output(my_labels, sample["label"], 0.5)
             if i % vis_per_img == 0:
                 image = image.squeeze(0).cpu().numpy()
@@ -150,4 +146,3 @@ def test_PixelLink(config_file):
         return img
 
     test_on_train_dataset()
-    # test_model()

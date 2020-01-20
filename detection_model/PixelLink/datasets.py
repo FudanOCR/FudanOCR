@@ -41,7 +41,6 @@ class ICDAR15Dataset(Dataset):
             res.append(image)
             if i % 100 == 0:
                 print(i)
-        # print(res[0].shape)
         return res
 
     def read_labels(self, dir, num):
@@ -76,10 +75,8 @@ class PixelLinkIC15Dataset(ICDAR15Dataset):
     def __init__(self, images_dir, labels_dir, train=True):
         super(PixelLinkIC15Dataset, self).__init__(images_dir, labels_dir)
         self.train = train
-        # self.all_images = torch.Tensor(self.all_images)
 
     def __getitem__(self, index):
-        # print(index, end=" ")
         if self.train:
             image, label = self.train_data_transform(index)
         else:
@@ -115,8 +112,6 @@ class PixelLinkIC15Dataset(ICDAR15Dataset):
             labels = PixelLinkIC15Dataset.filter_labels(labels, method="rai")
         # resize
         labels, img, size = ImgTransform.ResizeImageWithLabel(labels, (512, 512), data=img)
-        # filter unsatifactory labels
-        # labels = PixelLinkIC15Dataset.filter_labels(labels, method="msi")
         # zero mean
         img = ImgTransform.ZeroMeanImage(img, config.r_mean, config.g_mean, config.b_mean)
         # HWC to CHW
@@ -136,7 +131,7 @@ class PixelLinkIC15Dataset(ICDAR15Dataset):
             for i in range(4):
                 dists.append(distance(label[i], label[(i+1)%4]))
             if min(dists) < 10:
-                return True # ignore it
+                return True  # ignore it
             else:
                 return False
 
@@ -251,13 +246,9 @@ class PixelLinkIC15Dataset(ICDAR15Dataset):
         pixel_mask = np.zeros(pixel_mask_size, dtype=np.uint8)
         pixel_weight = np.zeros(pixel_mask_size, dtype=np.float)
         link_mask = np.zeros(link_mask_size, dtype=np.uint8)
-        # if label.shape[0] == 0:
-            # return torch.LongTensor(pixel_mask), torch.Tensor(pixel_weight), torch.LongTensor(link_mask)
         label = (label / factor).astype(int) # label's coordinate value should be divided
 
-        # cv2.drawContours(pixel_mask, label, -1, 1, thickness=-1)
         real_box_num = 0
-        # area_per_box = []
         for i in range(label.shape[0]):
             if not ignore[i]:
                 pixel_mask_tmp = np.zeros(pixel_mask_size, dtype=np.uint8)
@@ -276,7 +267,6 @@ class PixelLinkIC15Dataset(ICDAR15Dataset):
                 if np.count_nonzero(pixel_mask_tmp) > 0:
                     real_box_num += 1
         if real_box_num == 0:
-            # print("box num = 0")
             return torch.LongTensor(pixel_mask), torch.LongTensor(neg_pixel_mask), torch.Tensor(pixel_weight), torch.LongTensor(link_mask)
         avg_weight_per_box = pixel_mask_area / real_box_num
 
@@ -287,18 +277,13 @@ class PixelLinkIC15Dataset(ICDAR15Dataset):
                 pixel_weight_tmp *= pixel_mask
                 area = np.count_nonzero(pixel_weight_tmp) # area per box
                 if area <= 0:
-                      # print("area label: " + str(label[i]))
-                      # print("area:" + str(area))
                       continue
                 pixel_weight_tmp /= area
-                # print(pixel_weight_tmp[pixel_weight_tmp>0])
                 pixel_weight += pixel_weight_tmp
 
                 # link mask
                 weight_tmp_nonzero = pixel_weight_tmp.nonzero()
-                # pixel_weight_nonzero = pixel_weight.nonzero()
                 link_mask_tmp = np.zeros(pixel_mask_size, dtype=np.uint8)
-                # for j in range(neighbors): # neighbors directions
                 link_mask_tmp[weight_tmp_nonzero] = 1
                 link_mask_shift = np.zeros(link_mask_size, dtype=np.uint8)
                 w_index = weight_tmp_nonzero[1]
@@ -332,22 +317,9 @@ if __name__ == '__main__':
     end = time.time()
     print("time to get 1000 items: " + str(end - start)) # about 34s
 
-    # pixel_mask = sample['pixel_pos_weight']
-    # link_mask = sample['link_mask']
     image = sample['image'].data.numpy() * 255
     image = np.transpose(image, (1, 2, 0))
     image = np.ascontiguousarray(image)
-    # shape = image.shape
-    # image = image.reshape([int(shape[0]/2), 2, int(shape[1]/2), 2, shape[2]])
-    # image = image.max(axis=(1, 3))
-    # cv2.imwrite("trans0.jpg", image)
-    # pixel_mask = pixel_mask.unsqueeze(2).expand(-1, -1, 3)
-    # pixel_mask = pixel_mask.numpy()
-    # import IPython 
-    # IPython.embed()
-    # link_mask = link_mask.unsqueeze(3).expand(-1, -1, -1, 3)
-    # link_mask = link_mask.numpy()
-    # image = image * pixel_mask
     label = sample['label'].reshape([-1, 4, 2])
     cv2.drawContours(image, label, -1, (255, 255, 0))
     cv2.imwrite("trans1.jpg", image)

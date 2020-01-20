@@ -17,31 +17,19 @@ def test_AdvancedEAST(config_file):
     from utils.preprocess import point_inside_of_quad
     from utils.data_utils import transform
     from network.AEast import East
-    # import pyximport
-    # pyximport.install()
-    import nms_y.nms as NMS
-    # from nms.nms import nms
+    import AdvancedEAST.nms.nms as NMS
     from tools.Pascal_VOC import eval_func
     import config as cfg
 
     from yacs.config import CfgNode as CN
 
     def read_config_file(config_file):
-        # 用yaml重构配置文件
         f = open(config_file)
         opt = CN.load_cfg(f)
         return opt
 
-    opt = read_config_file(config_file)  # 获取了yaml文件
-    
-    '''
-    def parse_args():
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--taskid', '-t', required=True, type=str, help='task id')
-        parser.add_argument('--draw', action='store_true', help='visualize and save as image')
-        return parser.parse_args()
-    '''
-    
+    opt = read_config_file(config_file)
+
     def sigmoid(x):
         """`y = 1 / (1 + exp(-x))`"""
         return 1 / (1 + np.exp(-x))
@@ -56,6 +44,9 @@ def test_AdvancedEAST(config_file):
         return dsize[0], dsize[1]
 
     def res2json(result_dir):
+        """
+        method: generate json file
+        """
         res_list = os.listdir(result_dir)
         res_dict = {}
         for rf in tqdm(res_list, desc='toJSON'):
@@ -72,7 +63,6 @@ def test_AdvancedEAST(config_file):
             json.dump(res_dict, jf)
         return jpath
 
-    # copy 上面的
     def res2json_1(result_dir):
         res_list = os.listdir(result_dir)
         res_dict = {}
@@ -82,14 +72,6 @@ def test_AdvancedEAST(config_file):
                 with open(respath, 'r') as f:
                     reslines = f.readlines()
                 reskey = rf[3:-4]
-                # print("********************************************")
-                # print(reskey)  # gt_img_1
-                # print("-------------------------------------")
-                # print(reslines[0].replace('\n', '').split(','))
-                # print(reslines[0].replace('\n', '').split(',')[:8])
-                # print(np.asarray(reslines[0][:8].replace('\n', '').split(','), np.float32))
-                # print(np.rint(np.asarray(reslines[0][:8].replace('\n', '').split(','), np.float32)))
-                # print(np.rint(np.asarray(reslines[0][:8].replace('\n', '').split(','), np.float32)).astype(np.int32).reshape(-1, 2).tolist())
                 res_dict[reskey] = [{'points': np.rint(
                     np.asarray(l.replace('\n', '').split(',')[:8], np.float32)).astype(np.int32).reshape(-1,
                                                                                                          2).tolist()}
@@ -126,7 +108,6 @@ def test_AdvancedEAST(config_file):
                     for _, r in enumerate(pool.imap_unordered(self.process, img_list)):
                         if r[0] == 0:
                             miss.append(r[1])
-                            # tqdm.write(f"{r[1]}: {r[0]} quads.")
                         pbar.update()
                 pool.close()
                 pool.join()
@@ -139,7 +120,6 @@ def test_AdvancedEAST(config_file):
             print(f"{len(miss)} images no detection.")
             print(miss)
             input_json_path = res2json(self.result_dir)
-            # gt_json_path = res2json_1("/home/msy/ICDAR15/Text_Localization/val/gt/")
             gt_json_path = opt.gt_json_path
             eval_func(input_json_path, gt_json_path, opt.iou_threshold)
 
@@ -162,9 +142,7 @@ def test_AdvancedEAST(config_file):
 
             x = transform(im)
             x = x[np.newaxis, :]
-            # lock.acquire()
             y = self.model(x.cuda()).cpu().detach().numpy()
-            # lock.release()
 
             y = np.squeeze(y)
             y[:, :, :3] = sigmoid(y[:, :, :3])
@@ -172,7 +150,6 @@ def test_AdvancedEAST(config_file):
             activation_pixels = np.asarray(np.where(cond), dtype=np.int32)
 
             quad_scores, quad_after_nms = NMS.nms(y, activation_pixels[0], activation_pixels[1])
-            # quad_scores, quad_after_nms = nms(y, activation_pixels[0], activation_pixels[1])
 
             if self.isDraw:
                 quad_im = im.copy()
@@ -235,13 +212,9 @@ def test_AdvancedEAST(config_file):
             sub_im = Image.fromarray(sub_im_arr.astype('uint8')).convert('RGB')
             sub_im.save(self.result_dir + img_name[:-4] + '_subim%d.jpg' % s)
 
-    # args = parse_args()
-
     print(f'Task id: {opt.task_id}')
     assert int(opt.task_id[2:]) in opt.size_group, f'input size shall be in {opt.size_group}'
-    # cp_file = opt.task_id + '_best.pth.tar'
     cp_file = '3T1280_best.pth.tar'
-    # cp_file = '3T1280_archive/3T1280_center.pth.tar'
     cp_path = os.path.join(opt.result_dir, cp_file)
     assert os.path.isfile(cp_path), 'Checkpoint file does not exist.'
     print(f'Loading {cp_path}')

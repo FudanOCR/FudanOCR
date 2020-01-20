@@ -57,7 +57,6 @@ class Anno:
 
             if os.path.exists(anno_file):
                 return
-            # with open(os.path.join(self.img_dir[:-4] + 'gt/', img_name[:-4] + '.txt'), 'r') as f:
             with open(os.path.join(self.img_dir[:-4] + 'gt/', 'gt_' + img_name[:-4] + '.txt'), 'r', encoding='UTF-8-sig') as f:
                 anno_list = f.readlines()
 
@@ -65,8 +64,6 @@ class Anno:
             for i, anno in enumerate(anno_list):
                 anno_column = anno.strip().split(',')
                 anno_array = np.asarray(anno_column)
-                # anno_array[0] = anno_array[0][7:] # 输出空白，因为\ufeff并不是真正的字符
-                # print(anno_array[0])
                 xy_list = np.reshape(anno_array[:8].astype(np.float32), (4, 2))
 
                 # rescale and reorder annatation
@@ -205,7 +202,6 @@ def reorder_vertexes(xy_list):
 
     for index, i in zip(others, range(len(others))):
 
-        # delta = y - (k * x + b)
         delta_y = xy_list[index, 1] - (k[k_mid] * xy_list[index, 0] + b_mid)
         if delta_y > 0:
             second_v = index

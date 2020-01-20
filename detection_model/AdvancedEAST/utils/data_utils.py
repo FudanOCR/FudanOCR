@@ -11,10 +11,9 @@ from utils.preprocess import Anno
 
 
 class custom_dset(data.Dataset):
-    '''
+    """
     Preprocess images, load ground-truth, and build dataset.
-    '''
-
+    """
     def __init__(self, split):
 
         if split == 'train':
@@ -63,9 +62,11 @@ class custom_dset(data.Dataset):
     def __len__(self):
         return len(self.img_list)
 
+
 def by_id1(name):
     '''Sort list by image_id.'''
     return int(name[7:-4])
+
 
 def by_id(name):
     '''Sort list by image_id.'''

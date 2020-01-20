@@ -28,21 +28,12 @@ def train_AEAST(config_file):
     from yacs.config import CfgNode as CN
 
     def read_config_file(config_file):
-        # 用yaml重构配置文件
         f = open(config_file)
         opt = CN.load_cfg(f)
         return opt
 
-    opt = read_config_file(config_file)  # 获取了yaml文件
-    '''
-    def parse_args():
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--valpre', action='store_true', help='Validate pretrained model before training')
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument('--pretrain', '-p', action='store_true', help='Enable pretrain.')
-        group.add_argument('--resume', '-r', action='store_true', help='Resume training.')
-        return parser.parse_args()
-    '''
+    opt = read_config_file(config_file)
+
     class Wrapped:
         def __init__(self, train_loader, val_loader, model, criterion, optimizer, scheduler, start_epoch, val_loss_min):
             self.train_loader = train_loader
@@ -54,11 +45,9 @@ def train_AEAST(config_file):
             self.start_epoch = start_epoch
             self.tick = time.strftime("%Y%m%d-%H-%M-%S", time.localtime(time.time()))
             self.earlystopping = EarlyStopping(opt.patience, val_loss_min)
-            # self.valpre = valpre
 
         def __call__(self):
             for epoch in tqdm(range(self.start_epoch + 1, opt.max_epoch + 1), desc='Epoch'):
-                # if epoch == 1 and self.valpre:
                 if epoch == 1:
                     tqdm.write("Validating pretrained model.")
                     self.validate(0)
@@ -125,17 +114,12 @@ def train_AEAST(config_file):
         def __call__(self, it):
             return self.rate ** (it // self.step)
 
-    # args = parse_args()
     print('=== AdvancedEAST ===')
     print('Task id: {0}'.format(opt.task_id))
     print('=== Initialzing DataLoader ===')
     print('Multi-processing on {0} cores'.format(opt.num_process))
-    # batch_size = 1
-    # batch_size = opt.batch_size_per_gpu * len(opt.gpu_ids)
     batch_size = opt.batch_size_per_gpu
 
-    # trainset = custom_dset(config_file, split='train')
-    # valset = custom_dset(config_file, split='val')
     trainset = custom_dset(split='train')
     valset = custom_dset(split='val')
     train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn,
@@ -145,21 +129,11 @@ def train_AEAST(config_file):
     print('=== Building Network ===')
     model = East()
     model = model.cuda()
-    # model = nn.DataParallel(model, device_ids=[1,2])
     os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
-    # model = nn.DataParallel(model, device_ids=[0,1,2])
-    # model = nn.DataParallel(model)
     model = nn.DataParallel(model, device_ids=opt.gpu_ids)
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('Total parameters: {0}'.format(params))
-    '''
-    if args.pretrain:
-        print('=== Loading Pretrained Model ===')
-        assert os.path.isfile(opt.pre_file), 'Pretrained model does not exist.'
-        print(f'Loading {opt.pre_file}')
-        checkpoint = torch.load(opt.pre_file)
-        model.module.load_state_dict(checkpoint['state_dict'])
-    '''
+
     cudnn.benchmark = True
     criterion = LossFunc()
     optimizer = Adam(model.parameters(), lr=opt.lr_rate)
@@ -170,26 +144,7 @@ def train_AEAST(config_file):
     print('Batch size: {0}'.format(batch_size))
     print('Initial learning rate: {0}\nDecay step: {1}\nDecay rate: {2}\nPatience: {3}'.format(
         opt.lr_rate, opt.decay_step, opt.decay_rate, opt.patience))
-    '''
-    if args.resume:  # if resume
-        print('=== Loading Checkpoint ===')
-        cp_file = opt.task_id + '_best.pth.tar'
-        cp_path = os.path.join(opt.result_dir, cp_file)
-        assert os.path.isfile(cp_path), 'Checkpoint file does not exist.'
-        print(f'Loading {cp_path}')
-
-        checkpoint = torch.load(cp_path)
-        start_epoch = checkpoint['epoch']
-        model.module.load_state_dict(checkpoint['state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
-        scheduler.load_state_dict(checkpoint['scheduler'])
-        val_loss_min = checkpoint['val_loss_min']
-        print(f"Start epoch set to {start_epoch + 1}")
-        print(f"Learning rate set to {optimizer.param_groups[0]['lr']:.6f}")
-    else:
-        start_epoch = 0
-        val_loss_min = None
-    '''
+    
     start_epoch = 0
     val_loss_min = None
 

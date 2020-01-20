@@ -12,9 +12,9 @@ def train_grcnn(config_yaml):
     import numpy as np
     import Levenshtein
     from torch.autograd import Variable
-    # from warpctc_pytorch import CTCLoss
+    from warpctc_pytorch import CTCLoss
     # from GRCNN.utils.Logger import Logger
-    from torch.nn import CTCLoss
+    # from torch.nn import CTCLoss
     import GRCNN.utils.keys as keys
     import GRCNN.utils.util as util
     import dataset
@@ -31,7 +31,7 @@ def train_grcnn(config_yaml):
     def train(model, train_loader, val_loader, criterion, optimizer, opt, converter, epoch):
         # Set up training phase.
         interval = int(len(train_loader) / opt['SAVE_FREQ'])
-        # interval = 1
+        interval = 100
         print("interval为",interval)
         model.train()
 
@@ -40,6 +40,7 @@ def train_grcnn(config_yaml):
             # print('iter {} ...'.format(i))
             bsz = cpu_images.size(0)
             text, text_len = converter.encode(cpu_gt)
+            # print("做测试  ",text)
             v_images = Variable(cpu_images.cuda())
             v_gt = Variable(text)
             v_gt_len = Variable(text_len)
@@ -50,13 +51,14 @@ def train_grcnn(config_yaml):
 
             loss = criterion(predict, v_gt, predict_len, v_gt_len)
             # logger.scalar_summary('train_loss', loss.data[0], i + epoch * len(train_loader))
-
+            print('train_loss', loss.item())
             # Compute accuracy
             _, acc = predict.max(2)
             acc = acc.transpose(1, 0).contiguous().view(-1)
             sim_preds = converter.decode(acc.data, predict_len.data, raw=False)
             n_correct = 0
             for pred, target in zip(sim_preds, cpu_gt):
+                print("做测试",pred,'  ',target)
                 if pred.lower() == target.lower():
                     n_correct += 1
             accuracy = n_correct / float(bsz)
@@ -81,7 +83,7 @@ def train_grcnn(config_yaml):
 
     def val(model, ds_loader, criterion, converter, epoch, iteration, valonly):
         print('Start validating on epoch:{0}/iter:{1}...'.format(epoch, iteration))
-        print('len   ',len(ds_loader))
+        # print('len   ',len(ds_loader))
         model.eval()
         ave_loss = 0.0
         ave_accuracy = 0.0
@@ -126,10 +128,17 @@ def train_grcnn(config_yaml):
                 # logger.scalar_summary('validation_loss', ave_loss / len(ds_loader), iteration)
                 #logger.scalar_summary('validation_accuracy', ave_accuracy / len(ds_loader), iteration)
                 # logger.scalar_summary('Ave_Levenshtein_distance', distance / length, iteration)
+
+            f = open('./grcnn_test.txt','a+')
+
             print(
                 'Testing Accuracy:{0}, Testing Loss:{1} @ Epoch{2}, Iteration{3}'.format(ave_accuracy / len(ds_loader),
                                                                                          ave_loss / len(ds_loader),
                                                                                          epoch, iteration))
+            f.write('Testing Accuracy:{0}, Testing Loss:{1} @ Epoch{2}, Iteration{3}\n'.format(ave_accuracy / len(ds_loader),
+                                                                                         ave_loss / len(ds_loader),
+                                                                                         epoch, iteration))
+            f.close()
 
     def save_checkpoint(state, file_name):
         # time.sleep(0.01)
@@ -140,9 +149,6 @@ def train_grcnn(config_yaml):
         except RuntimeError:
             print("RuntimeError")
             pass
-
-
-
 
 
     '''
@@ -170,8 +176,16 @@ def train_grcnn(config_yaml):
         text_gen = util.TextGenerator(ds_cfg['GEN_SET'], ds_cfg['GEN_LEN'])
         ds_train = dataset.synthDataset(ds_cfg['FONT_ROOT'], ds_cfg['FONT_SIZE'], text_gen)
     elif ds_cfg['TYPE'] == 'IMG_DATA':
-        ds_train = dataset.trainDataset(ds_cfg['IMG_ROOT'], ds_cfg['TRAIN_SET'],
-                                        transform=None)  # dataset.graybackNormalize()
+
+        from tools.dataset_lmdb import lmdbDataset
+        '''
+        这里可以进行修改
+        '''
+        ds_train = lmdbDataset(root='/home/cjy/syn90_train_100000data_lmdb',
+                                                 transform=None)
+
+        # ds_train = dataset.trainDataset(ds_cfg['IMG_ROOT'], ds_cfg['TRAIN_SET'],
+        #                                 transform=None)  # dataset.graybackNormalize()
     assert ds_train
     train_loader = torch.utils.data.DataLoader(ds_train,
                                                batch_size=train_cfg['BATCH_SIZE'],
@@ -183,7 +197,13 @@ def train_grcnn(config_yaml):
                                                    imgW=train_cfg['MAX_W']))
 
     val_cfg = opt['VALIDATION']
-    ds_val = dataset.testDataset(val_cfg['IMG_ROOT'], val_cfg['VAL_SET'], transform=None)  # dataset.graybackNormalize()
+
+    '''
+    这里也可以进行修改
+    '''
+    ds_val = lmdbDataset(root='/home/cjy/ic15_test_lmdb',
+                                       transform=None)
+    # ds_val = dataset.testDataset(val_cfg['IMG_ROOT'], val_cfg['VAL_SET'], transform=None)  # dataset.graybackNormalize()
     assert ds_val
     val_loader = torch.utils.data.DataLoader(ds_val,
                                              batch_size=32,

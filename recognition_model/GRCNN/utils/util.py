@@ -31,7 +31,9 @@ class strLabelConverter(object):
     def encode(self, text, depth=0):
         """Support batch or single str."""
         if isinstance(text, str):
+            text = text.lower()
             for char in text:
+                # Fix the bug
                 if self.alphabet.find(char) == -1:
                     print(char)
             text = [self.dict[char] for char in text]

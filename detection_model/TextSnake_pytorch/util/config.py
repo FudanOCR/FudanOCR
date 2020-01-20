@@ -1,3 +1,6 @@
+"""
+modify corresponding parameters according to yaml file
+"""
 from easydict import EasyDict
 import torch
 from yacs.config import CfgNode as CN

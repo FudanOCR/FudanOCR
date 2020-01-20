@@ -1,14 +1,3 @@
-# -*- coding: utf-8 -*-
-# ------------------------------------------------------------------------------------------------
-# Copyright (C), Data Department of Software Service Center, SiChuan Changhong Electronics Co.Ltd
-# ------------------------------------------------------------------------------------------------
-# @File          : demo.py
-# @Time          : 6/13/19 2:37 PM
-# @Author        : X.T.Xiao
-# @Email         : xinting.xiao@changhong.com
-# @PythonVersion : 
-# @Function      : 
-# ------------------------------------------------------------------------------------------------
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 

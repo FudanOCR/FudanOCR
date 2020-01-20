@@ -18,8 +18,8 @@ class RPNHead(nn.Module):
 
     def __init__(self, cfg, in_channels, num_anchors):
         """
-        Arguments:
-            cfg              : config
+        Args:
+            cfg:config
             in_channels (int): number of channels of the input feature
             num_anchors (int): number of anchors to be predicted
         """
@@ -80,7 +80,7 @@ class RPNModule(torch.nn.Module):
 
     def forward(self, images, features, targets=None):
         """
-        Arguments:
+        Args:
             images (ImageList): images for which we want to compute the predictions
             features (list[Tensor]): features computed from the images that are
                 used for computing the predictions. Each tensor in the list

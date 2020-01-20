@@ -23,7 +23,7 @@ class RPNLossComputation(object):
 
     def __init__(self, proposal_matcher, fg_bg_sampler, box_coder):
         """
-        Arguments:
+        Args:
             proposal_matcher (Matcher)
             fg_bg_sampler (BalancedPositiveNegativeSampler)
             box_coder (BoxCoder)
@@ -77,7 +77,7 @@ class RPNLossComputation(object):
 
     def __call__(self, anchors, objectness, box_regression, targets):
         """
-        Arguments:
+        Args:
             anchors (list[BoxList])
             objectness (list[Tensor])
             box_regression (list[Tensor])

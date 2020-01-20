@@ -33,7 +33,9 @@ def train_TextSnake(config_file):
     total_iter = 0
 
     def read_config_file(config_file):
-        # 用yaml重构配置文件
+        """
+        read config information form yaml file
+        """
         f = open(config_file)
         opt = CN.load_cfg(f)
         return opt
@@ -156,6 +158,9 @@ def train_TextSnake(config_file):
 
 
     def validation(model, valid_loader, criterion):
+        """
+        print a series of loss information
+        """
 
         model.eval()
         losses = AverageMeter()

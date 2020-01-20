@@ -92,7 +92,8 @@ class BoxList(object):
         """
         Returns a resized copy of this bounding box
 
-        :param size: The requested size in pixels, as a 2-tuple:
+        Args:
+            size: The requested size in pixels, as a 2-tuple:
             (width, height).
         """
 
@@ -129,10 +130,11 @@ class BoxList(object):
     def transpose(self, method):
         """
         Transpose bounding box (flip or rotate in 90 degree steps)
-        :param method: One of :py:attr:`PIL.Image.FLIP_LEFT_RIGHT`,
-          :py:attr:`PIL.Image.FLIP_TOP_BOTTOM`, :py:attr:`PIL.Image.ROTATE_90`,
-          :py:attr:`PIL.Image.ROTATE_180`, :py:attr:`PIL.Image.ROTATE_270`,
-          :py:attr:`PIL.Image.TRANSPOSE` or :py:attr:`PIL.Image.TRANSVERSE`.
+        Args:
+            method: One of :py:attr:`PIL.Image.FLIP_LEFT_RIGHT`,
+            :py:attr:`PIL.Image.FLIP_TOP_BOTTOM`, :py:attr:`PIL.Image.ROTATE_90`,
+            :py:attr:`PIL.Image.ROTATE_180`, :py:attr:`PIL.Image.ROTATE_270`,
+            :py:attr:`PIL.Image.TRANSPOSE` or :py:attr:`PIL.Image.TRANSVERSE`.
         """
         if method not in (FLIP_LEFT_RIGHT, FLIP_TOP_BOTTOM):
             raise NotImplementedError(

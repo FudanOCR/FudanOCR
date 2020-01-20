@@ -89,7 +89,7 @@ def scatter_gather(data):
     Note: this function is slow and should not be used in tight loops, i.e.,
     do not use it in the training loop.
 
-    Arguments:
+    Args:
         data: the object to be gathered from multiple processes.
             It must be serializable
 

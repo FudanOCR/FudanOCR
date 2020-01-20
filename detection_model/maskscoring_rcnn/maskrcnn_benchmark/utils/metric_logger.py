@@ -6,7 +6,8 @@ import torch
 
 
 class SmoothedValue(object):
-    """Track a series of values and provide access to smoothed values over a
+    """
+    Track a series of values and provide access to smoothed values over a
     window or the global series average.
     """
 

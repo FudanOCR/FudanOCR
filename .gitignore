@@ -14,3 +14,6 @@ log.txt
 /MORAN_DEMO
 /GRCNN_DEMO
 pred.txt
+grcnn_9000k.txt
+/checkpoints_9000k
+__pycache__

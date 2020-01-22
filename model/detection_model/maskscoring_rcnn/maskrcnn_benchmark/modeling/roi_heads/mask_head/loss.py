@@ -17,7 +17,7 @@ def project_masks_on_boxes(segmentation_masks, proposals, discretization_size, m
     boxes. This prepares the masks for them to be fed to the
     loss computation as the targets. If use maskiou head, we will compute the maskiou target here.
 
-    Arguments:
+    Args:
         segmentation_masks: an instance of SegmentationMask
         proposals: an instance of BoxList
     """
@@ -87,7 +87,7 @@ def project_masks_on_boxes(segmentation_masks, proposals, discretization_size, m
 class MaskRCNNLossComputation(object):
     def __init__(self, proposal_matcher, discretization_size, maskiou_on):
         """
-        Arguments:
+        Args:
             proposal_matcher (Matcher)
             discretization_size (int)
         """
@@ -145,12 +145,12 @@ class MaskRCNNLossComputation(object):
 
     def __call__(self, proposals, mask_logits, targets):
         """
-        Arguments:
+        Args:
             proposals (list[BoxList])
             mask_logits (Tensor)
             targets (list[BoxList])
 
-        Return:
+        Returns:
             mask_loss (Tensor): scalar tensor containing the loss
             If we use maskiou head, we will return extra feature for maskiou head.
         """

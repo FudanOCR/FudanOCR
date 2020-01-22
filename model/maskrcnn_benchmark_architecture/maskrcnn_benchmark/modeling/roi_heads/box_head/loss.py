@@ -20,7 +20,7 @@ class FastRCNNLossComputation(object):
 
     def __init__(self, proposal_matcher, fg_bg_sampler, box_coder):
         """
-        Arguments:
+        Args:
             proposal_matcher (Matcher)
             fg_bg_sampler (BalancedPositiveNegativeSampler)
             box_coder (BoxCoder)
@@ -78,7 +78,7 @@ class FastRCNNLossComputation(object):
         the sampled proposals.
         Note: this function keeps a state.
 
-        Arguments:
+        Args:
             proposals (list[BoxList])
             targets (list[BoxList])
         """
@@ -113,7 +113,7 @@ class FastRCNNLossComputation(object):
         Computes the loss for Faster R-CNN.
         This requires that the subsample method has been called beforehand.
 
-        Arguments:
+        Args:
             class_logits (list[Tensor])
             box_regression (list[Tensor])
 

@@ -150,7 +150,7 @@ class SegmentationMask(object):
 
     def __init__(self, polygons, size, mode=None):
         """
-        Arguments:
+        Args:
             polygons: a list of list of lists of numbers. The first
                 level of the list correspond to individual instances,
                 the second level to all the polygons that compose the

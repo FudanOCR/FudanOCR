@@ -1,16 +1,17 @@
 import numpy as np
 from skimage.draw import polygon
-
 """
-:param det_x: [1, N] Xs of detection's vertices 
-:param det_y: [1, N] Ys of detection's vertices
-:param gt_x: [1, N] Xs of groundtruth's vertices
-:param gt_y: [1, N] Ys of groundtruth's vertices
-
-##############
 All the calculation of 'AREA' in this script is handled by:
 1) First generating a binary mask with the polygon area filled up with 1's
 2) Summing up all the 1's
+
+Args:
+    det_x: [1, N] Xs of detection's vertices 
+    det_y: [1, N] Ys of detection's vertices
+    gt_x: [1, N] Xs of groundtruth's vertices
+    gt_y: [1, N] Ys of groundtruth's vertices
+
+
 """
 
 

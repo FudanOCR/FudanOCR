@@ -1,3 +1,6 @@
+"""
+data augmentation
+"""
 import numpy as np
 import math
 import cv2
@@ -7,7 +10,8 @@ import time
 from yacs.config import CfgNode as CN
 
 class Compose(object):
-    """Composes several augmentations together.
+    """
+    Composes several augmentations together.
     Args:
         transforms (List[Transform]): list of transforms to compose.
     Example:

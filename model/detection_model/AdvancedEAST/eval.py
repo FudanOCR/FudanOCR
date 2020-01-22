@@ -64,14 +64,6 @@ def res2json_1(result_dir):
             with open(respath, 'r') as f:
                 reslines = f.readlines()
             reskey = rf[3:-4]
-            # print("********************************************")
-            # print(reskey)  # gt_img_1
-            # print("-------------------------------------")
-            # print(reslines[0].replace('\n', '').split(','))
-            # print(reslines[0].replace('\n', '').split(',')[:8])
-            # print(np.asarray(reslines[0][:8].replace('\n', '').split(','), np.float32))
-            # print(np.rint(np.asarray(reslines[0][:8].replace('\n', '').split(','), np.float32)))
-            # print(np.rint(np.asarray(reslines[0][:8].replace('\n', '').split(','), np.float32)).astype(np.int32).reshape(-1, 2).tolist())
             res_dict[reskey] = [{'points': np.rint(np.asarray(l.replace('\n', '').split(',')[:8], np.float32)).astype(np.int32).reshape(-1, 2).tolist()} for l in reslines]
 
     jpath = os.path.join(result_dir, 'res.json')
@@ -194,7 +186,6 @@ class Wrapped:
                 invalid += 1
         if self.isDraw:
             quad_im.save(self.result_dir + img_name[:-4] + '_predict.jpg')
-        # print(f'{invalid} quads invalid with vertex num less then 4.')
 
         with open(txt_path, 'w') as f_txt:
             f_txt.writelines(txt_items)
@@ -222,7 +213,6 @@ if __name__ == '__main__':
     assert int(args.taskid[2:]) in cfg.size_group, f'input size shall be in {cfg.size_group}'
     # cp_file = args.taskid + '_best.pth.tar'
     cp_file = '3T1280_best.pth.tar'
-    # cp_file = '3T1280_archive/3T1280_center.pth.tar'
     cp_path = os.path.join(cfg.result_dir, cp_file)
     assert os.path.isfile(cp_path), 'Checkpoint file does not exist.'
     print(f'Loading {cp_path}')

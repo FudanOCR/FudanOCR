@@ -37,7 +37,9 @@ def regularize_sin_cos(sin, cos):
 
 
 class AverageMeter(object):
-    """Computes and stores the average and current value"""
+    """
+    Computes and stores the average and current value
+    """
     def __init__(self):
         self.reset()
 
@@ -114,6 +116,7 @@ def split_long_edges(points, bottoms):
     """
     Find two long edge sequence of and polygon
     """
+
     b1_start, b1_end = bottoms[0]
     b2_start, b2_end = bottoms[1]
     n_pts = len(points)

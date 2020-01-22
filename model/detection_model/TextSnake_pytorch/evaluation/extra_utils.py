@@ -57,7 +57,9 @@ def coco_results_to_contest(coco_result):
 
 
 def get_mask(box, shape):
-    """根据box获取对应的掩膜"""
+    """
+    get corresponding mask according to the box
+    """
     tmp_mask = np.zeros(shape, dtype="uint8")
     tmp = np.array(box, dtype=np.int32).reshape(-1, 2)
     cv2.fillPoly(tmp_mask, [tmp], 255)
@@ -67,12 +69,16 @@ def get_mask(box, shape):
 
 def comput_mmi(area_a, area_b, intersect):
     """
-    计算MMI,2018.11.23 add
-    :param area_a: 实例文本a的mask的面积
-    :param area_b: 实例文本b的mask的面积
-    :param intersect: 实例文本a和实例文本b的相交面积
-    :return:
+    calculate MMI
+    Args:
+        area_a: The area of the mask for instance text a
+        area_b: The area of the mask for instance text b
+        intersect: The intersection area between instance text a and instance text b
+
+    Returns:
+
     """
+
     eps = 1e-5
     if area_a == 0 or area_b == 0:
         area_a += eps
@@ -83,12 +89,17 @@ def comput_mmi(area_a, area_b, intersect):
 
 def mask_nms(polygons, shape, mmi_thres=0.5, conf_thres=0.4):
     """
-    mask nms 实现函数
-    :param polygons: 检测结果，[{'points':[[],[],[]],'confidence':int},{},{}]
-    :param shape: 当前检测的图片原大小
-    :param mmi_thres: 检测的阈值
-    :param conf_thres: 检测的阈值
+    realize function nms
+    Args:
+        polygons: detection result，[{'points':[[],[],[]],'confidence':int},{},{}]
+        shape:the origin size to current image
+        mmi_thres:threshold of detection
+        conf_thres:threshold of detection
+
+    Returns:
+
     """
+
     # 获取bbox及对应的score
     bbox_infos = []
     areas = []

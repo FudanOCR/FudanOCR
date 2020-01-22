@@ -111,7 +111,6 @@ def iou(det_x, det_y, gt_x, gt_y):
         union_map = np.where(final_bin_mask > 0, 1, 0)
         union = np.sum(union_map)
         return inter / float(union + 1.0)
-        # return np.round(inter / float(union + 1.0), 2)
     else:
         return 0
 
@@ -140,6 +139,5 @@ def iod(det_x, det_y, gt_x, gt_y):
 
         det = np.round(np.sum(det_bin_mask), 2)
         return inter / float(det + 1.0)
-        # return np.round(inter / float(det + 1.0), 2)
     else:
         return 0

@@ -1,5 +1,4 @@
 def test_TextSnake(config_file):
-
     import sys
     sys.path.append('./detection_model/TextSnake_pytorch')
 
@@ -28,7 +27,9 @@ def test_TextSnake(config_file):
     from yacs.config import CfgNode as CN
 
     def read_config_file(config_file):
-        # 用yaml重构配置文件
+        """
+        read config information form yaml file
+        """
         f = open(config_file)
         opt = CN.load_cfg(f)
         return opt
@@ -36,7 +37,8 @@ def test_TextSnake(config_file):
     opt = read_config_file(config_file)
 
     def result2polygon(image, result):
-        """ convert geometric info(center_x, center_y, radii) into contours
+        """
+        convert geometric info(center_x, center_y, radii) into contours
         :param result: (list), each with (n, 3), 3 denotes (x, y, radii)
         :return: (np.ndarray list), polygon format contours
         """
@@ -56,12 +58,10 @@ def test_TextSnake(config_file):
         conts = [cont[:, 0, :] for cont in conts]
         return conts
 
-
     def mask2conts(mask):
         conts, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         conts = [cont[:, 0, :] for cont in conts]
         return conts
-
 
     def rescale_result(image, polygons, H, W):
         ori_H, ori_W = image.shape[:2]
@@ -72,7 +72,6 @@ def test_TextSnake(config_file):
             cont[:, 1] = (cont[:, 1] * H / ori_H).astype(int)
             polygon['points'] = cont
         return image, polygons
-
 
     def rescale_padding_result(image, polygons, ori_h, ori_w):
         h, w = image.shape[:2]
@@ -94,7 +93,6 @@ def test_TextSnake(config_file):
 
         return no_padding_image, polygons
 
-
     def calc_confidence(contours, score_map):
         polygons = []
         for cnt in contours:
@@ -115,16 +113,26 @@ def test_TextSnake(config_file):
 
         return polygons
 
-
     def load_model(model, model_path):
+        """
+        load retrained model
+
+        Args:
+            model: the name to model
+            model_path: the path to model
+
+        """
         print('Loading from {}'.format(model_path))
         state_dict = torch.load(model_path)
         model.load_state_dict(state_dict['model'])
 
-
     def inference(model, detector, test_loader):
+        """
+        start inference with the parameters provided earlier
+
+        """
         gt_json_path = os.path.join('/home/shf/fudan_ocr_system/datasets/', opt.dataset, 'train_labels.json')
-        #gt_json_path = '/workspace/mnt/group/ocr/wangxunyan/maskscoring_rcnn/crop_train/crop_result_js.json'
+        # gt_json_path = '/workspace/mnt/group/ocr/wangxunyan/maskscoring_rcnn/crop_train/crop_result_js.json'
         with open(gt_json_path, 'r') as f:
             gt_dict = json.load(f)
 
@@ -145,7 +153,7 @@ def test_TextSnake(config_file):
                 output_rescale = model(img_rescale)
                 output_rescale = func.interpolate(output_rescale, size=(size_h, size_w), mode='nearest')
 
-            timer['model'] = time.time()-start
+            timer['model'] = time.time() - start
 
             for idx in range(img.size(0)):
                 start = time.time()
@@ -166,7 +174,8 @@ def test_TextSnake(config_file):
                     tr_pred_rescale = output_rescale[idx, 0:2].sigmoid().data.cpu().numpy()
                     tcl_pred_rescale = output_rescale[idx, 2:4].softmax(dim=0).data.cpu().numpy()
 
-                    tr_pred_scale_mask = np.where(tr_pred_rescale[1] + tr_pred[1] > 1, 1, tr_pred_rescale[1] + tr_pred[1])
+                    tr_pred_scale_mask = np.where(tr_pred_rescale[1] + tr_pred[1] > 1, 1,
+                                                  tr_pred_rescale[1] + tr_pred[1])
                     tr_pred_mask = tr_pred_scale_mask
 
                     # weighted adding
@@ -175,8 +184,9 @@ def test_TextSnake(config_file):
                     tcl_pred = (tcl_pred * origin_ratio + tcl_pred_rescale * rescale_ratio).astype(np.float32)
                     tcl_pred_mask = (tcl_pred * tr_pred_mask)[1] > detector.tcl_conf_thresh
 
-                batch_result = detector.complete_detect(tr_pred_mask, tcl_pred_mask, sin_pred, cos_pred, radii_pred)  # (n_tcl, 3)
-                timer['detect'] = time.time()-start
+                batch_result = detector.complete_detect(tr_pred_mask, tcl_pred_mask, sin_pred, cos_pred,
+                                                        radii_pred)  # (n_tcl, 3)
+                timer['detect'] = time.time() - start
 
                 start = time.time()
                 # visualization
@@ -191,10 +201,10 @@ def test_TextSnake(config_file):
                     resize_H = H if H % 32 == 0 else (H // 32) * 32
                     resize_W = W if W % 32 == 0 else (W // 32) * 32
 
-                    ratio = float(img_show.shape[0]) / resize_H if resize_H > resize_W else float(img_show.shape[1]) / resize_W
+                    ratio = float(img_show.shape[0]) / resize_H if resize_H > resize_W else float(
+                        img_show.shape[1]) / resize_W
                     resize_H = int(resize_H * ratio)
                     resize_W = int(resize_W * ratio)
-
 
                     gt_info = gt_dict[int(meta['image_id'][idx].lstrip('gt_').rstrip('.jpg').split('_')[1])]
 
@@ -218,7 +228,7 @@ def test_TextSnake(config_file):
                     im_vis = np.concatenate([predict_vis, gt_vis], axis=0)
                     path = os.path.join(opt.vis_dir, meta['image_id'][idx])
                     cv2.imwrite(path, im_vis)
-                timer['viz'] = time.time()-start
+                timer['viz'] = time.time() - start
 
                 start = time.time()
                 polygons = calc_confidence(contours, tr_pred)
@@ -235,19 +245,19 @@ def test_TextSnake(config_file):
                     polygon['points'] = polygon['points'].tolist()
 
                 result[meta['image_id'][idx].replace('.jpg', '').replace('gt', 'res')] = polygons
-                timer['restore'] = time.time()-start
+                timer['restore'] = time.time() - start
 
-            print('Cost time {:.2f}s: model {:.2f}s, detect {:.2f}s, viz {:.2f}s, restore {:.2f}s'.format(timer['model']+timer['detect']+timer['viz']+timer['restore'],
-                                                                                                          timer['model'],
-                                                                                                          timer['detect'],
-                                                                                                          timer['viz'],
-                                                                                                          timer['restore']))
+            print('Cost time {:.2f}s: model {:.2f}s, detect {:.2f}s, viz {:.2f}s, restore {:.2f}s'.format(
+                timer['model'] + timer['detect'] + timer['viz'] + timer['restore'],
+                timer['model'],
+                timer['detect'],
+                timer['viz'],
+                timer['restore']))
 
         # write to json file
         with open(os.path.join(opt.output_dir, 'result.json'), 'w') as f:
             json.dump(result, f)
             print("Output json file in {}.".format(opt.output_dir))
-
 
     torch.cuda.set_device(opt.num_device)
     option = BaseOptions(config_file)
@@ -290,4 +300,3 @@ def test_TextSnake(config_file):
     detval()
 
     print('End.')
-

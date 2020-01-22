@@ -4,10 +4,9 @@ import torch.nn.functional as F
 
 
 class FocalLossSigmoid(nn.Module):
-    '''
+    """
     sigmoid version focal loss
-    '''
-
+    """
     def __init__(self, alpha=0.25, gamma=2, size_average=False):
         super(FocalLossSigmoid, self).__init__()
         self.alpha = alpha
@@ -62,14 +61,17 @@ class TextLoss(nn.Module):
     def forward(self, input, tr_mask, tcl_mask, sin_map, cos_map, radii_map, train_mask, iter):
         """
         calculate textsnake loss
-        :param input: (Variable), network predict, (BS, 7, H, W)
-        :param tr_mask: (Variable), TR target, (BS, H, W)
-        :param tcl_mask: (Variable), TCL target, (BS, H, W)
-        :param sin_map: (Variable), sin target, (BS, H, W)
-        :param cos_map: (Variable), cos target, (BS, H, W)
-        :param radii_map: (Variable), radius target, (BS, H, W)
-        :param train_mask: (Variable), training mask, (BS, H, W)
-        :return: loss_tr, loss_tcl, loss_radii, loss_sin, loss_cos
+        Args:
+            input: (Variable), network predict, (BS, 7, H, W)
+            tr_mask: (Variable), TR target, (BS, H, W)
+            tcl_mask: (Variable), TCL target, (BS, H, W)
+            sin_map: (Variable), sin target, (BS, H, W)
+            cos_map: (Variable), cos target, (BS, H, W)
+            radii_map: (Variable), radius target, (BS, H, W)
+            train_mask: (Variable), training mask, (BS, H, W)
+
+        Returns:
+            loss_tr, loss_tcl, loss_radii, loss_sin, loss_cos
         """
 
         tr_pred = input[:, :2].permute(0, 2, 3, 1).contiguous().view(-1, 2)  # (BSxHxW, 2)

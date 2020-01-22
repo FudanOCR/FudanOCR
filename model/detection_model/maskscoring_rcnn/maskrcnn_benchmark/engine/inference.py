@@ -37,7 +37,6 @@ def compute_on_dataset(model, data_loader, device):
 
 
 def prepare_for_coco_detection(predictions, dataset):
-    # assert isinstance(dataset, COCODataset)
     coco_results = []
     for image_id, prediction in enumerate(predictions):
         original_id = dataset.id_to_img_map[image_id]
@@ -132,7 +131,8 @@ def prepare_for_coco_segmentation(predictions, dataset, maskiou_on):
 def evaluate_box_proposals(
     predictions, dataset, thresholds=None, area="all", limit=None
 ):
-    """Evaluate detection proposal recall metrics. This function is a much
+    """
+    Evaluate detection proposal recall metrics. This function is a much
     faster alternative to the official COCO API recall evaluation code. However,
     it produces slightly different results.
     """

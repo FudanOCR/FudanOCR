@@ -28,7 +28,9 @@ def gt_reading(gt_dict, img_key):
 
 
 def detection_filtering(detections, groundtruths, threshold=0.5):
-    """ignore detected illegal text region"""
+    """
+    ignore detected illegal text region
+    """
     before_filter_num = len(detections)
     for gt_id, gt in enumerate(groundtruths):
         if (gt['transcription'] == '###') and (gt['points'].shape[1] > 1):

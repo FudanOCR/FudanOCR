@@ -43,8 +43,9 @@ class TextInstance(object):
     def disk_cover(self, n_disk=15):
         """
         cover text region with several disks
-        :param n_disk: number of disks
-        :return:
+        Args:
+            n_disk: number of disks
+
         """
         inner_points1 = split_edge_seqence(self.points, self.e1, n_disk)
         inner_points2 = split_edge_seqence(self.points, self.e2, n_disk)
@@ -72,8 +73,11 @@ class TextDataset(data.Dataset):
     def parse_mat(self, mat_path):
         """
         .mat file parser
-        :param mat_path: (str), mat file path
-        :return: (list), TextInstance
+        Args:
+            mat_path: (str), mat file path
+
+        Returns:
+            (list), TextInstance
         """
         annot = io.loadmat(mat_path)
         polygon = []
@@ -108,10 +112,15 @@ class TextDataset(data.Dataset):
     def fill_polygon(self, mask, polygon, value):
         """
         fill polygon in the mask with value
-        :param mask: input mask
-        :param polygon: polygon to draw
-        :param value: fill value
+        Args:
+            mask: input mask
+            polygon: polygon to draw
+            value: fill value
+
+        Returns:
+
         """
+
         # rr, cc = drawpoly(polygon[:, 1], polygon[:, 0], shape=(cfg.input_size, cfg.input_size))
         rr, cc = drawpoly(polygon[:, 1], polygon[:, 0], shape=(mask.shape[0], mask.shape[1]))
         mask[rr, cc] = value

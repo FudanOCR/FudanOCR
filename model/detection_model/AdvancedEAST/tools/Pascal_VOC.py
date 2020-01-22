@@ -53,9 +53,6 @@ def gt_filtering(groundtruths):
 
     groundtruths[:] = [item for item in groundtruths if item != []]
 
-    # if before_filter_num - len(groundtruths) > 0:
-    #     print("Ignore {} illegal groundtruths".format(before_filter_num - len(groundtruths)))
-
     return groundtruths
 
 
@@ -74,11 +71,7 @@ def eval_func(input_json_path, gt_json_path, iou_threshold=0.5):
 
     for input_img_key, input_cnts in tqdm(input_dict.items(), desc='Evaluate'):
         detections = input_reading(input_cnts)
-        # .replace('res', 'gt'))
         groundtruths = gt_reading(gt_dict, input_img_key)
-        # filters detections overlapping with DC area
-        # detections = detection_filtering(detections, groundtruths)
-        # groundtruths = gt_filtering(groundtruths)
 
         iou_table = np.zeros((len(groundtruths), len(detections)))
         det_flag = np.zeros((len(detections), 1))

@@ -11,6 +11,17 @@ from maskrcnn_benchmark import _C
 class _ROIAlign(Function):
     @staticmethod
     def forward(ctx, input, roi, output_size, spatial_scale, sampling_ratio):
+        """
+
+        Args:
+            ctx:
+            input:
+            roi:region of interest
+            output_size:size of feature_map
+            spatial_scale:the size of feature_map after spatial
+            sampling_ratio:the ratio of sampling
+
+        """
         ctx.save_for_backward(roi)
         ctx.output_size = _pair(output_size)
         ctx.spatial_scale = spatial_scale

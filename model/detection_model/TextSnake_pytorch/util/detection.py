@@ -5,7 +5,9 @@ from util.misc import norm2
 import random
 
 class TextDetector(object):
+    """
 
+    """
     def __init__(self, tcl_conf_thresh=0.5, tr_conf_thresh=0.3):
         self.tcl_conf_thresh = tcl_conf_thresh
         self.tr_conf_thresh = tr_conf_thresh
@@ -60,8 +62,12 @@ class TextDetector(object):
         2. calculate maximum and minimum of y coordinate(ymax, ymin)
         2. iterate for each y in range (ymin, ymax), find first segment in the polygon
         3. calculate means of segment
-        :param cont: input polygon
-        :return:
+
+        Args:
+            cont: input polygon
+
+        Returns:
+
         """
 
         xmean = cont[:, 0, 0].mean()
@@ -118,13 +124,18 @@ class TextDetector(object):
             return int(center_innerpoint[0]), int(center_innerpoint[1])
 
     def step_forward(self, pt, h=512, w=512, stride=1, direction=1):
-        '''
-        :param pt: np.array([x, y])
-        :param h, w: int
-        :param stride: step stride, int
-        :param direction: 1 for clockwise, -1 for counter-clockwise
-        :return:
-        '''
+        """
+
+        Args:
+            pt: np.array([x,y])
+            h: int
+            w: int
+            stride: step stride, int
+            direction: 1 for clockwise, -1 for counter-clockwise
+
+        Returns:
+
+        """
         # avoid corner point
         if direction == 1:
             if pt[0] == 0 and pt[1] == 0:
@@ -177,12 +188,17 @@ class TextDetector(object):
         return new_pt
 
     def find_principal_curve(self, cont, tcl_pred, radii_pred):
-        '''
-        :param cont: [ [x1, y1], [x2, y2], ...]
-        :param tcl_pred: (h, w)
-        :param radii_pred: (h, w)
-        :return: [ np.array([x1, y1, r1]), np.array([x2, y2, r2]), ... ]
-        '''
+        """
+
+        Args:
+            cont: [ [x1, y1], [x2, y2], ...]
+            tcl_pred: (h, w)
+            radii_pred: (h, w)
+
+        Returns:
+            [np.array([x1, y1, r1]), np.array([x2, y2, r2]),...]
+
+        """
         h, w = tcl_pred.shape[:2]
 
         # calc centroid
@@ -309,8 +325,9 @@ class TextDetector(object):
     def centerlize(self, x, y, tangent_cos, tangent_sin, mask, stride=1):
         """
         centralizing (x, y) using tangent line and normal line.
-        :return:
+
         """
+
         # calculate normal sin and cos
         normal_cos = -tangent_sin
         normal_sin = tangent_cos
@@ -337,12 +354,16 @@ class TextDetector(object):
     def mask_to_tcl(self, pred_sin, pred_cos, pred_radii, tcl_mask, init_xy, direct=1):
         """
         Iteratively find center line in tcl mask using initial point (x, y)
-        :param pred_sin: predict sin map
-        :param pred_cos: predict cos map
-        :param tcl_mask: predict tcl mask
-        :param init_xy: initial (x, y)
-        :param direct: direction [-1|1]
-        :return:
+        Args:
+            pred_sin: predict sin map
+            pred_cos: predict cos map
+            pred_radii:
+            tcl_mask: predict tcl mask
+            init_xy: initial (x, y)
+            direct: direction [-1|1]
+
+        Returns:
+
         """
 
         x_init, y_init = init_xy
@@ -395,12 +416,16 @@ class TextDetector(object):
     def build_tcl(self, tcl_pred, sin_pred, cos_pred, radii_pred):
         """
         Find TCL's center points and radii of each point
-        :param tcl_pred: output tcl mask, (512, 512)
-        :param sin_pred: output sin map, (512, 512)
-        :param cos_pred: output cos map, (512, 512)
-        :param radii_pred: output radii map, (512, 512)
-        :return: (list), tcl array: (n, 3) 3 denote (x, y, radii)
+        Args:
+            tcl_pred: output tcl mask, (512, 512)
+            sin_pred: output sin map, (512, 512)
+            cos_pred: output cos map, (512, 512)
+            radii_pred: output radii map, (512, 512)
+
+        Returns:
+            (list), tcl array: (n, 3) 3 denote (x, y, radii)
         """
+
         all_tcls = []
 
         conts, _ = cv2.findContours(tcl_pred.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -437,14 +462,6 @@ class TextDetector(object):
             return True
 
     def mask_to_tcl_new(self, tcl_mask, tcl_cont, pred_radii, init_xy, direct=1):
-        '''
-        :param tcl_mask:
-        :param tcl_cont:
-        :param pred_radii:
-        :param init_xy:
-        :param direct:
-        :return:
-        '''
         x_init, y_init = init_xy
         cont_x = tcl_cont[:, 0, 0]
         cont_y = tcl_cont[:, 0, 1]
@@ -523,12 +540,7 @@ class TextDetector(object):
         return result
 
     def build_tcl_new(self, tcl_per_mask, tcl_per_cont, radii_pred):
-        '''
-        :param tcl_per_mask:
-        :param tcl_per_cont:
-        :param radii_pred:
-        :return:
-        '''
+
         all_tcls = []
 
         # find an inner point of polygon

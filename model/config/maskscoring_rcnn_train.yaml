@@ -82,7 +82,7 @@ INPUT:
   TO_BGR255: True
 DATASETS:
   TRAIN: ['coco_2017_train',]
-  TEST: ['coco_2017_val',]
+  TEST: ['coco_2017_test',]
 DATALOADER:
   NUM_WORKERS: 4
   SIZE_DIVISIBILITY: 32

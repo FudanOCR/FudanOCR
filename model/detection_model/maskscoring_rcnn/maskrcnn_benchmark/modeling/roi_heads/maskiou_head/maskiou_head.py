@@ -22,7 +22,7 @@ class ROIMaskIoUHead(torch.nn.Module):
 
     def forward(self, features, proposals, selected_mask, labels, maskiou_targets=None):
         """
-        Arguments:
+        Args:
             features (list[Tensor]): feature-maps from possibly several levels
             proposals (list[BoxList]): proposal boxes
             selected_mask (list[Tensor]): targeted mask

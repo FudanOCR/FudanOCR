@@ -5,8 +5,6 @@ helper class that supports empty tensors on some nn functions.
 Ideally, add support directly in PyTorch to empty tensors in
 those functions.
 
-This can be removed once https://github.com/pytorch/pytorch/issues/12013
-is implemented
 """
 
 import math

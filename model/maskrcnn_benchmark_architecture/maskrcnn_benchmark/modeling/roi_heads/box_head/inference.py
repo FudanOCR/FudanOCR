@@ -20,7 +20,7 @@ class PostProcessor(nn.Module):
         self, score_thresh=0.05, nms=0.5, detections_per_img=100, box_coder=None
     ):
         """
-        Arguments:
+        Args:
             score_thresh (float)
             nms (float)
             detections_per_img (int)
@@ -36,7 +36,7 @@ class PostProcessor(nn.Module):
 
     def forward(self, x, boxes):
         """
-        Arguments:
+        Args:
             x (tuple[tensor, tensor]): x contains the class logits
                 and the box_regression from the model.
             boxes (list[BoxList]): bounding boxes that are used as
@@ -93,7 +93,8 @@ class PostProcessor(nn.Module):
         return boxlist
 
     def filter_results(self, boxlist, num_classes):
-        """Returns bounding-box detection results by thresholding on scores and
+        """
+        Returns bounding-box detection results by thresholding on scores and
         applying non-maximum suppression (NMS).
         """
         # unwrap the boxlist to avoid additional overhead.

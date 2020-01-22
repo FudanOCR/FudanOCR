@@ -29,7 +29,9 @@ def detval():
 
 
     def detection_filtering(detections, groundtruths, threshold=0.5):
-        """ignore detected illegal text region"""
+        """
+        ignore detected illegal text region
+        """
         before_filter_num = len(detections)
         for gt_id, gt in enumerate(groundtruths):
             if (gt['transcription'] == '###') and (gt['points'].shape[1] > 1):
@@ -81,6 +83,21 @@ def detval():
     def one_to_one(local_sigma_table, local_tau_table, local_accumulative_recall,
                    local_accumulative_precision, global_accumulative_recall, global_accumulative_precision,
                    gt_flag, det_flag):
+        """
+
+        Args:
+            local_sigma_table:
+            local_tau_table:
+            local_accumulative_recall:
+            local_accumulative_precision:
+            global_accumulative_recall:
+            global_accumulative_precision:
+            gt_flag:
+            det_flag:
+
+        Returns:
+
+        """
         for gt_id in range(num_gt):
             qualified_sigma_candidates = np.where(local_sigma_table[gt_id, :] > tr)
             num_qualified_sigma_candidates = qualified_sigma_candidates[0].shape[0]

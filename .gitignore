@@ -17,3 +17,4 @@ pred.txt
 grcnn_9000k.txt
 /checkpoints_9000k
 __pycache__
+/testplace

@@ -14,7 +14,7 @@ import time
 from collections import OrderedDict
 from models.moran import MORAN
 # from wordlist import result
-from alphabet.wordlistart import result
+# from alphabet.wordlistart import result
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--train_nips', required=True, help='path to dataset')
@@ -48,7 +48,7 @@ opt = parser.parse_args()
 
 
 # Modify
-opt.alphabet = result
+# opt.alphabet = result
 
 
 print(opt)

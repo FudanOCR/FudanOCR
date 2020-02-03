@@ -50,6 +50,7 @@ class strLabelConverterForAttention(object):
             text.append(text_result)
         text_result = tuple(text)
         self._scanned_list = True
+        # print("进入函数前",text,"进入函数后",text_result)
         return text_result
 
     def encode(self, text, scanned=True):

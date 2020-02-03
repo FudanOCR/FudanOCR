@@ -7,19 +7,19 @@ TRAIN:
         BETA1: 0.5
         DATA_SOURCE:
                 TYPE: "IMG_DATA"
-                # IMG_ROOT: "/home/cjy/Word_recognition/ch4_training_word_images_gt/"
-                # TRAIN_SET: "/home/cjy/Word_recognition/train_label.txt" #path for train dataset
+                #IMG_ROOT: "/home/cjy/Word_recognition/ch4_training_word_images_gt/"
+                #TRAIN_SET: "/home/cjy/Word_recognition/train_label.txt" #path for train dataset
                 IMG_ROOT: "/home/cjy/mnt/ramdisk/max/90kDICT32px/"
                 TRAIN_SET: "/home/cjy/image_label_pair.txt" #path for train dataset
 VALIDATION:
   # IC03
-#  IMG_ROOT: '/home/cjy/ICDAR2003/WordR/TrialTest/'
-#  VAL_SET: '/home/cjy/ICDAR2003/WordR/TrialTest/target.txt'
+  # IMG_ROOT: '/home/cjy/ICDAR2003/WordR/TrialTest/'
+  # VAL_SET: '/home/cjy/ICDAR2003/WordR/TrialTest/target.txt'
 
 
   # IC13
-#  IMG_ROOT: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
-#  VAL_SET: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
+  # IMG_ROOT: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
+  # VAL_SET: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
 
         # IC15
         IMG_ROOT: "/home/cjy/Word_recognition/ch4_test_word_images_gt"
@@ -36,7 +36,7 @@ LOGGER_PATH: "./logger/"  #path for logger
 VAL_ONLY: FALSE
 FINETUNE: FALSE
 RESUME: FALSE
-CRANN: "./checkpoints/crann_15_9.pth"
+CRANN: ""
 N_GPU: 1
 #CRANN: "./checkpoints/crann_15_9.pth"
 

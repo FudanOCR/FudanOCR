@@ -3,6 +3,8 @@
 '''
 临时环境变量配置（今后废除）
 '''
+
+# 环境变量之后得去掉，模型进行重构，包括在所有from都写上明确的路径
 import sys
 sys.path.append('/home/cjy/FudanOCR/model/recognition_model/MORAN_V2')
 
@@ -12,7 +14,7 @@ sys.path.append('/home/cjy/FudanOCR/model/recognition_model/MORAN_V2')
 导入相关包
 '''
 
-# OCR架构中的包
+# OCR架构中的包，这个可以
 from alphabet.ic13 import keys
 from data import dataset
 from config.yaml_reader import read_config_file
@@ -44,9 +46,10 @@ from collections import OrderedDict
 parser = argparse.ArgumentParser()
 parser.add_argument('--config_file', required=True, help='path to config file')
 arg = parser.parse_args()
+# 通过一句话获得
 opt = read_config_file(arg.config_file)
 
-# 读取配置文件之后的一些工作
+# 读取配置文件之后的一些工作，可以封装到其他地方去（杂活）
 cudnn.benchmark = True
 opt.manualSeed = random.randint(1, 10000)  # fix seed
 print("Random Seed: ", opt.manualSeed)
@@ -54,7 +57,7 @@ random.seed(opt.manualSeed)
 np.random.seed(opt.manualSeed)
 torch.manual_seed(opt.manualSeed)
 
-# 创建一些文件夹
+# 创建一些文件夹（杂活）
 if opt.experiment is None:
     opt.experiment = 'expr'
 os.system('mkdir {0}'.format(opt.experiment))
@@ -64,11 +67,13 @@ os.system('mkdir {0}'.format(opt.experiment))
 字符表加载
 ===================================================================================
 '''
+# 检测是否是识别模型，是识别模型的话通过新建一个对象加载
 alphabet = keys
 nclass = len(alphabet)
 
 
 
+# 数据集，最后
 '''
 ===================================================================================
 加载数据集

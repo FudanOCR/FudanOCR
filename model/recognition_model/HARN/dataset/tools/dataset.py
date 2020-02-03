@@ -12,12 +12,12 @@ from PIL import Image
 from torch.utils.data import Dataset
 from torch.utils.data import sampler
 
-from .words import word
+# from .words import word
 
 
 class lmdbDataset(Dataset):
 
-    def __init__(self, root=None, transform=None, reverse=False, alphabet=word):
+    def __init__(self, root=None, transform=None, reverse=False, alphabet=''):
         self.env = lmdb.open(
             root,
             max_readers=1,

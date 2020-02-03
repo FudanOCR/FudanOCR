@@ -20,13 +20,13 @@ def train_HARN(config_file):
     from torch.autograd import Variable
     from collections import OrderedDict
     from tools.logger import logger
-    from wordlist import result
+    # from wordlist import result
     # from wordlistlsvt import result
 
     import warnings
     warnings.filterwarnings('ignore')
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = '1'  # 指定GPU
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '1'  # 指定GPU
     # os.environ['CUDA_VISIBLE_DEVICES'] = '5'  # 指定GPU
 
     from yacs.config import CfgNode as CN
@@ -38,11 +38,12 @@ def train_HARN(config_file):
         return opt
 
     opt = read_config_file(config_file)  # 获取了yaml文件
+    print("配置文件",opt)
 
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
     # Modify
-    opt.alphabet = result
+    # opt.alphabet = result
 
     assert opt.ngpu == 1, "Multi-GPU training is not supported yet, due to the variant lengths of the text in a batch."
 
@@ -58,7 +59,7 @@ def train_HARN(config_file):
     cudnn.benchmark = True
 
     # ---------save logger---------#
-    log = logger('/home/msy/HARN_Moran/logger/asrn_se50_OCRdata_50')
+    log = logger('./asrn_se50_OCRdata_50_logger')
     # log = logger('./logger/asrn_se50_lsvt_50')     # # 保存日志的路径 / 需要改
     # -----------------------------#
 
@@ -70,7 +71,7 @@ def train_HARN(config_file):
 
     train_nips_dataset = dataset.lmdbDataset(root=opt.train_nips,
                                              transform=dataset.resizeNormalize((opt.imgW, opt.imgH)),
-                                             reverse=opt.BidirDecoder)
+                                             reverse=opt.BidirDecoder,alphabet=opt.alphabet)
     assert train_nips_dataset
     '''
     train_cvpr_dataset = dataset.lmdbDataset(root=opt.train_cvpr,
@@ -185,8 +186,8 @@ def train_HARN(config_file):
             if opt.BidirDecoder:
                 cpu_images, cpu_texts, cpu_texts_rev = data  # data是dataloader导入的东西
                 utils.loadData(image, cpu_images)
-                t, l = converter.encode(cpu_texts, scanned=True)  # 这个encode是将字符encode成id
-                t_rev, _ = converter.encode(cpu_texts_rev, scanned=True)
+                t, l = converter.encode(cpu_texts, scanned=False)  # 这个encode是将字符encode成id
+                t_rev, _ = converter.encode(cpu_texts_rev, scanned=False)
                 utils.loadData(text, t)
                 utils.loadData(text_rev, t_rev)
                 utils.loadData(length, l)

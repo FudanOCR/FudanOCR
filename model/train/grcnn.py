@@ -12,9 +12,9 @@ def train_grcnn(config_yaml):
     import numpy as np
     import Levenshtein
     from torch.autograd import Variable
-    from warpctc_pytorch import CTCLoss
+    # from warpctc_pytorch import CTCLoss
     # from GRCNN.utils.Logger import Logger
-    # from torch.nn import CTCLoss
+    from torch.nn import CTCLoss
     import GRCNN.utils.keys as keys
     import GRCNN.utils.util as util
     import dataset

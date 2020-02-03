@@ -1,6 +1,6 @@
 model: 'HARN'
-train_nips: '/home/msy/datasets/OCR_dataset/train'
-valroot: '/home/msy/datasets/OCR_dataset/test'
+train_nips: '/home/cjy/syn90_train_9000000data_lmdb'
+valroot: '/home/cjy/ic15_test_lmdb'
 
 workers: 4
 batchSize: 128
@@ -16,10 +16,10 @@ lr: 1   # 学习率
 cuda: 'store_false'
 ngpu: 1
 MORAN: ''
-alphabet: '0:1:2:3:4:5:6:7:8:9:a:b:c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:v:w:x:y:z:$'  # main.py中overwrite
+alphabet: '0:1:2:3:4:5:6:7:8:9:a:b:c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:v:w:x:y:z:$'
 
 sep: ':'
-experiment: '/home/msy/HARN_Moran/checkpoints/asrn_se50_OCRdata_50'   # Where to store samples and models
+experiment: ''   # Where to store samples and models
 
 displayInterval: 100
 n_test_disp: 10

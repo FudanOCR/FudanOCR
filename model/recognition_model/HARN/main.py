@@ -14,7 +14,9 @@ import tools.dataset as dataset
 from torch.autograd import Variable
 from collections import OrderedDict
 from tools.logger import logger
-from wordlist import result
+
+# 是否导入数据集
+# from wordlist import result
 # from wordlistlsvt import result
 
 import warnings
@@ -67,7 +69,7 @@ opt = parser.parse_args()
 print(opt)  # 输出参数list
 
 # Modify
-opt.alphabet = result
+# opt.alphabet = result
 
 assert opt.ngpu == 1, "Multi-GPU training is not supported yet, due to the variant lengths of the text in a batch."
 

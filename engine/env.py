@@ -16,7 +16,7 @@ class Env(object):
 
     def __init__(self):
 
-        # self.readCommand()
+        self.readCommand()
         self.seedInit()
         self.setCudnnBenchmark()
 
@@ -54,6 +54,7 @@ class Env(object):
         '''
         新建文件夹操作
         removeOrigin用于判断是否删除原有文件
+        TODO 从参数文件中解析出Address部分
         '''
 
         if isinstance(rootList, str):

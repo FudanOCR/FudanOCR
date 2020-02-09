@@ -1,0 +1,61 @@
+BASE:
+  MODEL: 'ModelName'
+  VERSION: 'ModelVersion'
+  ENV: 'EnvironmentName'
+  TASK_ID: 12345
+  NETWORK: 'NetworkName'
+  NUM_GPUS: 1
+  GPU_ID: [0, 1]
+  WORKERS: 2
+
+DATASETS:
+  DATASET: 'DatasetName*'
+  TYPE: 'DataType'
+
+ADDRESS:
+  DETECTION:
+    TRAIN_DATA_DIR: './Train/Data/'
+    TRAIN_GT_DIR: './Train/GT/'
+    TEST_DATA_DIR: './Test/Data/'
+    TEST_GT_DIR: './Test/GT/'
+    VAL_DATA_DIR: './Val/Data/'
+    VAL_GT_DIR: './Val/GT/'
+  RECOGNITION:
+    ALPHABET: './Alphabet/'
+    TRAIN_DATA_DIR: './Train/Data/'
+    TRAIN_LABEL_DIR: './Train/Label/'
+    TEST_DATA_DIR: './Test/Data/'
+    TEST_LABEL_DIR: './Test/Label/'
+    VAL_DATA_DIR: './Val/Data/'
+    VAL_LABEL_DIR: './Val/Label/'
+  CHECKPOINTS_DIR: './Checkpoints/'
+  PRETRAIN_MODEL_DIR: './Pretrain_model/'
+  CACHE_DIR: './Cache/'
+  LOGGER_DIR: './Logger/'
+
+IMAGE:
+  IMG_H: 32
+  IMG_W: 100
+  IMG_CHANNEL: 3
+
+FUNCTION:
+  VAL_ONLY: False
+  FINETUNE: False
+
+MODEL:
+  EPOCH: 100
+  BATCH_SIZE: 4
+  LR: 0.01
+  DECAY_RATE: 0.1
+  OPTIMIZER: 'Adam'
+  LOSS: ''
+  DETAILS:
+    HIDDEN_LAYER: 10
+
+THRESHOLD:
+  MAXSIZE: 100
+  MINSIZE: 1
+  TEXT_SCALE: 75
+
+SAVE_FREQ: 4000
+SHOW_FREQ: 100

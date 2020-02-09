@@ -4,7 +4,7 @@
 '''
 
 import torch
-
+import torch.optim as optim
 
 # lossDict = {
 #
@@ -12,6 +12,17 @@ import torch
 #
 #
 # }
+
+# # 优化器，可以为其写一个类
+if opt.adam:
+    optimizer = optim.Adam(MORAN.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
+elif opt.adadelta:
+    optimizer = optim.Adadelta(MORAN.parameters(), lr=opt.lr)
+elif opt.sgd:
+    optimizer = optim.SGD(MORAN.parameters(), lr=opt.lr, momentum=0.9)
+else:
+    optimizer = optim.RMSprop(MORAN.parameters(), lr=opt.lr)
+
 
 
 class Optimizer(object):
@@ -23,19 +34,19 @@ class Optimizer(object):
         pass
 
     @staticmethod
-    def getOptimizer(opt=''):
-        def CrossEntropyLoss(opt):
+    def getOptimizer(model,opt=''):
+        def Adam(opt):
             '''
             交叉熵损失函数
             '''
-            return torch.nn.CrossEntropyLoss()
+            return optim.Adam(MORAN.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
 
-        def MSELoss(opt):
+        def Adadelta(opt):
             '''
             平方差损失函数
             '''
-            return torch.nn.MSELoss()
-
+            return optim.Adadelta(MORAN.parameters(), lr=opt.lr)
+        
         def test(opt=''):
             print("hello")
 

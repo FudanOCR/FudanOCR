@@ -45,5 +45,4 @@ class Loss(object):
             print("hello")
 
         # 获取loss函数的名称
-        # lossName = opt[0]
-        test()
+

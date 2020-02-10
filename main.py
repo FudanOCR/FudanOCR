@@ -76,6 +76,9 @@ nclass = len(alphabet)
 
 
 
+
+
+
 # # 数据集，最后
 # '''
 # ===================================================================================
@@ -91,7 +94,7 @@ nclass = len(alphabet)
 # assert train_dataset
 #
 # test_dataset = dataset.lmdbDataset(root=opt.valroot,
-#     transform=dataset.resizeNormalize((opt.imgW, opt.imgH)), reverse=opt.BidirDecoder,alphabet=alphabet)
+#     transform=dataset.resizeNormalize((opt.imgW, opt.imgH)), reverse=opt.BidirDecoder,alphabet=alphabte)
 # assert test_dataset
 #
 # '''

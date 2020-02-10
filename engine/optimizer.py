@@ -46,7 +46,7 @@ class Optimizer(object):
             平方差损失函数
             '''
             return optim.Adadelta(MORAN.parameters(), lr=opt.lr)
-        
+
         def test(opt=''):
             print("hello")
 

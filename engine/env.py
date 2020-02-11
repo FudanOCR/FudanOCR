@@ -10,14 +10,18 @@ import torch
 import random
 import torch.backends.cudnn as cudnn
 import argparse
-
+from config.config import get_cfg_defaults
 
 class Env(object):
 
     def __init__(self):
+        '''
+        进行一系列初始化之后，将命令行参数给的配置文件读出来，交予类变量self
+        '''
 
-        self.readCommand()
+        self.opt = self.readCommand()
         self.seedInit()
+        self.setVisibleGpu()
         self.setCudnnBenchmark()
 
     def seedInit(self):
@@ -44,11 +48,14 @@ class Env(object):
         parser = argparse.ArgumentParser()
         parser.add_argument('--config_file', required=True, help='path to config file')
         arg = parser.parse_args()
-        print("Parameters: ", arg.config_file)
+        # print("Parameters CONFIG_FILE: ", arg.config_file)
 
-        '''
-        TODO 将配置文件的路径传给config模块
-        '''
+        cfg = get_cfg_defaults()
+        cfg.merge_from_file(arg.config_file)
+        cfg.freeze()
+        return cfg
+
+
 
     def createFolder(self, rootList, removeOrigin=False):
         '''
@@ -73,6 +80,18 @@ class Env(object):
                 os.makedirs(root)
 
 
+    def getOpt(self):
+        '''
+        返回解析好的配置文件opt
+        '''
+        return self.opt
+
+    def setVisibleGpu(self):
+        '''
+        设置可用gpu编号
+        '''
+        gpu_list = [str(i) for i in self.opt.BASE.GPU_ID]
+        os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(gpu_list)
 
 
 

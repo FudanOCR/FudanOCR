@@ -5,44 +5,33 @@
 
 import torch
 
-# lossDict = {
-#
-#     'MSELoss' : self
-#
-#
-# }
+
+
+def getLoss(opt=''):
 
 
 
-
-class Loss(object):
-
-    def __init__(self):
+    def CrossEntropyLoss(opt):
         '''
-        通过传入的配置文件寻找相应的损失函数，并返回
+        交叉熵损失函数
         '''
-        pass
+        return torch.nn.CrossEntropyLoss()
 
+    def MSELoss(opt):
+        '''
+        平方差损失函数
+        '''
+        return torch.nn.MSELoss()
 
-    @staticmethod
-    def getLoss(opt=''):
+    # 获取loss函数的名称
 
+    '''
+    Loss字典，根据参数文件的字符串选择对应的函数
+    '''
+    lossDict = {
+        'MSELoss': MSELoss,
+        'CrossEntropyLoss': CrossEntropyLoss,
+    }
 
-
-        def CrossEntropyLoss(opt):
-            '''
-            交叉熵损失函数
-            '''
-            return torch.nn.CrossEntropyLoss()
-
-        def MSELoss(opt):
-            '''
-            平方差损失函数
-            '''
-            return torch.nn.MSELoss()
-
-        def test(opt=''):
-            print("hello")
-
-        # 获取loss函数的名称
+    return lossDict[opt.MODEL.LOSS](opt)
 

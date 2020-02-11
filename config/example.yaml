@@ -5,8 +5,8 @@ BASE:
   TASK_ID: 12345
   NETWORK: 'NetworkName'
   NUM_GPUS: 1
-  GPU_ID: [0, 1]
-  WORKERS: 2
+  GPU_ID: '0,1'
+  WORKERS: 4
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -21,10 +21,10 @@ ADDRESS:
     VAL_DATA_DIR: './Val/Data/'
     VAL_GT_DIR: './Val/GT/'
   RECOGNITION:
-    ALPHABET: './Alphabet/'
-    TRAIN_DATA_DIR: './Train/Data/'
+    ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
+    TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
     TRAIN_LABEL_DIR: './Train/Label/'
-    TEST_DATA_DIR: './Test/Data/'
+    TEST_DATA_DIR: '/home/cjy/ic15_test_lmdb'
     TEST_LABEL_DIR: './Test/Label/'
     VAL_DATA_DIR: './Val/Data/'
     VAL_LABEL_DIR: './Val/Label/'
@@ -36,19 +36,19 @@ ADDRESS:
 IMAGE:
   IMG_H: 32
   IMG_W: 100
-  IMG_CHANNEL: 3
+  IMG_CHANNEL: 1
 
 FUNCTION:
   VAL_ONLY: False
   FINETUNE: False
 
 MODEL:
-  EPOCH: 100
-  BATCH_SIZE: 4
-  LR: 0.01
+  EPOCH: 100000
+  BATCH_SIZE: 64
+  LR: 1.0
   DECAY_RATE: 0.1
-  OPTIMIZER: 'Adam'
-  LOSS: ''
+  OPTIMIZER: 'Adadelta'
+  LOSS: 'CrossEntropyLoss'
   DETAILS:
     HIDDEN_LAYER: 10
 
@@ -59,3 +59,11 @@ THRESHOLD:
 
 SAVE_FREQ: 4000
 SHOW_FREQ: 100
+VAL_FREQ: 1000
+
+targetH: 32
+targetW: 100
+BidirDecoder: True
+inputDataType: 'torch.cuda.FloatTensor'
+maxBatch: 256
+CUDA: True

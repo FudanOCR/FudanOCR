@@ -69,6 +69,14 @@ _C.THRESHOLD.TEXT_SCALE = 75
 
 _C.SAVE_FREQ = 4000
 _C.SHOW_FREQ = 100
+_C.VAL_FREQ = 1000
+
+_C.targetH= 32
+_C.targetW=100
+_C.BidirDecoder= True
+_C.inputDataType= 'torch.cuda.FloatTensor'
+_C.maxBatch= 256
+_C.CUDA= True
 
 
 def get_cfg_defaults():

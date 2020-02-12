@@ -5,14 +5,14 @@ from torch.autograd import Variable
 import os
 import Levenshtein
 
-
 from engine.loss import getLoss
 from engine.optimizer import getOptimizer
 from alphabet.alphabet import Alphabet
 
+
 class Trainer(object):
 
-    def __init__(self,modelObject,opt='',train_loader='', val_loader=''):
+    def __init__(self, modelObject, opt='', train_loader='', val_loader=''):
         '''
         模型训练器主体
 
@@ -36,7 +36,7 @@ class Trainer(object):
         self.model = self.initModel(modelObject)
         self.loadParam()
 
-        self.optimizer = getOptimizer(self.model,self.opt)
+        self.optimizer = getOptimizer(self.model, self.opt)
         self.criterion = getLoss(self.opt)
 
         self.train_loader = train_loader
@@ -45,11 +45,18 @@ class Trainer(object):
         self.loss_avg = utils.averager()
         self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
 
-        self.nc = opt.IMAGE.IMG_CHANNEL
+        '''常量区'''
+        self.i = 0
+        self.highestAcc = 0
 
-    def initModel(self,modelObject):
-        return modelObject(self.opt,self.alphabet)
-
+    def initModel(self, modelObject):
+        '''
+        根据配置文件初始化模型
+        '''
+        if self.opt.CUDA:
+            return modelObject(self.opt, self.alphabet).cuda()
+        else:
+            modelObject(self.opt, self.alphabet)
 
     def loadParam(self):
         '''
@@ -69,12 +76,104 @@ class Trainer(object):
                 state_dict_rename[name] = v
             self.model.load_state_dict(state_dict_rename, strict=True)
 
-    def save(self,i):
+    def pretreatment(self, data):
         '''
-        在特定训练次数后执行保存模型操作
+        将从dataloader加载出来的data转化为可以传入神经网络的数据
         '''
-        torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-            self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, i))
+        image = torch.FloatTensor(self.opt.MODEL.BATCH_SIZE, self.opt.IMAGE.IMG_CHANNEL, self.opt.IMAGE.IMG_H,
+                                  self.opt.IMAGE.IMG_H)
+        text = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
+        text_rev = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
+        length = torch.IntTensor(self.opt.MODEL.BATCH_SIZE)
+
+        if self.opt.CUDA:
+            # self.model = torch.nn.DataParallel(self.model, device_ids=range(self.opt.ngpu))
+            image = image.cuda()
+            text = text.cuda()
+            text_rev = text_rev.cuda()
+            self.criterion = self.criterion.cuda()
+
+        image = Variable(image)
+        text = Variable(text)
+        text_rev = Variable(text_rev)
+        length = Variable(length)
+
+        if self.opt.BidirDecoder:
+            cpu_images, cpu_texts, cpu_texts_rev = data
+            utils.loadData(image, cpu_images)
+            t, l = self.converter.encode(cpu_texts, scanned=True)
+            t_rev, _ = self.converter.encode(cpu_texts_rev, scanned=True)
+            utils.loadData(text, t)
+            utils.loadData(text_rev, t_rev)
+            utils.loadData(length, l)
+            return image, length, text, text_rev
+            # preds0, preds1 = self.model(image, length, text, text_rev)
+            # cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
+        else:
+            cpu_images, cpu_texts = data
+            utils.loadData(image, cpu_images)
+            t, l = self.converter.encode(cpu_texts, scanned=True)
+            utils.loadData(text, t)
+            utils.loadData(length, l)
+            return image, length, text, text_rev
+            # preds = self.model(image, length, text, text_rev)
+            # cost = self.criterion(preds, text)
+
+    def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
+        '''
+        将神经网络传出的数据解码为可用于计算结果的数据
+        '''
+
+        if test == False:
+            if self.opt.BidirDecoder:
+                image, length, text, text_rev = pretreatmentData
+                preds0, preds1 = modelResult
+                cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
+            else:
+                image, length, text, text_rev = pretreatmentData
+                preds = self.model(image, length, text, text_rev)
+                cost = self.criterion(preds, text)
+
+            return cost
+
+        else:
+            if self.opt.BidirDecoder:
+                preds0, preds1 = modelResult
+                cpu_images, cpu_texts, cpu_texts_rev = originData
+                image, length, text, text_rev = pretreatmentData
+
+                cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
+                preds0, preds1 = modelResult
+                preds0_prob, preds0 = preds0.max(1)
+                preds0 = preds0.view(-1)
+                preds0_prob = preds0_prob.view(-1)
+                sim_preds0 = self.converter.decode(preds0.data, length.data)
+                preds1_prob, preds1 = preds1.max(1)
+                preds1 = preds1.view(-1)
+                preds1_prob = preds1_prob.view(-1)
+                sim_preds1 = self.converter.decode(preds1.data, length.data)
+                sim_preds = []
+                for j in range(cpu_images.size(0)):
+                    text_begin = 0 if j == 0 else length.data[:j].sum()
+                    if torch.mean(preds0_prob[text_begin:text_begin + len(sim_preds0[j].split('$')[0] + '$')]).data[0] > \
+                            torch.mean(
+                                preds1_prob[text_begin:text_begin + len(sim_preds1[j].split('$')[0] + '$')]).data[0]:
+                        sim_preds.append(sim_preds0[j].split('$')[0] + '$')
+                    else:
+                        sim_preds.append(sim_preds1[j].split('$')[0][-1::-1] + '$')
+
+                return cost, sim_preds, cpu_texts
+            else:
+                cpu_images, cpu_texts = originData
+                preds0, preds1 = modelResult
+                image, length, text, text_rev = pretreatmentData
+                cost = self.criterion(preds, text)
+                preds = modelResult
+                _, preds = preds.max(1)
+                preds = preds.view(-1)
+                sim_preds = self.converter.decode(preds.data, length.data)
+
+                return cost, sim_preds, cpu_texts
 
     def validate(self):
         '''
@@ -82,38 +181,12 @@ class Trainer(object):
         '''
 
         acc_tmp = 0
-        acc = 0
-
-        image = torch.FloatTensor(self.opt.MODEL.BATCH_SIZE, self.nc, self.opt.IMAGE.IMG_H, self.opt.IMAGE.IMG_H)
-        text = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
-        text_rev = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
-        length = torch.IntTensor(self.opt.MODEL.BATCH_SIZE)
-
-        if self.opt.CUDA:
-            self.model.cuda()
-            '''多卡实验，今后可用扩展功能'''
-            # self.model = torch.nn.DataParallel(self.model, device_ids=range(self.opt.ngpu))
-            image = image.cuda()
-            text = text.cuda()
-            text_rev = text_rev.cuda()
-            length = length.cuda()
-            # self.criterion = self.criterion.cuda()
-
-        image = Variable(image)
-        text = Variable(text)
-        text_rev = Variable(text_rev)
-        length = Variable(length)
-
         for p in self.model.parameters():
             p.requires_grad = False
         self.model.eval()
 
         print('Start val')
         val_loader = self.val_loader
-        criterion = self.criterion
-        opt = self.opt
-        converter = self.converter
-
         val_iter = iter(val_loader)
         n_correct = 0
         n_total = 0
@@ -124,47 +197,16 @@ class Trainer(object):
 
         for i in range(len(val_loader)):
             data = val_iter.next()
-            if opt.BidirDecoder:
-                cpu_images, cpu_texts, cpu_texts_rev = data
-                utils.loadData(image, cpu_images)
-                t, l = converter.encode(cpu_texts, scanned=True)
-                t_rev, _ = converter.encode(cpu_texts_rev, scanned=True)
-                utils.loadData(text, t)
-                utils.loadData(text_rev, t_rev)
-                utils.loadData(length, l)
-                preds0, preds1 = self.model(image, length, text, text_rev, test=True)
-                cost = criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
-                preds0_prob, preds0 = preds0.max(1)
-                preds0 = preds0.view(-1)
-                preds0_prob = preds0_prob.view(-1)
-                sim_preds0 = converter.decode(preds0.data, length.data)
-                preds1_prob, preds1 = preds1.max(1)
-                preds1 = preds1.view(-1)
-                preds1_prob = preds1_prob.view(-1)
-                sim_preds1 = converter.decode(preds1.data, length.data)
-                sim_preds = []
-                for j in range(cpu_images.size(0)):
-                    text_begin = 0 if j == 0 else length.data[:j].sum()
-                    if torch.mean(preds0_prob[text_begin:text_begin + len(sim_preds0[j].split('$')[0] + '$')]).data[0] > \
-                            torch.mean(
-                                preds1_prob[text_begin:text_begin + len(sim_preds1[j].split('$')[0] + '$')]).data[0]:
-                        sim_preds.append(sim_preds0[j].split('$')[0] + '$')
-                    else:
-                        sim_preds.append(sim_preds1[j].split('$')[0][-1::-1] + '$')
-            else:
-                cpu_images, cpu_texts = data
-                utils.loadData(image, cpu_images)
-                t, l = converter.encode(cpu_texts, scanned=True)
-                utils.loadData(text, t)
-                utils.loadData(length, l)
-                preds = self.model(image, length, text, text_rev, test=True)
-                cost = criterion(preds, text)
-                _, preds = preds.max(1)
-                preds = preds.view(-1)
-                sim_preds = converter.decode(preds.data, length.data)
+
+            pretreatmentData = self.pretreatment(data)
+
+            modelResult = self.model(*pretreatmentData)
+
+            cost, preds, targets = self.posttreatment(modelResult, pretreatmentData, originData=data, test=True)
 
             loss_avg.add(cost)
-            for pred, target in zip(sim_preds, cpu_texts):
+
+            for pred, target in zip(preds, targets):
                 if pred == target.lower():
                     n_correct += 1
                 f.write("预测 %s      目标 %s\n" % (pred, target))
@@ -178,13 +220,11 @@ class Trainer(object):
         print('levenshtein distance: %f' % (distance / n_total))
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
 
-
-        if acc_tmp > acc:
-            acc = acc_tmp
+        if acc_tmp > self.highestAcc:
+            self.highestAcc = acc_tmp
             torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-                self.opt.ADDRESS.CHECKPOINTS_DIR, i, str(acc)[:6]))
+                self.opt.ADDRESS.CHECKPOINTS_DIR, self.i, str(self.highestAcc)[:6]))
         return acc_tmp
-
 
     def train(self):
         '''
@@ -200,84 +240,59 @@ class Trainer(object):
         '''
 
         t0 = time.time()
-        acc = 0
-        acc_tmp = 0
+        self.highestAcc = 0
         for epoch in range(self.opt.MODEL.EPOCH):
 
+            self.i = 0
             train_iter = iter(self.train_loader)
-            i = 0
-            while i < len(self.train_loader):
 
-                '''验证'''
-                if i % self.opt.VAL_FREQ == 0:
-                    for p in self.model.parameters():
-                        p.requires_grad = False
-                    self.model.eval()
-                    acc_tmp = self.validate()
-                    if acc_tmp > acc:
-                        acc = acc_tmp
-                        torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-                            self.opt.ADDRESS.CHECKPOINTS_DIR, i, str(acc)[:6]))
+            while self.i < len(self.train_loader):
 
-                '''保存'''
-                if i % self.opt.SAVE_FREQ == 0:
-                    self.save(i)
-
-                for p in self.model.parameters():
-                    p.requires_grad = True
-                self.model.train()
-
-                image = torch.FloatTensor(self.opt.MODEL.BATCH_SIZE, self.nc, self.opt.IMAGE.IMG_H, self.opt.IMAGE.IMG_H)
-                text = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
-                text_rev = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
-                length = torch.IntTensor(self.opt.MODEL.BATCH_SIZE)
-
-                if self.opt.CUDA:
-                    self.model.cuda()
-                    '''多卡实验，今后可用扩展功能'''
-                    # self.model = torch.nn.DataParallel(self.model, device_ids=range(self.opt.ngpu))
-                    image = image.cuda()
-                    text = text.cuda()
-                    text_rev = text_rev.cuda()
-                    self.criterion = self.criterion.cuda()
-
-                image = Variable(image)
-                text = Variable(text)
-                text_rev = Variable(text_rev)
-                length = Variable(length)
+                '''检查该迭代周期是否需要保存或验证'''
+                self.checkSaveOrVal()
 
                 data = train_iter.next()
-                if self.opt.BidirDecoder:
-                    cpu_images, cpu_texts, cpu_texts_rev = data
-                    utils.loadData(image, cpu_images)
-                    t, l = self.converter.encode(cpu_texts, scanned=True)
-                    t_rev, _ = self.converter.encode(cpu_texts_rev, scanned=True)
-                    utils.loadData(text, t)
-                    utils.loadData(text_rev, t_rev)
-                    utils.loadData(length, l)
-                    preds0, preds1 = self.model(image, length, text, text_rev)
-                    cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
-                else:
-                    cpu_images, cpu_texts = data
-                    utils.loadData(image, cpu_images)
-                    t, l = self.converter.encode(cpu_texts, scanned=True)
-                    utils.loadData(text, t)
-                    utils.loadData(length, l)
-                    preds = self.model(image, length, text, text_rev)
-                    cost = self.criterion(preds, text)
+
+                pretreatmentData = self.pretreatment(data)
+
+                modelResult = self.model(*pretreatmentData)
+
+                cost = self.posttreatment(modelResult, pretreatmentData, data)
 
                 self.model.zero_grad()
                 cost.backward()
                 self.optimizer.step()
 
-                # cost = self.trainBatch(train_iter)
                 self.loss_avg.add(cost)
 
-                if i % self.opt.SHOW_FREQ == 0:
+                if self.i % self.opt.SHOW_FREQ == 0:
                     t1 = time.time()
                     print('Epoch: %d/%d; iter: %d/%d; Loss: %f; time: %.2f s;' %
-                          (epoch, self.opt.MODEL.EPOCH, i, len(self.train_loader), self.loss_avg.val(), t1 - t0)),
+                          (epoch, self.opt.MODEL.EPOCH, self.i, len(self.train_loader), self.loss_avg.val(), t1 - t0)),
                     self.loss_avg.reset()
                     t0 = time.time()
 
-                i += 1
+                self.i += 1
+
+    def checkSaveOrVal(self):
+        '''验证'''
+        if self.i % self.opt.VAL_FREQ == 0:
+            for p in self.model.parameters():
+                p.requires_grad = False
+            self.model.eval()
+            acc_tmp = self.validate()
+            '''记录训练结果最大值的模型文件'''
+            if acc_tmp > self.highestAcc:
+                self.highestAcc = acc_tmp
+                torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
+                    self.opt.ADDRESS.CHECKPOINTS_DIR, self.i, str(self.highestAcc)[:6]))
+
+        '''保存'''
+        if self.i % self.opt.SAVE_FREQ == 0:
+            torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
+                self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, self.i))
+
+        '''恢复训练状态'''
+        for p in self.model.parameters():
+            p.requires_grad = True
+        self.model.train()

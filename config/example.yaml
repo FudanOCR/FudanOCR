@@ -5,7 +5,7 @@ BASE:
   TASK_ID: 12345
   NETWORK: 'NetworkName'
   NUM_GPUS: 1
-  GPU_ID: '0,1'
+  GPU_ID: '2,'
   WORKERS: 4
 
 DATASETS:

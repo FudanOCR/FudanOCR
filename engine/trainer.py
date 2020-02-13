@@ -165,7 +165,7 @@ class Trainer(object):
                 return cost, sim_preds, cpu_texts
             else:
                 cpu_images, cpu_texts = originData
-                preds0, preds1 = modelResult
+                preds = modelResult
                 image, length, text, text_rev = pretreatmentData
                 cost = self.criterion(preds, text)
                 preds = modelResult

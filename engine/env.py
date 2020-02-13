@@ -11,6 +11,7 @@ import random
 import torch.backends.cudnn as cudnn
 import argparse
 from config.config import get_cfg_defaults
+from yacs.config import CfgNode as CN
 
 class Env(object):
 
@@ -50,12 +51,20 @@ class Env(object):
         arg = parser.parse_args()
         # print("Parameters CONFIG_FILE: ", arg.config_file)
 
-        cfg = get_cfg_defaults()
-        cfg.merge_from_file(arg.config_file)
-        cfg.freeze()
-        return cfg
+        # cfg = get_cfg_defaults()
+        # cfg.merge_from_file(arg.config_file)
+        # cfg.freeze()
+        # return cfg
+
+        opt = self.read_config_file(arg.config_file)
+        return opt
 
 
+    def read_config_file(self,config_file):
+        # 用yaml重构配置文件
+        f = open(config_file)
+        opt = CN.load_cfg(f)
+        return opt
 
     def createFolder(self, rootList, removeOrigin=False):
         '''

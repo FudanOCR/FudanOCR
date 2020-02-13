@@ -6,9 +6,12 @@
 
 # 环境变量之后得去掉，模型进行重构，包括在所有from都写上明确的路径
 import sys
+from utils import utils
 
+sys.path.append('.')
 sys.path.append('/home/cjy/FudanOCR/model/recognition_model/MORAN_V2')
-
+sys.path.append('/home/cjy/FudanOCR/model/recognition_model/GRCNN')
+sys.path.append('/home/cjy/FudanOCR/model/recognition_model')
 '''
 导入相关包
 '''
@@ -16,15 +19,18 @@ sys.path.append('/home/cjy/FudanOCR/model/recognition_model/MORAN_V2')
 from alphabet.alphabet import Alphabet
 from data import dataset
 from model.recognition_model.MORAN_V2.models.moran import newMORAN
-from utils import utils
+from model.recognition_model.GRCNN.models.crann import newCRANN
+
 from engine.trainer import Trainer
 from engine.env import Env
+from logger.logger import Logger
 
 # torch相关包
 import os
 from torch.autograd import Variable
 import torch
 import lmdb
+import json
 
 '''
 ===================================================================================
@@ -33,6 +39,9 @@ import lmdb
 '''
 env = Env()
 opt = env.getOpt()
+
+
+
 
 '''
 ===================================================================================
@@ -80,5 +89,5 @@ test_loader = torch.utils.data.DataLoader(
 训练
 ===================================================================================
 '''
-trainer = Trainer(modelObject=newMORAN, opt=opt, train_loader=train_loader,val_loader=test_loader)
+trainer = Trainer(modelObject=newCRANN, opt=opt, train_loader=train_loader,val_loader=test_loader)
 trainer.train()

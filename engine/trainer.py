@@ -42,6 +42,7 @@ class Trainer(object):
         self.train_loader = train_loader
         self.val_loader = val_loader
 
+        '''识别模型工具元件'''
         self.loss_avg = utils.averager()
         self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
 
@@ -168,7 +169,6 @@ class Trainer(object):
                 preds = modelResult
                 image, length, text, text_rev = pretreatmentData
                 cost = self.criterion(preds, text)
-                preds = modelResult
                 _, preds = preds.max(1)
                 preds = preds.view(-1)
                 sim_preds = self.converter.decode(preds.data, length.data)
@@ -181,9 +181,7 @@ class Trainer(object):
         '''
 
         acc_tmp = 0
-        for p in self.model.parameters():
-            p.requires_grad = False
-        self.model.eval()
+        self.setModelState('test')
 
         print('Start val')
         val_loader = self.val_loader
@@ -277,9 +275,7 @@ class Trainer(object):
     def checkSaveOrVal(self):
         '''验证'''
         if self.i % self.opt.VAL_FREQ == 0:
-            for p in self.model.parameters():
-                p.requires_grad = False
-            self.model.eval()
+            self.setModelState('test')
             acc_tmp = self.validate()
             '''记录训练结果最大值的模型文件'''
             if acc_tmp > self.highestAcc:
@@ -293,6 +289,19 @@ class Trainer(object):
                 self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, self.i))
 
         '''恢复训练状态'''
-        for p in self.model.parameters():
-            p.requires_grad = True
-        self.model.train()
+        self.setModelState('train')
+
+    def setModelState(self,state):
+        '''
+        根据传入的状态判断模型处于训练或者验证状态
+        '''
+        if state == 'eval' or state == 'test':
+            for p in self.model.parameters():
+                p.requires_grad = False
+            self.model.eval()
+        elif state == 'train':
+            for p in self.model.parameters():
+                p.requires_grad = True
+            self.model.train()
+
+

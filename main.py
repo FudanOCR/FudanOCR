@@ -6,10 +6,17 @@ from engine.env import Env
 from data.getdataloader import getDataLoader
 
 class GRCNN_Trainer(Trainer):
+    '''
+    重载训练器
 
+    主要重载函数为pretreatment与posttreatment两个函数，为数据前处理与数据后处理
+    数据前处理：从dataloader加载出来的数据需要经过加工才可以进入model进行训练
+    数据后处理：经过模型训练的数据是编码好的，需要进一步解码用来计算损失函数
+    不同模型的数据前处理与后处理的方式不一致，因此需要进行函数重载
+    '''
 
-    def __init__(self,modelObject, opt, train_loader, val_loader):
-        Trainer.__init__(self,modelObject, opt, train_loader, val_loader)
+    def __init__(self, modelObject, opt, train_loader, val_loader):
+        Trainer.__init__(self, modelObject, opt, train_loader, val_loader)
 
     def pretreatment(self, data):
         '''
@@ -19,7 +26,6 @@ class GRCNN_Trainer(Trainer):
         cpu_images, cpu_gt = data
         v_images = Variable(cpu_images.cuda())
         return (v_images,)
-
 
     def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
         '''
@@ -57,8 +63,7 @@ class GRCNN_Trainer(Trainer):
 
             return cost, sim_preds, cpu_gt
 
+
 env = Env()
-train_loader , test_loader = getDataLoader(env.opt)
-newTrainer = GRCNN_Trainer(modelObject=newCRANN, opt=env.opt, train_loader=train_loader,val_loader=test_loader).train()
-
-
+train_loader, test_loader = getDataLoader(env.opt)
+newTrainer = GRCNN_Trainer(modelObject=newCRANN, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()

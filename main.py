@@ -1,14 +1,64 @@
 # -*- coding:utf-8 -*-
 
 from model.recognition_model.GRCNN.models.crann import newCRANN
-'''MORAN'''
-# from engine.trainer import Trainer
-'''GRCNN'''
-from engine.trainer_grcnn_test import Trainer
+from engine.trainer import Trainer
 from engine.env import Env
 from data.getdataloader import getDataLoader
 
+class GRCNN_Trainer(Trainer):
+
+
+    def __init__(self,modelObject, opt, train_loader, val_loader):
+        Trainer.__init__(self,modelObject, opt, train_loader, val_loader)
+
+    def pretreatment(self, data):
+        '''
+        将从dataloader加载出来的data转化为可以传入神经网络的数据
+        '''
+        from torch.autograd import Variable
+        cpu_images, cpu_gt = data
+        v_images = Variable(cpu_images.cuda())
+        return (v_images,)
+
+
+    def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
+        '''
+        将神经网络传出的数据解码为可用于计算结果的数据
+        '''
+        from torch.autograd import Variable
+        import torch
+        if test == False:
+            cpu_images, cpu_gt = originData
+            text, text_len = self.converter.encode(cpu_gt)
+            v_gt = Variable(text)
+            v_gt_len = Variable(text_len)
+            bsz = cpu_images.size(0)
+            predict_len = Variable(torch.IntTensor([modelResult.size(0)] * bsz))
+            cost = self.criterion(modelResult, v_gt, predict_len, v_gt_len)
+            return cost
+
+        else:
+            cpu_images, cpu_gt = originData
+            bsz = cpu_images.size(0)
+            text, text_len = self.converter.encode(cpu_gt)
+            v_Images = Variable(cpu_images.cuda())
+            v_gt = Variable(text)
+            v_gt_len = Variable(text_len)
+
+            predict = modelResult
+            # modelResult = self.model(v_Images)
+            predict_len = Variable(torch.IntTensor([modelResult.size(0)] * bsz))
+            cost = self.criterion(predict, v_gt, predict_len, v_gt_len)
+
+            _, acc = predict.max(2)
+            acc = acc.transpose(1, 0).contiguous().view(-1)
+
+            sim_preds = self.converter.decode(acc.data, predict_len.data)
+
+            return cost, sim_preds, cpu_gt
 
 env = Env()
 train_loader , test_loader = getDataLoader(env.opt)
-trainer = Trainer(modelObject=newCRANN, opt=env.opt, train_loader=train_loader,val_loader=test_loader).train()
+newTrainer = GRCNN_Trainer(modelObject=newCRANN, opt=env.opt, train_loader=train_loader,val_loader=test_loader).train()
+
+

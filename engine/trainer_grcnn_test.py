@@ -83,7 +83,7 @@ class Trainer(object):
         '''
         cpu_images, cpu_gt = data
         v_images = Variable(cpu_images.cuda())
-        return (v_images)
+        return (v_images,)
 
 
     def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
@@ -109,11 +109,15 @@ class Trainer(object):
             v_gt = Variable(text)
             v_gt_len = Variable(text_len)
 
+            predict = modelResult
             # modelResult = self.model(v_Images)
             predict_len = Variable(torch.IntTensor([modelResult.size(0)] * bsz))
             cost = self.criterion(predict, v_gt, predict_len, v_gt_len)
 
-            sim_preds = self.converter.decode(acc.data, predict_len.data, raw=False)
+            _, acc = predict.max(2)
+            acc = acc.transpose(1, 0).contiguous().view(-1)
+
+            sim_preds = self.converter.decode(acc.data, predict_len.data)
 
             return cost, sim_preds, cpu_gt
 
@@ -136,6 +140,7 @@ class Trainer(object):
         f = open('./OCR新架构验证测试.txt', 'a', encoding='utf-8')
 
         for i in range(len(val_loader)):
+
             data = val_iter.next()
 
             pretreatmentData = self.pretreatment(data)
@@ -187,6 +192,7 @@ class Trainer(object):
             train_iter = iter(self.train_loader)
 
             while self.i < len(self.train_loader):
+
 
                 '''检查该迭代周期是否需要保存或验证'''
                 self.checkSaveOrVal()

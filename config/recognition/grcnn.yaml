@@ -6,7 +6,7 @@ BASE:
   NETWORK: 'NetworkName'
   NUM_GPUS: 1
   GPU_ID: '2,'
-  WORKERS: 4
+  WORKERS: 0
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -24,7 +24,7 @@ ADDRESS:
     ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
     TRAIN_DATA_DIR: "/home/cjy/ic15_test_lmdb"
     TRAIN_LABEL_DIR: "/home/cjy/image_label_pair.txt"
-    TEST_DATA_DIR: "/home/cjy/ic15_test_lmdb"
+    TEST_DATA_DIR: "/home/cjy/ic13_test_lmdb"
     TEST_LABEL_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt"
     VAL_DATA_DIR: '/home/cjy/ic15_test_lmdb'
     VAL_LABEL_DIR: './Val/Label/'

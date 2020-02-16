@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from PIL import Image
-import util
+# import util
 import cv2
 import random
 import torchvision.transforms as transforms
@@ -10,8 +10,8 @@ import torch.utils.data
 import pyclipper
 import Polygon as plg
 from yacs.config import CfgNode as CN
-from bounding_box import BoxList
-from __main__ import opt
+from .bounding_box import BoxList
+# from __main__ import opt
 
 '''
 def read_config_file(config_file):
@@ -31,7 +31,7 @@ class ICDAR2013Dataset(torch.utils.data.Dataset):
         "text"
     )
 
-    def __init__(self, cfg, use_difficlut=False, transforms=None)
+    def __init__(self, cfg, use_difficlut=False, transforms=None):
         # data_dirs = [train_data_dir]
         # gt_dirs = [train_gt_dir]
         self.root = cfg.ADDRESS.DETETECTION.TRAIN_DATA_DIR  # data_dirs

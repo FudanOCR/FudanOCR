@@ -7,6 +7,7 @@
 # 环境变量之后得去掉，模型进行重构，包括在所有from都写上明确的路径
 import sys
 from utils import utils
+from data import dataset
 
 sys.path.append('.')
 sys.path.append('/home/cjy/FudanOCR/model/recognition_model/MORAN_V2')
@@ -17,7 +18,7 @@ sys.path.append('/home/cjy/FudanOCR/model/recognition_model')
 '''
 # OCR架构中的包
 from alphabet.alphabet import Alphabet
-from data import dataset
+
 from model.recognition_model.MORAN_V2.models.moran import newMORAN
 from model.recognition_model.GRCNN.models.crann import newCRANN
 '''MORAN'''

@@ -4,6 +4,10 @@
 '''
 crann.py 定义了模型的整体架构，卷积层和循环层由配置文件具体指出
 '''
+import sys
+
+sys.path.append('/home/cjy/FudanOCR/model/recognition_model/GRCNN')
+sys.path.append('/home/cjy/FudanOCR/model/recognition_model')
 
 import GRCNN.models.convnet as ConvNets
 import GRCNN.models.recurrent as SeqNets

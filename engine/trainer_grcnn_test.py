@@ -1,4 +1,5 @@
 import time
+
 from utils import utils
 import torch
 from torch.autograd import Variable
@@ -137,7 +138,7 @@ class Trainer(object):
         distance = 0.0
         loss_avg = self.loss_avg
 
-        f = open('./OCR新架构验证测试.txt', 'a', encoding='utf-8')
+        f = open('./OCR新架构验证测试.txt', 'w+', encoding='utf-8')
 
         for i in range(len(val_loader)):
 

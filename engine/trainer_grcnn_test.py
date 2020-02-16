@@ -93,27 +93,27 @@ class Trainer(object):
 
         if test == False:
             cpu_images, cpu_gt = originData
-            text, text_len = converter.encode(cpu_gt)
+            text, text_len = self.converter.encode(cpu_gt)
             v_gt = Variable(text)
             v_gt_len = Variable(text_len)
             bsz = cpu_images.size(0)
             predict_len = Variable(torch.IntTensor([modelResult.size(0)] * bsz))
-            cost = criterion(modelResult, v_gt, predict_len, v_gt_len)
+            cost = self.criterion(modelResult, v_gt, predict_len, v_gt_len)
             return cost
 
         else:
             cpu_images, cpu_gt = originData
             bsz = cpu_images.size(0)
-            text, text_len = converter.encode(cpu_gt)
+            text, text_len = self.converter.encode(cpu_gt)
             v_Images = Variable(cpu_images.cuda())
             v_gt = Variable(text)
             v_gt_len = Variable(text_len)
 
-            predict = model(v_Images)
-            predict_len = Variable(torch.IntTensor([predict.size(0)] * bsz))
-            cost = criterion(predict, v_gt, predict_len, v_gt_len)
+            # modelResult = self.model(v_Images)
+            predict_len = Variable(torch.IntTensor([modelResult.size(0)] * bsz))
+            cost = self.criterion(predict, v_gt, predict_len, v_gt_len)
 
-            sim_preds = converter.decode(acc.data, predict_len.data, raw=False)
+            sim_preds = self.converter.decode(acc.data, predict_len.data, raw=False)
 
             return cost, sim_preds, cpu_gt
 

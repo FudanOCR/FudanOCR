@@ -20,8 +20,10 @@ from alphabet.alphabet import Alphabet
 from data import dataset
 from model.recognition_model.MORAN_V2.models.moran import newMORAN
 from model.recognition_model.GRCNN.models.crann import newCRANN
-
-from engine.trainer import Trainer
+'''MORAN'''
+# from engine.trainer import Trainer
+'''GRCNN'''
+from engine.trainer_grcnn_test import Trainer
 from engine.env import Env
 from logger.logger import Logger
 

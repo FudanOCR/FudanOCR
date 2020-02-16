@@ -48,7 +48,7 @@ MODEL:
   LR: 0.0001
   DECAY_RATE: 0.1
   OPTIMIZER: 'Adam'
-  LOSS: 'CrossEntropyLoss'
+  LOSS: 'CTCLoss'
   DETAILS:
     HIDDEN_LAYER: 10
 

@@ -23,6 +23,13 @@ def getLoss(opt=''):
         '''
         return torch.nn.MSELoss()
 
+    def CTCLoss(opt):
+        '''
+        持续连接损失函数
+        '''
+        from warpctc_pytorch import CTCLoss
+        return CTCLoss()
+
     # 获取loss函数的名称
 
     '''
@@ -31,6 +38,7 @@ def getLoss(opt=''):
     lossDict = {
         'MSELoss': MSELoss,
         'CrossEntropyLoss': CrossEntropyLoss,
+        'CTCLoss': CTCLoss,
     }
 
     return lossDict[opt.MODEL.LOSS](opt)

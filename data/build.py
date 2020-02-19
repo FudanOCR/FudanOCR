@@ -4,11 +4,10 @@ import copy
 import logging
 
 import torch.utils.data
-from . import catalog
 from alphabet.alphabet import Alphabet
-from data import Imdb_dataset
-from data import icdar_seriers
-from data import CTW1500
+from .data import Imdb_dataset
+from .data import icdar_seriers
+from .data import CTW1500
 import torch
 
 

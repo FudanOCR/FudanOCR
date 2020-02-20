@@ -4,7 +4,7 @@ from multiprocessing import Pool
 from PIL import Image
 from tqdm import tqdm
 
-import config as cfg
+import model.detection_model.AdvancedEAST.config as cfg
 
 
 class Anno:

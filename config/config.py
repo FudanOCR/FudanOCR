@@ -7,7 +7,7 @@ _C.BASE = CN()
 _C.BASE.MODEL = 'ModelName'
 _C.BASE.VERSION = 'v1'
 _C.BASE.ENV = 'EnvironmentName'
-_C.BASE.TASK_ID = 12345
+_C.BASE.TASK_ID = '12345'
 _C.BASE.NETWORK = 'NetworkName'
 _C.BASE.NUM_GPUS = 1
 _C.BASE.GPU_ID = [0]
@@ -27,6 +27,7 @@ _C.ADDRESS.DETECTION.TEST_DATA_DIR = ''
 _C.ADDRESS.DETECTION.TEST_GT_DIR = ''
 _C.ADDRESS.DETECTION.VAL_DATA_DIR = ''
 _C.ADDRESS.DETECTION.VAL_GT_DIR = ''
+_C.ADDRESS.DETECTION.GT_JSON_DIR = ''
 
 _C.ADDRESS.RECOGNITION = CN()
 _C.ADDRESS.RECOGNITION.ALPHABET = ''
@@ -39,6 +40,7 @@ _C.ADDRESS.RECOGNITION.VAL_LABEL_DIR = ''
 
 _C.ADDRESS.CHECKPOINTS_DIR = ''
 _C.ADDRESS.PRETRAIN_MODEL_DIR = ''
+_C.ADDRESS.RESULT_DIR = ''
 _C.ADDRESS.CACHE_DIR = ''
 _C.ADDRESS.LOGGER_DIR = ''
 _C.ADDRESS.SUMMARY_DIR = ''
@@ -57,8 +59,18 @@ _C.MODEL.EPOCH = 100
 _C.MODEL.BATCH_SIZE = 4
 _C.MODEL.LR = 0.01
 _C.MODEL.DECAY_RATE = 0.1
+_C.MODEL.DECAY_STEP = 45
 _C.MODEL.OPTIMIZER = 'Adam'
 _C.MODEL.LOSS = ''
+_C.MODEL.PATIENCE = 5
+_C.MODEL.INIT_TYPE = 'xavier'
+_C.MODEL.lambda_inside_score_loss = 4.0
+_C.MODEL.lambda_side_vertex_code_loss = 1.0
+_C.MODEL.lambda_side_vertex_coord_loss = 1.0
+_C.MODEL.shrink_ratio = 0.2
+_C.MODEL.shrink_side_ratio = 0.6
+_C.MODEL.epsilon = 1e-4
+_C.MODEL.pixel_size = 4
 
 _C.MODEL.DETAILS = CN()
 _C.MODEL.DETAILS.HIDDEN_LAYER = 10
@@ -67,10 +79,17 @@ _C.THRESHOLD = CN()
 _C.THRESHOLD.MAXSIZE = 100
 _C.THRESHOLD.MINSIZE = 1
 _C.THRESHOLD.TEXT_SCALE = 75
+_C.THRESHOLD.iou_threshold = 0.5
+_C.THRESHOLD.pixel_threshold = 0.9
+_C.THRESHOLD.side_vertex_pixel_threshold = 0.9
+_C.THRESHOLD.trunc_threshold = 0.1
 
 _C.SAVE_FREQ = 4000
 _C.SHOW_FREQ = 100
 _C.VAL_FREQ = 1000
+
+_C.predict_cut_text_line = False
+_C.draw = 'store_true'
 
 _C.targetH = 32
 _C.targetW = 100
@@ -79,9 +98,10 @@ _C.inputDataType = 'torch.cuda.FloatTensor'
 _C.maxBatch = 256
 _C.CUDA = True
 
+_C.TEXTSNAKE = CN()
 _C.TEXTSNAKE.input_size = 512
 _C.TEXTSNAKE.exp_name = 'example1'
-_c.TEXTSNAKE.output_channel = 1
+_C.TEXTSNAKE.output_channel = 1
 
   # train opts
 _C.TEXTSNAKE.start_iter = 0

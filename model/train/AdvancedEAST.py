@@ -41,8 +41,8 @@ def train_AEAST(config_file):
             self.model = model
             self.criterion = criterion
             self.optimizer = optimizer
-            self.scheduler = scheduler
-            self.start_epoch = start_epoch
+            self.scheduler = scheduler  #
+            self.start_epoch = start_epoch  #
             self.tick = time.strftime("%Y%m%d-%H-%M-%S", time.localtime(time.time()))
             self.earlystopping = EarlyStopping(opt.patience, val_loss_min)
 

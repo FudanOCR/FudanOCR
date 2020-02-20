@@ -6,8 +6,8 @@ from torchvision.transforms import Compose, ToTensor, Normalize
 from PIL import Image
 from imgaug import augmenters as iaa
 
-import config as cfg
-from utils.preprocess import Anno
+import model.detection_model.AdvancedEAST.config as cfg
+from model.detection_model.AdvancedEAST.utils.preprocess import Anno
 
 
 class custom_dset(data.Dataset):

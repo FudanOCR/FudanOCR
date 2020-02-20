@@ -1,0 +1,65 @@
+BASE:
+  MODEL: 'AdvancedEAST'
+  TASK_ID: '3T1280'
+  CUDA: True
+  NUM_GPUS: 1
+  GPU_ID: [0, 1]
+  WORKERS: 1
+
+DATASETS:
+  DATASET: 'ICADR15'
+
+ADDRESS:
+  DETECTION:
+    TRAIN_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/img/'
+    TRAIN_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/gt/'
+    TEST_DATA_DIR: './Test/Data/'
+    TEST_GT_DIR: './Test/GT/'
+    VAL_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/img/'
+    VAL_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/gt/'
+    GT_JSON_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/res.json'
+  CHECKPOINTS_DIR: './Checkpoints/'
+  PRETRAIN_MODEL_DIR: './Pretrain_model/'
+  RESULT_DIR: '/home/msy/AdvancedEAST1/result/'
+  CACHE_DIR: './Cache/'
+  LOGGER_DIR: './Logger/'
+
+IMAGE:
+  IMG_H: 32
+  IMG_W: 100
+  IMG_CHANNEL: 1
+
+FUNCTION:
+  VAL_ONLY: False
+  FINETUNE: False
+
+MODEL:
+  EPOCH: 50
+  BATCH_SIZE: 1
+  LR: 0.0001
+  DECAY_RATE: 0.1
+  DECAY_STEP: 45
+  OPTIMIZER: 'Adadelta'
+  LOSS: 'CrossEntropyLoss'
+  PATIENCE: 5
+  INIT_TYPE: 'xavier'
+  lambda_inside_score_loss: 4.0
+  lambda_side_vertex_code_loss: 1.0
+  lambda_side_vertex_coord_loss: 1.0
+  shrink_ratio: 0.2
+  shrink_side_ratio: 0.6
+  epsilon: 1e-4
+  pixel_size: 4
+
+THRESHOLD:
+  iou_threshold: 0.5
+  pixel_threshold: 0.9
+  side_vertex_pixel_threshold: 0.9
+  trunc_threshold: 0.1
+
+SAVE_FREQ: 4000
+SHOW_FREQ: 270
+VAL_FREQ: 1000
+
+predict_cut_text_line: False
+draw: 'store_true'

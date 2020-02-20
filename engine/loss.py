@@ -32,6 +32,10 @@ def getLoss(opt=''):
 
     # 获取loss函数的名称
 
+    def TextLoss(opt):
+        from engine.text_loss import TextLoss
+        return TextLoss()
+
     '''
     Loss字典，根据参数文件的字符串选择对应的函数
     '''
@@ -39,6 +43,7 @@ def getLoss(opt=''):
         'MSELoss': MSELoss,
         'CrossEntropyLoss': CrossEntropyLoss,
         'CTCLoss': CTCLoss,
+        'TextLoss': TextLoss,
     }
 
     return lossDict[opt.MODEL.LOSS](opt)

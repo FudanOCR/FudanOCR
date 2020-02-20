@@ -20,3 +20,11 @@ class Logger(object):
             self.writer.add_scalar(tag, loss, index+1)
         self.writer.close()
 
+    def graph_summary(self, model, input):
+        """
+        Log a graph to Net
+        """
+        self.writer.add_graph(model, input)
+        self.writer.close()
+
+

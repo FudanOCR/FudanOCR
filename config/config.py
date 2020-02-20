@@ -41,6 +41,7 @@ _C.ADDRESS.CHECKPOINTS_DIR = ''
 _C.ADDRESS.PRETRAIN_MODEL_DIR = ''
 _C.ADDRESS.CACHE_DIR = ''
 _C.ADDRESS.LOGGER_DIR = ''
+_C.ADDRESS.SUMMARY_DIR = ''
 
 _C.IMAGE = CN()
 _C.IMAGE.IMG_H = 32
@@ -71,12 +72,31 @@ _C.SAVE_FREQ = 4000
 _C.SHOW_FREQ = 100
 _C.VAL_FREQ = 1000
 
-_C.targetH= 32
-_C.targetW=100
-_C.BidirDecoder= True
-_C.inputDataType= 'torch.cuda.FloatTensor'
-_C.maxBatch= 256
-_C.CUDA= True
+_C.targetH = 32
+_C.targetW = 100
+_C.BidirDecoder = True
+_C.inputDataType = 'torch.cuda.FloatTensor'
+_C.maxBatch = 256
+_C.CUDA = True
+
+_C.TEXTSNAKE.input_size = 512
+_C.TEXTSNAKE.exp_name = 'example1'
+_c.TEXTSNAKE.output_channel = 1
+
+  # train opts
+_C.TEXTSNAKE.start_iter = 0
+_C.TEXTSNAKE.max_iters = 50000
+_C.TEXTSNAKE.lr_adjust = 'fix'
+_C.TEXTSNAKE.stepvalues = []
+_C.TEXTSNAKE.weight_decay = '0.'
+_C.TEXTSNAKE.wd = '0.'
+_C.TEXTSNAKE.gamma = 0.1
+_C.TEXTSNAKE.momentum = 0.9
+
+  # data args
+_C.TEXTSNAKE.rescale = 255.0
+_C.TEXTSNAKE.means = [0.474, 0.445, 0.418]
+_C.TEXTSNAKE.stds = [1., 1., 1.]
 
 
 def get_cfg_defaults():

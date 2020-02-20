@@ -3,6 +3,7 @@ import torch
 import torch.nn.functional as F
 from network.vgg import VGG16
 from network.resnet import ResNet50
+import json
 
 
 class GCN(nn.Module):
@@ -68,14 +69,14 @@ class Upsample(nn.Module):
 
 
 class TextNet(nn.Module):
-    def __init__(self, backbone='vgg', output_channel=7):
+    def __init__(self, cfg, alphabet):
         super().__init__()
 
-        self.backbone_name = backbone
-        self.output_channel = output_channel
+        self.backbone_name = cfg.BASE.NETWORK
+        self.output_channel = cfg.output_channel
         self.bottleneck = 32
 
-        if backbone == 'vgg':
+        if self.backbone_name == 'vgg':
             self.backbone = VGG16()
             self.deconv5 = nn.ConvTranspose2d(512, 512, kernel_size=4, stride=2, padding=1)
             self.merge4 = Upsample(512 + 512, 256)
@@ -83,7 +84,7 @@ class TextNet(nn.Module):
             self.merge2 = Upsample(128 + 128, 64)
             self.merge1 = Upsample(64 + 64, self.output_channel)
 
-        elif backbone == 'resnet':
+        elif self.backbone_name == 'resnet':
             self.backbone = ResNet50()
             self.deconv5 = nn.ConvTranspose2d(self.output_channel, self.output_channel, kernel_size=4, stride=2, padding=1)
             self.deconv4 = nn.ConvTranspose2d(self.output_channel, self.output_channel, kernel_size=4, stride=2, padding=1)
@@ -106,7 +107,7 @@ class TextNet(nn.Module):
             self.br1 = BR(self.output_channel)
             self.br0 = BR(self.output_channel)
 
-        elif backbone == 'resnet_gcn':
+        elif self.backbone_name == 'resnet_gcn':
             self.backbone = ResNet50()
             self.deconv5 = nn.ConvTranspose2d(self.bottleneck, self.bottleneck, kernel_size=4, stride=2, padding=1)
             self.deconv4 = nn.ConvTranspose2d(self.bottleneck, self.bottleneck, kernel_size=4, stride=2, padding=1)
@@ -140,7 +141,7 @@ class TextNet(nn.Module):
                 nn.Conv2d(self.bottleneck, 3, kernel_size=1, stride=1, padding=0)        # geo(sin, cos, radii)
             )
 
-        elif backbone == 'resnet_gcn_new':
+        elif self.backbone_name == 'resnet_gcn_new':
             self.backbone = ResNet50()
             self.deconv5 = nn.ConvTranspose2d(self.bottleneck, self.bottleneck, kernel_size=4, stride=2, padding=1)
             self.deconv4 = nn.ConvTranspose2d(self.bottleneck, self.bottleneck, kernel_size=4, stride=2, padding=1)
@@ -175,7 +176,7 @@ class TextNet(nn.Module):
                 nn.Conv2d(self.bottleneck, 3, kernel_size=1, stride=1, padding=0)        # geo(sin, cos, radii)
             )
 
-        elif backbone == 'resnet_gcn_ms':
+        elif self.backbone_name == 'resnet_gcn_ms':
             self.backbone = ResNet50()
             self.deconv5 = nn.ConvTranspose2d(self.bottleneck, self.bottleneck, kernel_size=4, stride=2, padding=1)
             self.deconv4 = nn.ConvTranspose2d(self.bottleneck, self.bottleneck, kernel_size=4, stride=2, padding=1)
@@ -215,7 +216,7 @@ class TextNet(nn.Module):
                 nn.Conv2d(self.bottleneck, 3, kernel_size=1, stride=1, padding=0)        # geo(sin, cos, radii)
             )
 
-        elif backbone == 'resnet_gcn_ms2':
+        elif self.backbone_name == 'resnet_gcn_ms2':
             self.backbone = ResNet50()
             self.deconv5 = nn.ConvTranspose2d(self.bottleneck, self.bottleneck, kernel_size=4, stride=2, padding=1)
             self.deconv4 = nn.ConvTranspose2d(self.bottleneck, self.bottleneck, kernel_size=4, stride=2, padding=1)
@@ -354,11 +355,4 @@ class TextNet(nn.Module):
 
         return up1
 
-
-if __name__ == '__main__':
-    import torch
-
-    input = torch.randn((4, 3, 512, 512))
-    net = TextNet(backbone='vgg').cuda()
-    net(input.cuda())
 

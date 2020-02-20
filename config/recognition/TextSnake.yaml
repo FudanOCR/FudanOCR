@@ -1,0 +1,89 @@
+BASE:
+  MODEL: 'TextSnake'
+  VERSION: 'v1'
+  ENV: 'EnvironmentName'
+  TASK_ID: 12345
+  NETWORK: 'vgg'
+  NUM_GPUS: 1
+  GPU_ID: '2,'
+  WORKERS: 4
+
+DATASETS:
+  DATASET: 'TotalText'
+  TYPE: 'DataType'
+
+ADDRESS:
+  DETECTION:
+    TRAIN_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/Train'
+    TRAIN_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/Train'
+    TEST_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/Test'
+    TEST_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/TEst'
+    VAL_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/TEst'
+    VAL_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/TEst'
+  RECOGNITION:
+    ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
+    TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
+    TRAIN_LABEL_DIR: './Train/Label/'
+    TEST_DATA_DIR: '/home/cjy/ic15_test_lmdb'
+    TEST_LABEL_DIR: './Test/Label/'
+    VAL_DATA_DIR: './Val/Data/'
+    VAL_LABEL_DIR: './Val/Label/'
+  CHECKPOINTS_DIR: './Checkpoints/'
+  PRETRAIN_MODEL_DIR: './Pretrain_model/'
+  CACHE_DIR: './Cache/'
+  LOGGER_DIR: './Logger/'
+
+IMAGE:
+  IMG_H: 32
+  IMG_W: 100
+  IMG_CHANNEL: 1
+
+FUNCTION:
+  VAL_ONLY: False
+  FINETUNE: False
+
+MODEL:
+  EPOCH: 100000
+  BATCH_SIZE: 8
+  LR: 0.0001
+  DECAY_RATE: 0.1
+  OPTIMIZER: 'Adam'
+  LOSS: 'TextLoss'
+  DETAILS:
+    HIDDEN_LAYER: 10
+
+THRESHOLD:
+  MAXSIZE: 100
+  MINSIZE: 1
+  TEXT_SCALE: 75
+
+SAVE_FREQ: 4000
+SHOW_FREQ: 100
+VAL_FREQ: 1000
+
+targetH: 32
+targetW: 100
+BidirDecoder: True
+inputDataType: 'torch.cuda.FloatTensor'
+maxBatch: 256
+CUDA: True
+
+TEXTSNAKE:
+  exp_name: 'example1'
+  output_channel: 7
+
+  # train opts
+  start_iter: 0
+  max_iters: 50000
+  lr_adjust: 'fix'
+  stepvalues: []
+  weight_decay: '0.'
+  wd: '0.'
+  gamma: 0.1
+  momentum: 0.9
+
+  # data args
+  rescale: 255.0
+  means: [0.474, 0.445, 0.418]
+  stds: [1., 1., 1.]
+

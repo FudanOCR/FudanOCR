@@ -1,9 +1,11 @@
 # -*- coding:utf-8 -*-
 from model.recognition_model.GRCNN.models.crann import newCRANN
 # from model.recognition_model.MORAN_V2.models.moran import newMORAN
+#from model.detection_model.TextSnake_pytorch.network.textnet import TextNet
 from engine.trainer import Trainer
 from engine.env import Env
 from data.getdataloader import getDataLoader
+import os
 
 class GRCNN_Trainer(Trainer):
     '''
@@ -62,6 +64,29 @@ class GRCNN_Trainer(Trainer):
             sim_preds = self.converter.decode(acc.data, predict_len.data)
 
             return cost, sim_preds, cpu_gt
+
+class TextSnake_Trainer(Trainer):
+
+    def __init__(self, modelObject, opt, train_loader, val_loader):
+        Trainer.__init__(self, modelObject, opt, train_loader, val_loader)
+
+    def pretreatment(self, data):
+        img, train_mask, tr_mask, tcl_mask, radius_map, sin_map, cos_map = data
+
+        return img
+
+    def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
+        from model.detection_model.TextSnake_pytorch.util.misc import to_device
+
+        img, train_mask, tr_mask, tcl_mask, radius_map, sin_map, cos_map = originData
+        img, train_mask, tr_mask, tcl_mask, radius_map, sin_map, cos_map = to_device(
+            img, train_mask, tr_mask, tcl_mask, radius_map, sin_map, cos_map)
+        tr_loss, tcl_loss, sin_loss, cos_loss, radii_loss = \
+            self.criterion(modelResult, tr_mask, tcl_mask, sin_map, cos_map, radius_map, train_mask, total_iter)
+        loss = tr_loss + tcl_loss + sin_loss + cos_loss + radii_loss
+
+        return loss
+
 
 class MORAN_Trainer(Trainer):
     '''

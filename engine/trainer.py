@@ -257,7 +257,7 @@ class Trainer(object):
 
                 cost = self.posttreatment(modelResult, pretreatmentData, data)
 
-                self.model.zero_grad()
+                self.model.zero_grad()      #这里不是应该是self.optimizer.zero_grad()吗？
                 cost.backward()
                 self.optimizer.step()
 

@@ -4,8 +4,24 @@ import torch
 from torch.autograd import Variable
 import os
 
+from tqdm import tqdm
+from torch.optim.lr_scheduler import LambdaLR
+
 from engine.loss import getLoss
+from engine.aeast_loss import LossFunc
 from engine.optimizer import getOptimizer
+
+from model.detection_model.AdvancedEAST.utils.utils import AverageMeter, save_log
+from model.detection_model.AdvancedEAST.utils.earlystop import EarlyStopping
+
+
+class LRPolicy:
+    def __init__(self, rate, step):
+        self.rate = rate
+        self.step = step
+
+    def __call__(self, it):
+        return self.rate ** (it // self.step)
 
 
 class Trainer(object):
@@ -33,21 +49,33 @@ class Trainer(object):
         self.loadParam()
 
         self.optimizer = getOptimizer(self.model, self.opt)
-        self.criterion = getLoss(self.opt)
+        self.criterion = LossFunc()
+        # self.criterion = getLoss(self.opt)
 
         self.train_loader = train_loader
         self.val_loader = val_loader
 
         self.tick = time.strftime("%Y%m%d-%H-%M-%S", time.localtime(time.time()))
         self.earlystopping = EarlyStopping(opt.MODEL.PATIENCE, None)
+        self.scheduler = LambdaLR(self.optimizer, lr_lambda=LRPolicy(rate=opt.MODEL.DECAY_RATE, step=opt.MODEL.DECAY_STEP))
 
         '''识别模型工具元件'''
         self.loss_avg = utils.averager()
-        self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
+        # self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
 
         '''常量区'''
         self.i = 0
         self.highestAcc = 0
+
+    def initModel(self, modelObject):
+        '''
+        根据配置文件初始化模型
+        '''
+        if self.opt.BASE.CUDA:
+            return modelObject().cuda()
+            # return modelObject(self.opt, self.alphabet).cuda()
+        else:
+            modelObject()
 
     def loadParam(self):
         '''
@@ -227,13 +255,17 @@ class Trainer(object):
             对于每一个iter,计算模数，在对应的迭代周期里执行保存/验证/记录 操作
         '''
         losses = AverageMeter()
-        epoch = opt.MODEL.EPOCH
+        # losses = AverageMeter()
+        epoch = self.opt.MODEL.EPOCH
 
         self.model.train()
         for i, (img, gt) in tqdm(enumerate(self.train_loader), desc='Train', total=len(self.train_loader)):
             img = img.cuda()
             gt = gt.cuda()
             east_detect = self.model(img)
+            # print(gt.requires_grad, east_detect.requires_grad)  # false true
+            # east_detect = east_detect.detach()
+            # loss = self.criterion(gt, east_detect.long())
             loss = self.criterion(gt, east_detect)
             losses.update(loss.item(), img.size(0))
 
@@ -243,7 +275,7 @@ class Trainer(object):
             loss.backward()
             self.optimizer.step()
 
-            if (i + 1) % opt.print_step == 0:
+            if (i + 1) % self.opt.SHOW_FREQ == 0:
                 tqdm.write(
                     'Training loss - Epoch: [{0}][{1}/{2}] Loss {loss.val:.4f} Avg Loss {loss.avg:.4f}'.format(
                         epoch, i + 1, len(self.train_loader), loss=losses))

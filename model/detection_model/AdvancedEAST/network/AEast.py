@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from network.resnet import resnet50
+from model.detection_model.AdvancedEAST.network.resnet import resnet50
 
 
 class East(nn.Module):

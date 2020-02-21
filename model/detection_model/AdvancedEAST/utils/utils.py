@@ -4,7 +4,7 @@ import datetime
 import numpy as np
 from tqdm import tqdm
 
-import config as cfg
+import model.detection_model.AdvancedEAST.config as cfg
 
 
 class AverageMeter(object):

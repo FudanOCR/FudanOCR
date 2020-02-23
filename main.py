@@ -201,5 +201,5 @@ class MORAN_Trainer(Trainer):
 
 
 env = Env()
-train_loader, test_loader = getDataLoader(env.opt)
-newTrainer = GRCNN_Trainer(modelObject=newCRANN, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()
+#train_loader, test_loader = getDataLoader(env.opt)
+#newTrainer = GRCNN_Trainer(modelObject=newCRANN, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()

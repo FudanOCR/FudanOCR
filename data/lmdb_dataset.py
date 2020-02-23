@@ -8,6 +8,9 @@ import six
 import sys
 from PIL import Image
 
+'''
+very strange
+'''
 
 class lmdbDataset(Dataset):
     '''

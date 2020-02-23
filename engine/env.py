@@ -24,6 +24,7 @@ class Env(object):
         self.seedInit()
         self.setVisibleGpu()
         self.setCudnnBenchmark()
+        self.checkAddressExist()
 
     def seedInit(self):
         '''
@@ -66,29 +67,6 @@ class Env(object):
         opt = CN.load_cfg(f)
         return opt
 
-    def createFolder(self, rootList, removeOrigin=False):
-        '''
-        新建文件夹操作
-        removeOrigin用于判断是否删除原有文件
-        TODO 从参数文件中解析出Address部分
-        '''
-
-        if isinstance(rootList, str):
-            rootList = [rootList]
-
-        if removeOrigin == True:
-            for root in rootList:
-                if os.path.exists(root):
-                    shutil.rmtree(root)
-                os.makedirs(root)
-        else:
-            for root in rootList:
-                if os.path.exists(root):
-                    print('Path always exists: ',root)
-                    shutil.rmtree(root)
-                os.makedirs(root)
-
-
     def getOpt(self):
         '''
         返回解析好的配置文件opt
@@ -102,5 +80,79 @@ class Env(object):
         gpu_list = [str(i) for i in self.opt.BASE.GPU_ID]
         os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(gpu_list)
 
+    def checkAddressExist(self):
+        '''
+        检查路径是否存在
+        路径分为两类：
+        1.指定了就一定要存在：例如数据集文件夹
+        2.指定了并不一定要存在，如果不存在即由程序创建：例如checkpoint
+        '''
+
+        def folderExist(key,value):
+            '''
+            对于必须存在的路径的检查
+            如果是空value，则不需要考虑
+            '''
+            if value == '':
+                return
+
+            if os.path.exists(value):
+                pass
+            else:
+                assert False, "Address " + key + " : " + value + ' doesn\'t exist!'
+
+        def createFolder(rootList, removeOrigin=False):
+            '''
+            对于不必要存在的路径，将由程序处理
+            removeOrigin用于判断是否删除原有文件
+            TODO 从参数文件中解析出Address部分
+            '''
+
+            if isinstance(rootList, str):
+                '''
+                不考虑空字符串
+                '''
+                if rootList == '':
+                    return
+                rootList = [rootList]
+
+            if removeOrigin == True:
+                for root in rootList:
+                    if os.path.exists(root):
+                        shutil.rmtree(root)
+                    os.makedirs(root)
+            else:
+                for root in rootList:
+                    if os.path.exists(root):
+                        print('Path always exists: ', root)
+                    else:
+                        print('Make folder: ' , root)
+                        os.makedirs(root)
+
+        folderExist('opt.ADDRESS.PRETRAIN_MODEL_DIR', self.opt.ADDRESS.PRETRAIN_MODEL_DIR)
+        if model_type == 'D':
+            '''检测模型'''
+            folderExist('opt.ADDRESS.DETECTION.TRAIN_DATA_DIR', self.opt.ADDRESS.DETECTION.TRAIN_DATA_DIR)
+            folderExist('opt.ADDRESS.DETECTION.TRAIN_GT_DIR', self.opt.ADDRESS.DETECTION.TRAIN_GT_DIR)
+            folderExist('opt.ADDRESS.DETECTION.TEST_DATA_DIR', self.opt.ADDRESS.DETECTION.TEST_DATA_DIR)
+            folderExist('opt.ADDRESS.DETECTION.TEST_GT_DIR', self.opt.ADDRESS.DETECTION.TEST_GT_DIR)
+            folderExist('opt.ADDRESS.DETECTION.VAL_DATA_DIR', self.opt.ADDRESS.DETECTION.VAL_DATA_DIR)
+            folderExist('opt.ADDRESS.DETECTION.VAL_GT_DIR', self.opt.ADDRESS.DETECTION.VAL_GT_DIR)
+        elif model_type == 'R':
+            '''识别模型'''
+            folderExist('opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR)
+            folderExist('opt.ADDRESS.RECOGNITION.TRAIN_GT_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_GT_DIR)
+            folderExist('opt.ADDRESS.RECOGNITION.TEST_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TEST_DATA_DIR)
+            folderExist('opt.ADDRESS.RECOGNITION.TEST_GT_DIR', self.opt.ADDRESS.RECOGNITION.TEST_GT_DIR)
+            folderExist('opt.ADDRESS.RECOGNITION.VAL_DATA_DIR', self.opt.ADDRESS.RECOGNITION.VAL_DATA_DIR)
+            folderExist('opt.ADDRESS.RECOGNITION.VAL_GT_DIR', self.opt.ADDRESS.RECOGNITION.VAL_GT_DIR)
+
+        folderExist('opt.ADDRESS.RECOGNITION.ALPHABET', self.opt.ADDRESS.RECOGNITION.ALPHABET)
+        folderExist('opt.ADDRESS.RECOGNITION.ALPHABET', self.opt.ADDRESS.RECOGNITION.ALPHABET)
+        folderExist('opt.ADDRESS.RECOGNITION.ALPHABET', self.opt.ADDRESS.RECOGNITION.ALPHABET)
+
+        createFolder(self.opt.ADDRESS.CHECKPOINTS_DIR)
+        createFolder(self.opt.ADDRESS.CACHE_DIR)
+        createFolder(self.opt.ADDRESS.LOGGER_DIR)
 
 

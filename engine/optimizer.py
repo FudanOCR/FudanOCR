@@ -32,7 +32,7 @@ def getOptimizer(model,opt=''):
         return optim.Adadelta(model.parameters(), lr=opt.MODEL.LR)
 
 
-        # 获取loss函数的名称
+    # 获取loss函数的名称
 
     '''
     Loss字典，根据参数文件的字符串选择对应的函数

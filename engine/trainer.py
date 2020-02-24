@@ -99,10 +99,12 @@ class Trainer(object):
             model_name = self.opt.BASE.MODEL
             print('Load pretrained model from : ', pretrain_model[model_name])
 
-            urllib.request.urlretrieve(pretrain_model[model_name], os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR,pretrain_model[model_name].split('/')[-1]))
+            urllib.request.urlretrieve(pretrain_model[model_name], os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR,
+                                                                                pretrain_model[model_name].split('/')[
+                                                                                    -1]))
             print("Finish loading!")
 
-            address = os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR,pretrain_model[model_name].split('/')[-1])
+            address = os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR, pretrain_model[model_name].split('/')[-1])
             if self.opt.CUDA:
                 state_dict = torch.load(address)
             else:
@@ -112,8 +114,6 @@ class Trainer(object):
                 name = k.replace("module.", "")  # remove `module.`
                 state_dict_rename[name] = v
             self.model.load_state_dict(state_dict_rename, strict=True)
-
-
 
     def pretreatment(self, data):
         '''
@@ -201,6 +201,10 @@ class Trainer(object):
                 '''检查该迭代周期是否需要保存或验证'''
                 self.checkSaveOrVal()
 
+                '''如果只需验证，只需要一次验证过程即可无需训练'''
+                if self.opt.FUNCTION.VAL_ONLY == True:
+                    return
+
                 data = train_iter.next()
 
                 pretreatmentData = self.pretreatment(data)
@@ -209,7 +213,7 @@ class Trainer(object):
 
                 cost = self.posttreatment(modelResult, pretreatmentData, data)
 
-                self.optimizer.zero_grad()      #这里不是应该是self.optimizer.zero_grad()吗？
+                self.optimizer.zero_grad()  # 这里不是应该是self.optimizer.zero_grad()吗？
                 cost.backward()
                 self.optimizer.step()
 
@@ -243,7 +247,7 @@ class Trainer(object):
         '''恢复训练状态'''
         self.setModelState('train')
 
-    def setModelState(self,state):
+    def setModelState(self, state):
         '''
         根据传入的状态判断模型处于训练或者验证状态
         '''
@@ -255,5 +259,3 @@ class Trainer(object):
             for p in self.model.parameters():
                 p.requires_grad = True
             self.model.train()
-
-

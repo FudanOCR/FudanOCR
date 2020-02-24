@@ -77,8 +77,9 @@ class Env(object):
         '''
         设置可用gpu编号
         '''
+        num_gpu = self.opt.BASE.NUM_GPUS
         gpu_list = [str(i) for i in self.opt.BASE.GPU_ID]
-        os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(gpu_list)
+        os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(gpu_list[:num_gpu])
 
     def checkAddressExist(self):
         '''

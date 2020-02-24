@@ -40,7 +40,7 @@ IMAGE:
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: False
+  VAL_ONLY: True
   FINETUNE: False
 
 MODEL:

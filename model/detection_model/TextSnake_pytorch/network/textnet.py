@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
-from network.vgg import VGG16
-from network.resnet import ResNet50
+from model.detection_model.TextSnake_pytorch.network.vgg import VGG16
+from model.detection_model.TextSnake_pytorch.network.resnet import ResNet50
 import json
 
 
@@ -73,7 +73,7 @@ class TextNet(nn.Module):
         super().__init__()
 
         self.backbone_name = cfg.BASE.NETWORK
-        self.output_channel = cfg.output_channel
+        self.output_channel = cfg.TEXTSNAKE.output_channel
         self.bottleneck = 32
 
         if self.backbone_name == 'vgg':

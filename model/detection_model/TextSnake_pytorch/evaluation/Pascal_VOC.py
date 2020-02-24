@@ -1,7 +1,7 @@
 import json
 import numpy as np
-from evaluation.polygon_wrapper import iou
-from evaluation.polygon_wrapper import iod
+from model.detection_model.TextSnake_pytorch.evaluation.polygon_wrapper import iou
+from model.detection_model.TextSnake_pytorch.evaluation.polygon_wrapper import iod
 
 input_json_path = '/home/shf/fudan_ocr_system/TextSnake_pytorch/output/result.json'
 gt_json_path = '/home/shf/fudan_ocr_system/datasets/ICDAR19/train_labels.json'

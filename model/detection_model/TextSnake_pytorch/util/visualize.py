@@ -3,8 +3,8 @@ import numpy as np
 import cv2
 import os
 from skimage import measure, color
-from util.config import config as cfg
-from util.misc import fill_hole
+from model.detection_model.TextSnake_pytorch.util.config import config as cfg
+from model.detection_model.TextSnake_pytorch.util.misc import fill_hole
 
 def visualize_network_output(output, tr_mask, tcl_mask, prefix):
 

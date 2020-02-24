@@ -4,9 +4,9 @@ import torch.utils.data as data
 import scipy.io as io
 import numpy as np
 from PIL import Image
-from util.config import config as cfg
+from model.detection_model.TextSnake_pytorch.util.config import config as cfg
 from skimage.draw import polygon as drawpoly
-from util.misc import find_bottom, find_long_edges, split_edge_seqence, \
+from model.detection_model.TextSnake_pytorch.util.misc import find_bottom, find_long_edges, split_edge_seqence, \
     norm2, vector_cos, vector_sin
 
 

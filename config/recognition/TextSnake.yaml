@@ -14,14 +14,14 @@ DATASETS:
 
 ADDRESS:
   DETECTION:
-    TRAIN_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/Train'
-    TRAIN_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/Train'
-    TEST_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/Test'
-    TEST_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/TEst'
-    VAL_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/TEst'
-    VAL_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/TEst'
+    TRAIN_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/'
+    TRAIN_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/'
+    TEST_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/Test/'
+    TEST_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/Test/'
+    VAL_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/Test/'
+    VAL_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/Test/'
   RECOGNITION:
-    ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
+    ALPHABET: '/home/shf/ml/FudanOCR/alphabet/ic15_words.txt'
     TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
     TRAIN_LABEL_DIR: './Train/Label/'
     TEST_DATA_DIR: '/home/cjy/ic15_test_lmdb'
@@ -69,6 +69,7 @@ maxBatch: 256
 CUDA: True
 
 TEXTSNAKE:
+  input_size: 512
   exp_name: 'example1'
   output_channel: 7
 

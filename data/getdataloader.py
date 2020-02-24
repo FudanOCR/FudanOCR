@@ -3,31 +3,37 @@ getDataLoader函数通过读取配置文件，返回训练和测试的数据集�
 '''
 
 from alphabet.alphabet import Alphabet
-from data import dataset
+# from data import dataset
+from data.total_text import TotalText
+from model.detection_model.TextSnake_pytorch.util.augmentation import EvalTransform, NewAugmentation
 import torch
+import os
 
 def getDataLoader(opt):
-    train_root = opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR
-    val_root = opt.ADDRESS.RECOGNITION.TEST_DATA_DIR
+    train_root = opt.ADDRESS.DETECTION.TRAIN_DATA_DIR
+    val_root = opt.ADDRESS.DETECTION.TEST_DATA_DIR
 
     alphabet = Alphabet(opt.ADDRESS.RECOGNITION.ALPHABET)
 
 
-    train_dataset = dataset.lmdbDataset(root=train_root,
-                                        transform=dataset.resizeNormalize((opt.IMAGE.IMG_W, opt.IMAGE.IMG_H)),
-                                        reverse=opt.BidirDecoder, alphabet=alphabet.str)
+    train_dataset = TotalText(
+            data_root=train_root,
+            ignore_list=False,#os.path.join(train_root, 'ignore_list.txt'),
+            is_training=True,
+            transform=NewAugmentation(size=opt.TEXTSNAKE.input_size, mean=opt.TEXTSNAKE.means, std=opt.TEXTSNAKE.stds, maxlen=1280, minlen=512)
+    )
     assert train_dataset
 
-    test_dataset = dataset.lmdbDataset(root=val_root,
-                                       transform=dataset.resizeNormalize((opt.IMAGE.IMG_W, opt.IMAGE.IMG_H)),
-                                       reverse=opt.BidirDecoder, alphabet=alphabet.str)
+    test_dataset = TotalText(
+            data_root=train_root,
+            ignore_list=False,#os.path.join(train_root, 'ignore_list.txt'),
+            is_training=True,
+            transform=NewAugmentation(size=opt.TEXTSNAKE.input_size, mean=opt.TEXTSNAKE.means, std=opt.TEXTSNAKE.stds, maxlen=1280, minlen=512)
+    )
     assert test_dataset
 
 
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=opt.MODEL.BATCH_SIZE,
-        shuffle=False, sampler=dataset.randomSequentialSampler(train_dataset, opt.MODEL.BATCH_SIZE),
-        num_workers=int(opt.BASE.WORKERS))
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.MODEL.BATCH_SIZE, shuffle=True, num_workers=opt.BASE.WORKERS)
 
     test_loader = torch.utils.data.DataLoader(
         test_dataset, batch_size=opt.MODEL.BATCH_SIZE,

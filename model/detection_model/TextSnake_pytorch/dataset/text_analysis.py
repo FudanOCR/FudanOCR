@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from dataset.read_json import read_json, read_dict
+from model.detection_model.TextSnake_pytorch.dataset.read_json import read_json, read_dict
 
 
 def recorder(record, ratio):

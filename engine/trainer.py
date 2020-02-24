@@ -4,10 +4,14 @@ import torch
 from torch.autograd import Variable
 import os
 import Levenshtein
+import shutil
+import urllib
+from collections import OrderedDict
 
 from engine.loss import getLoss
 from engine.optimizer import getOptimizer
 from alphabet.alphabet import Alphabet
+from engine.pretrain import pretrain_model
 
 
 class Trainer(object):
@@ -32,7 +36,7 @@ class Trainer(object):
         # 读取识别组件需要的字符表
         self.alphabet = Alphabet(self.opt.ADDRESS.RECOGNITION.ALPHABET)
 
-        '''初始化模型，并且转载预训练模型'''
+        '''初始化模型，并且加载预训练模型'''
         self.model = self.initModel(modelObject)
         self.loadParam()
 
@@ -61,10 +65,17 @@ class Trainer(object):
 
     def loadParam(self):
         '''
-        预加载训练参数
+        预加载训练参数，分为以下三种情况
+        1.空目录：不作处理
+        2.本地文件：加载本地预训练模型
+        3.本地目录：下载云端预训练模型至该目录下
         '''
-        if os.path.isfile(self.opt.ADDRESS.PRETRAIN_MODEL_DIR):
+        if self.opt.ADDRESS.PRETRAIN_MODEL_DIR == '':
+            '''空字符串'''
+            return
 
+        elif os.path.isfile(self.opt.ADDRESS.PRETRAIN_MODEL_DIR):
+            '''本地文件'''
             address = self.opt.ADDRESS.PRETRAIN_MODEL_DIR
             print('loading pretrained model from %s' % address)
             if opt.CUDA:
@@ -77,103 +88,44 @@ class Trainer(object):
                 state_dict_rename[name] = v
             self.model.load_state_dict(state_dict_rename, strict=True)
 
+        else:
+            '''
+            本地目录，如果存在则删除原有目录再安装一个新目录
+            '''
+            if os.path.exists(self.opt.ADDRESS.PRETRAIN_MODEL_DIR):
+                shutil.rmtree(self.opt.ADDRESS.PRETRAIN_MODEL_DIR)
+            os.makedirs(self.opt.ADDRESS.PRETRAIN_MODEL_DIR)
+
+            model_name = self.opt.BASE.MODEL
+            print('Load pretrained model from : ', pretrain_model[model_name])
+
+            urllib.request.urlretrieve(pretrain_model[model_name], os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR,pretrain_model[model_name].split('/')[-1]))
+            print("Finish loading!")
+
+            address = os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR,pretrain_model[model_name].split('/')[-1])
+            if self.opt.CUDA:
+                state_dict = torch.load(address)
+            else:
+                state_dict = torch.load(address, map_location='cpu')
+            state_dict_rename = OrderedDict()
+            for k, v in state_dict.items():
+                name = k.replace("module.", "")  # remove `module.`
+                state_dict_rename[name] = v
+            self.model.load_state_dict(state_dict_rename, strict=True)
+
+
+
     def pretreatment(self, data):
         '''
         将从dataloader加载出来的data转化为可以传入神经网络的数据
         '''
-        image = torch.FloatTensor(self.opt.MODEL.BATCH_SIZE, self.opt.IMAGE.IMG_CHANNEL, self.opt.IMAGE.IMG_H,
-                                  self.opt.IMAGE.IMG_H)
-        text = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
-        text_rev = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
-        length = torch.IntTensor(self.opt.MODEL.BATCH_SIZE)
-
-        if self.opt.CUDA:
-            # self.model = torch.nn.DataParallel(self.model, device_ids=range(self.opt.ngpu))
-            image = image.cuda()
-            text = text.cuda()
-            text_rev = text_rev.cuda()
-            self.criterion = self.criterion.cuda()
-
-        image = Variable(image)
-        text = Variable(text)
-        text_rev = Variable(text_rev)
-        length = Variable(length)
-
-        if self.opt.BidirDecoder:
-            cpu_images, cpu_texts, cpu_texts_rev = data
-            utils.loadData(image, cpu_images)
-            t, l = self.converter.encode(cpu_texts, scanned=True)
-            t_rev, _ = self.converter.encode(cpu_texts_rev, scanned=True)
-            utils.loadData(text, t)
-            utils.loadData(text_rev, t_rev)
-            utils.loadData(length, l)
-            return image, length, text, text_rev
-            # preds0, preds1 = self.model(image, length, text, text_rev)
-            # cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
-        else:
-            cpu_images, cpu_texts = data
-            utils.loadData(image, cpu_images)
-            t, l = self.converter.encode(cpu_texts, scanned=True)
-            utils.loadData(text, t)
-            utils.loadData(length, l)
-            return image, length, text, text_rev
-            # preds = self.model(image, length, text, text_rev)
-            # cost = self.criterion(preds, text)
+        pass
 
     def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
         '''
         将神经网络传出的数据解码为可用于计算结果的数据
         '''
-
-        if test == False:
-            if self.opt.BidirDecoder:
-                image, length, text, text_rev = pretreatmentData
-                preds0, preds1 = modelResult
-                cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
-            else:
-                image, length, text, text_rev = pretreatmentData
-                preds = self.model(image, length, text, text_rev)
-                cost = self.criterion(preds, text)
-
-            return cost
-
-        else:
-            if self.opt.BidirDecoder:
-                preds0, preds1 = modelResult
-                cpu_images, cpu_texts, cpu_texts_rev = originData
-                image, length, text, text_rev = pretreatmentData
-
-                cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
-                preds0, preds1 = modelResult
-                preds0_prob, preds0 = preds0.max(1)
-                preds0 = preds0.view(-1)
-                preds0_prob = preds0_prob.view(-1)
-                sim_preds0 = self.converter.decode(preds0.data, length.data)
-                preds1_prob, preds1 = preds1.max(1)
-                preds1 = preds1.view(-1)
-                preds1_prob = preds1_prob.view(-1)
-                sim_preds1 = self.converter.decode(preds1.data, length.data)
-                sim_preds = []
-                for j in range(cpu_images.size(0)):
-                    text_begin = 0 if j == 0 else length.data[:j].sum()
-                    if torch.mean(preds0_prob[text_begin:text_begin + len(sim_preds0[j].split('$')[0] + '$')]).data[0] > \
-                            torch.mean(
-                                preds1_prob[text_begin:text_begin + len(sim_preds1[j].split('$')[0] + '$')]).data[0]:
-                        sim_preds.append(sim_preds0[j].split('$')[0] + '$')
-                    else:
-                        sim_preds.append(sim_preds1[j].split('$')[0][-1::-1] + '$')
-
-                return cost, sim_preds, cpu_texts
-            else:
-                cpu_images, cpu_texts = originData
-                preds = modelResult
-                image, length, text, text_rev = pretreatmentData
-                cost = self.criterion(preds, text)
-                _, preds = preds.max(1)
-                preds = preds.view(-1)
-                sim_preds = self.converter.decode(preds.data, length.data)
-
-                return cost, sim_preds, cpu_texts
+        pass
 
     def validate(self):
         '''

@@ -1,5 +1,5 @@
 BASE:
-  MODEL: 'ModelName'
+  MODEL: 'MORAN'
   TYPE: 'R'
   VERSION: 'ModelVersion'
   ENV: 'EnvironmentName'
@@ -24,13 +24,13 @@ ADDRESS:
   RECOGNITION:
     ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
     TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
-    TRAIN_LABEL_DIR: './Train/Label/'
+    TRAIN_LABEL_DIR: ''
     TEST_DATA_DIR: '/home/cjy/ic15_test_lmdb'
-    TEST_LABEL_DIR: './Test/Label/'
-    VAL_DATA_DIR: './Val/Data/'
-    VAL_LABEL_DIR: './Val/Label/'
-  CHECKPOINTS_DIR: './Checkpoints/'
-  PRETRAIN_MODEL_DIR: './Pretrain_model/'
+    TEST_LABEL_DIR: ''
+    VAL_DATA_DIR: ''
+    VAL_LABEL_DIR: ''
+  CHECKPOINTS_DIR: './MORAN_Checkpoints/'
+  PRETRAIN_MODEL_DIR: './pretrain_MORAN/'
   CACHE_DIR: './Cache/'
   LOGGER_DIR: './Logger/'
 
@@ -58,7 +58,7 @@ THRESHOLD:
   MINSIZE: 1
   TEXT_SCALE: 75
 
-SAVE_FREQ: 4000
+SAVE_FREQ: 3000
 SHOW_FREQ: 100
 VAL_FREQ: 1000
 

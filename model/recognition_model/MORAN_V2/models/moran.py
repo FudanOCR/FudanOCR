@@ -1,6 +1,9 @@
 '''
 MORAN模块定义了MORAN模型的组成部分，由MORN与ASRN模块拼接而成
 '''
+import sys
+sys.path.append('/home/cjy/FudanOCR/model/recognition_model/MORAN_V2')
+
 
 import torch.nn as nn
 from models.morn import MORN

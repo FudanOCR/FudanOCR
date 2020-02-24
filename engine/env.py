@@ -129,7 +129,7 @@ class Env(object):
                         print('Make folder: ' , root)
                         os.makedirs(root)
 
-        folderExist('opt.ADDRESS.PRETRAIN_MODEL_DIR', self.opt.ADDRESS.PRETRAIN_MODEL_DIR)
+        model_type = self.opt.BASE.TYPE
         if model_type == 'D':
             '''检测模型'''
             folderExist('opt.ADDRESS.DETECTION.TRAIN_DATA_DIR', self.opt.ADDRESS.DETECTION.TRAIN_DATA_DIR)
@@ -141,15 +141,14 @@ class Env(object):
         elif model_type == 'R':
             '''识别模型'''
             folderExist('opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR)
-            folderExist('opt.ADDRESS.RECOGNITION.TRAIN_GT_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_GT_DIR)
+            folderExist('opt.ADDRESS.RECOGNITION.TRAIN_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_LABEL_DIR)
             folderExist('opt.ADDRESS.RECOGNITION.TEST_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TEST_DATA_DIR)
-            folderExist('opt.ADDRESS.RECOGNITION.TEST_GT_DIR', self.opt.ADDRESS.RECOGNITION.TEST_GT_DIR)
+            folderExist('opt.ADDRESS.RECOGNITION.TEST_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.TEST_LABEL_DIR)
             folderExist('opt.ADDRESS.RECOGNITION.VAL_DATA_DIR', self.opt.ADDRESS.RECOGNITION.VAL_DATA_DIR)
-            folderExist('opt.ADDRESS.RECOGNITION.VAL_GT_DIR', self.opt.ADDRESS.RECOGNITION.VAL_GT_DIR)
+            folderExist('opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR)
 
         folderExist('opt.ADDRESS.RECOGNITION.ALPHABET', self.opt.ADDRESS.RECOGNITION.ALPHABET)
-        folderExist('opt.ADDRESS.RECOGNITION.ALPHABET', self.opt.ADDRESS.RECOGNITION.ALPHABET)
-        folderExist('opt.ADDRESS.RECOGNITION.ALPHABET', self.opt.ADDRESS.RECOGNITION.ALPHABET)
+
 
         createFolder(self.opt.ADDRESS.CHECKPOINTS_DIR)
         createFolder(self.opt.ADDRESS.CACHE_DIR)

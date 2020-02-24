@@ -1,11 +1,10 @@
 # -*- coding:utf-8 -*-
-from model.recognition_model.GRCNN.models.crann import newCRANN
-# from model.recognition_model.MORAN_V2.models.moran import newMORAN
+# from model.recognition_model.GRCNN.models.crann import newCRANN
+from model.recognition_model.MORAN_V2.models.moran import newMORAN
 #from model.detection_model.TextSnake_pytorch.network.textnet import TextNet
 from engine.trainer import Trainer
 from engine.env import Env
 from data.getdataloader import getDataLoader
-import os
 
 class GRCNN_Trainer(Trainer):
     '''
@@ -105,6 +104,10 @@ class MORAN_Trainer(Trainer):
         '''
         将从dataloader加载出来的data转化为可以传入神经网络的数据
         '''
+        import torch
+        from torch.autograd import Variable
+        from utils import utils
+
         image = torch.FloatTensor(self.opt.MODEL.BATCH_SIZE, self.opt.IMAGE.IMG_CHANNEL, self.opt.IMAGE.IMG_H,
                                   self.opt.IMAGE.IMG_H)
         text = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
@@ -148,6 +151,9 @@ class MORAN_Trainer(Trainer):
         '''
         将神经网络传出的数据解码为可用于计算结果的数据
         '''
+        import torch
+        from torch.autograd import Variable
+        from utils import utils
 
         if test == False:
             if self.opt.BidirDecoder:
@@ -201,5 +207,5 @@ class MORAN_Trainer(Trainer):
 
 
 env = Env()
-#train_loader, test_loader = getDataLoader(env.opt)
-#newTrainer = GRCNN_Trainer(modelObject=newCRANN, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()
+train_loader, test_loader = getDataLoader(env.opt)
+newTrainer = MORAN_Trainer(modelObject=newMORAN, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()

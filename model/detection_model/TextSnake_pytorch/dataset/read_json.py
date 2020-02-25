@@ -1,7 +1,7 @@
 import numpy as np
 import json
 
-from dataset.dataload import TextInstance
+from model.detection_model.TextSnake_pytorch.dataset.dataload import TextInstance
 
 
 # def read_dict(data, img_name):

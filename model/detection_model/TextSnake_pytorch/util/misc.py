@@ -2,7 +2,7 @@ import numpy as np
 import errno
 import os
 import cv2
-from util.config import config as cfg
+from model.detection_model.TextSnake_pytorch.util.config import config as cfg
 
 def to_device(*tensors):
     return (t.to(cfg.device) for t in tensors)

@@ -1,10 +1,10 @@
 def detval():
     import numpy as np
     import json
-    from Evaluation.polygon_wrapper import iod
-    from Evaluation.polygon_wrapper import area_of_intersection
-    from Evaluation.polygon_wrapper import area
-    from util.config import config
+    from model.detection_model.TextSnake_pytorch.Evaluation.polygon_wrapper import iod
+    from model.detection_model.TextSnake_pytorch.Evaluation.polygon_wrapper import area_of_intersection
+    from model.detection_model.TextSnake_pytorch.Evaluation.polygon_wrapper import area
+    from model.detection_model.TextSnake_pytorch.util.config import config
     import os
 
     input_json_path = os.path.join(config.output_dir, 'result.json')#'/home/shf/fudan_ocr_system/TextSnake_pytorch/output/result.json'

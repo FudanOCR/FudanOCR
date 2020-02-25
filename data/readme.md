@@ -1,4 +1,4 @@
-# Data  Part
+# Data  Module
 
 - build.py: The main  processing part including getdataset and getdatadoader
 - others: different types dataset from models
@@ -34,5 +34,5 @@ In build.py , mainly function :
 - getdataset :  choose different dataset building strategy 
 - getdataloader:  choose different loader strategy for different dataset
 
-## ADD MORE
-Add your dataset-type in getdataset and getdataloader  
+## More..
+Add your own dataset in getdataset and getdataloader  

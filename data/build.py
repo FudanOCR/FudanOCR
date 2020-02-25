@@ -7,7 +7,7 @@ import torch.utils.data
 from alphabet.alphabet import Alphabet
 from data import IMDB
 #from model.detection_model.TextSnake_pytorch.dataset import total_text
-#from data import ICDAR
+#from data  importICDAR
 #from data import CTW1500
 from model.detection_model.AdvancedEAST.utils.data_utils import custom_dset, collate_fn
 from model.detection_model.TextSnake_pytorch.util.augmentation import EvalTransform, NewAugmentation
@@ -162,7 +162,8 @@ def build_dataloader(cfg, is_train=True):
     model_type = cfg.BASE.TYPE
     #考虑不需区分dataset是否是检测或识别,只需填入需要的地址
     if is_train == True:
-        if model_type == 'RECOGNITION':
+        '''Use a letter to encode the type of the model'''
+        if model_type == 'R':
             alphabet = Alphabet(cfg.ADDRESS.ALPHABET)
         else :
             alphabet = Alphabet()
@@ -189,10 +190,10 @@ def build_dataloader(cfg, is_train=True):
 
         if images_per_gpu > 5:
             logger = logging.getLogger(__name__)
-            logger.warning(
-                "每GPU图片数量过高时可能遇到内存溢出，"
-                "若发生该情况请调整BATCH_SIZE,并调整学习率等其他可能影响效果的因素"
-            )
+            # logger.warning(
+            #     "每GPU图片数量过高时可能遇到内存溢出，"
+            #     "若发生该情况请调整BATCH_SIZE,并调整学习率等其他可能影响效果的因素"
+            # )
 
         return  train_dataloader, val_dataloader
 

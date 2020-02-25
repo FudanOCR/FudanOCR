@@ -8,10 +8,6 @@ import six
 import sys
 from PIL import Image
 
-'''
-very strange
-'''
-
 class lmdbDataset(Dataset):
     '''
     Dataset是torch的数据集基类，lmdbDataset继承该类，通过读取lmdb文件夹，获得图片-标签对

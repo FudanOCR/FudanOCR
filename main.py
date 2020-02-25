@@ -4,7 +4,7 @@ from model.recognition_model.MORAN_V2.models.moran import newMORAN
 #from model.detection_model.TextSnake_pytorch.network.textnet import TextNet
 from engine.trainer import Trainer
 from engine.env import Env
-from data.getdataloader import getDataLoader
+from data.build import build_dataloader
 
 class GRCNN_Trainer(Trainer):
     '''
@@ -207,5 +207,5 @@ class MORAN_Trainer(Trainer):
 
 
 env = Env()
-train_loader, test_loader = getDataLoader(env.opt)
+train_loader, test_loader = build_dataloader(env.opt)
 newTrainer = MORAN_Trainer(modelObject=newMORAN, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()

@@ -57,9 +57,12 @@ class MORAN(nn.Module):
 
 class newMORAN(nn.Module):
 
-    def __init__(self,opt,alphabet):
+    def __init__(self,opt):
 
-        self.nclass = len(alphabet)
+        from alphabet.alphabet import Alphabet
+
+        # self.nclass = len(alphabet)
+        self.nclass = len(Alphabet(opt.ADDRESS.ALPHABET))
         self.nh = opt.IMAGE.IMG_H
         self.targetH = opt.targetH
         self.targetW = opt.targetW

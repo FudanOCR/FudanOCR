@@ -34,7 +34,9 @@ class Trainer(object):
         # 基本信息
         self.opt = opt
         # 读取识别组件需要的字符表
-        self.alphabet = Alphabet(self.opt.ADDRESS.RECOGNITION.ALPHABET)
+        if opt.BASE.TYPE == 'R':
+            self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
+            self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
 
         '''初始化模型，并且加载预训练模型'''
         self.model = self.initModel(modelObject)
@@ -48,7 +50,7 @@ class Trainer(object):
 
         '''识别模型工具元件'''
         self.loss_avg = utils.averager()
-        self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
+
 
         '''常量区'''
         self.i = 0
@@ -59,9 +61,9 @@ class Trainer(object):
         根据配置文件初始化模型
         '''
         if self.opt.CUDA:
-            return modelObject(self.opt, self.alphabet).cuda()
+            return modelObject(self.opt).cuda()
         else:
-            modelObject(self.opt, self.alphabet)
+            modelObject(self.opt)
 
     def loadParam(self):
         '''
@@ -118,16 +120,44 @@ class Trainer(object):
     def pretreatment(self, data):
         '''
         将从dataloader加载出来的data转化为可以传入神经网络的数据
+
+        传入数据：
+        data：从dataloader中反复迭代得到的数据，模型应该返回可以被神经网络接受的数据
+        返回数据：
+        数据长度为1，则返回形式为(returndata, )
+        数据长度大于1，则返回形式为(returndata1, returndata2 ,returndata3 )
         '''
         pass
 
     def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
         '''
         将神经网络传出的数据解码为可用于计算结果的数据
+
+        传入数据：
+        modelResult:模型传出的结果
+        pretreatmentData:能够被模型所接受的数据，即pretreatment函数返回的数据
+        originData:从dataloader迭代出来的数据
+
+        返回数据：
+            训练阶段：
+                返回cost
+            验证阶段：
+                返回cost，和其他可以用于评价模型能力的指标
+                对于识别模型来说：其他可以用于评价模型能力的指标包括：target label 与 predict label
+                对于检测模型来说：TODO
         '''
         pass
 
     def validate(self):
+        '''
+        将验证函数拆分为识别和检测两部分
+        '''
+        if self.opt.BASE.TYPE == 'R':
+            return self.validate_recognition()
+        elif self.opt.BASE.TYPE == 'D':
+            return self.validate_detection()
+
+    def validate_recognition(self):
         '''
         在特定训练次数后执行验证模型能力操作
         '''
@@ -176,6 +206,9 @@ class Trainer(object):
                 self.opt.ADDRESS.CHECKPOINTS_DIR, self.i, str(self.highestAcc)[:6]))
         return acc_tmp
 
+    def validate_detection(self):
+        pass
+
     def train(self):
         '''
         训练函数
@@ -189,6 +222,11 @@ class Trainer(object):
             对于每一个iter,计算模数，在对应的迭代周期里执行保存/验证/记录 操作
         '''
 
+        '''如果只需验证，只需要一次验证过程即可无需训练'''
+        if self.opt.FUNCTION.VAL_ONLY == True:
+            self.validate()
+            return
+
         t0 = time.time()
         self.highestAcc = 0
         for epoch in range(self.opt.MODEL.EPOCH):
@@ -201,10 +239,6 @@ class Trainer(object):
                 '''检查该迭代周期是否需要保存或验证'''
                 self.checkSaveOrVal()
 
-                '''如果只需验证，只需要一次验证过程即可无需训练'''
-                if self.opt.FUNCTION.VAL_ONLY == True:
-                    return
-
                 data = train_iter.next()
 
                 pretreatmentData = self.pretreatment(data)
@@ -213,13 +247,17 @@ class Trainer(object):
 
                 cost = self.posttreatment(modelResult, pretreatmentData, data)
 
-                self.optimizer.zero_grad()  # 这里不是应该是self.optimizer.zero_grad()吗？
+                self.optimizer.zero_grad()
                 cost.backward()
                 self.optimizer.step()
 
                 self.loss_avg.add(cost)
 
-                if self.i % self.opt.SHOW_FREQ == 0:
+                '''
+                展示阶段
+                在训练的时候仅仅展示在相应阶段的loss
+                '''
+                if self.i % self.opt.FREQ.SHOW_FREQ == 0:
                     t1 = time.time()
                     print('Epoch: %d/%d; iter: %d/%d; Loss: %f; time: %.2f s;' %
                           (epoch, self.opt.MODEL.EPOCH, self.i, len(self.train_loader), self.loss_avg.val(), t1 - t0)),
@@ -230,7 +268,7 @@ class Trainer(object):
 
     def checkSaveOrVal(self):
         '''验证'''
-        if self.i % self.opt.VAL_FREQ == 0:
+        if self.i % self.opt.FREQ.VAL_FREQ == 0:
             self.setModelState('test')
             acc_tmp = self.validate()
             '''记录训练结果最大值的模型文件'''
@@ -240,7 +278,7 @@ class Trainer(object):
                     self.opt.ADDRESS.CHECKPOINTS_DIR, self.i, str(self.highestAcc)[:6]))
 
         '''保存'''
-        if self.i % self.opt.SAVE_FREQ == 0:
+        if self.i % self.opt.FREQ.SAVE_FREQ == 0:
             torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
                 self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, self.i))
 

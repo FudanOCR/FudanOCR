@@ -1,28 +1,60 @@
-model: 'MORAN_V2'
-train_nips: '/home/cjy/xuxixidatasets/LSVT_train'
-train_cvpr: ''
-valroot: '/home/cjy/xuxixidatasets/LSVT_test'
-workers: 4
-batchSize: 64
-imgH: 64
-imgW: 200
-targetH: 32
-targetW: 100
-nh: 256
-niter: 100000
-lr: 1
-cuda: true
-ngpu: 1
-MORAN: ''
-alphabet: '0:1:2:3:4:5:6:7:8:9:a:b:c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:v:w:x:y:z:$'
-sep: ':'
-experiment: None
-displayInterval: 100
-n_test_disp: 10
-valInterval: 1000
-saveInterval: 40000
-adam: false
-beta1: 0.5
-adadelta: true
-sgd: false
-BidirDecoder: frue
+BASE:
+  MODEL: 'MORAN'
+  TYPE: 'R'
+  NUM_GPUS: 1
+  GPU_ID: '2,'
+  WORKERS: 4
+
+DATASETS:
+  DATASET: 'DatasetName*'
+  TYPE: 'Imdb'
+
+ADDRESS:
+  ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
+  TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
+  TRAIN_GT_DIR: ''
+  TEST_DATA_DIR: ''
+  TEST_GT_DIR: ''
+  VAL_DATA_DIR: '/home/cjy/ic15_test_lmdb'
+  VAL_GT_DIR: ''
+  CHECKPOINTS_DIR: './MORAN_Checkpoints/'
+  PRETRAIN_MODEL_DIR: './pretrain_MORAN/'
+  CACHE_DIR: './Cache/'
+  LOGGER_DIR: './Logger/'
+
+IMAGE:
+  IMG_H: 32
+  IMG_W: 100
+  IMG_CHANNEL: 1
+
+FUNCTION:
+  VAL_ONLY: False
+  FINETUNE: False
+
+MODEL:
+  EPOCH: 100000
+  BATCH_SIZE: 64
+  LR: 1.0
+  DECAY_RATE: 0.1
+  OPTIMIZER: 'Adadelta'
+  LOSS: 'CrossEntropyLoss'
+  DETAILS:
+    HIDDEN_LAYER: 10
+
+THRESHOLD:
+  MAXSIZE: 100
+  MINSIZE: 1
+  TEXT_SCALE: 75
+
+FREQ:
+  SAVE_FREQ: 3000
+  SHOW_FREQ: 100
+  VAL_FREQ: 1000
+
+MORAN:
+  targetH: 32
+  targetW: 100
+  BidirDecoder: True
+  inputDataType: 'torch.cuda.FloatTensor'
+  maxBatch: 256
+  CUDA: True

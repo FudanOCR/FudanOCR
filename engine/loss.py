@@ -6,11 +6,7 @@
 import torch
 
 
-
 def getLoss(opt=''):
-
-
-
     def CrossEntropyLoss(opt):
         '''
         交叉熵损失函数
@@ -30,11 +26,13 @@ def getLoss(opt=''):
         from warpctc_pytorch import CTCLoss
         return CTCLoss()
 
-    # 获取loss函数的名称
-
     def TextLoss(opt):
-        from engine.text_loss import TextLoss
+        from engine.personalize_loss.text_loss import TextLoss
         return TextLoss()
+
+    def AEASTLOSS(opt):
+        from engine.personalize_loss.aeast_loss import LossFunc
+        return LossFunc()
 
     '''
     Loss字典，根据参数文件的字符串选择对应的函数
@@ -44,7 +42,7 @@ def getLoss(opt=''):
         'CrossEntropyLoss': CrossEntropyLoss,
         'CTCLoss': CTCLoss,
         'TextLoss': TextLoss,
+        'AEASTLOSS': AEASTLOSS,
     }
 
     return lossDict[opt.MODEL.LOSS](opt)
-

@@ -10,8 +10,9 @@ import torch
 import random
 import torch.backends.cudnn as cudnn
 import argparse
-from config.config import get_cfg_defaults
-from yacs.config import CfgNode as CN
+from config.yaml_reader import read_config_file
+# from config.config import get_cfg_defaults
+# from yacs.config import CfgNode as CN
 
 class Env(object):
 
@@ -57,15 +58,15 @@ class Env(object):
         # cfg.freeze()
         # return cfg
 
-        opt = self.read_config_file(arg.config_file)
+        opt = read_config_file(arg.config_file)
         return opt
 
 
-    def read_config_file(self,config_file):
-        # 用yaml重构配置文件
-        f = open(config_file)
-        opt = CN.load_cfg(f)
-        return opt
+    # def read_config_file(self,config_file):
+    #     # 用yaml重构配置文件
+    #     f = open(config_file)
+    #     opt = CN.load_cfg(f)
+    #     return opt
 
     def getOpt(self):
         '''
@@ -130,25 +131,33 @@ class Env(object):
                         print('Make folder: ' , root)
                         os.makedirs(root)
 
-        model_type = self.opt.BASE.TYPE
-        if model_type == 'D':
-            '''检测模型'''
-            folderExist('opt.ADDRESS.DETECTION.TRAIN_DATA_DIR', self.opt.ADDRESS.DETECTION.TRAIN_DATA_DIR)
-            folderExist('opt.ADDRESS.DETECTION.TRAIN_GT_DIR', self.opt.ADDRESS.DETECTION.TRAIN_GT_DIR)
-            folderExist('opt.ADDRESS.DETECTION.TEST_DATA_DIR', self.opt.ADDRESS.DETECTION.TEST_DATA_DIR)
-            folderExist('opt.ADDRESS.DETECTION.TEST_GT_DIR', self.opt.ADDRESS.DETECTION.TEST_GT_DIR)
-            folderExist('opt.ADDRESS.DETECTION.VAL_DATA_DIR', self.opt.ADDRESS.DETECTION.VAL_DATA_DIR)
-            folderExist('opt.ADDRESS.DETECTION.VAL_GT_DIR', self.opt.ADDRESS.DETECTION.VAL_GT_DIR)
-        elif model_type == 'R':
-            '''识别模型'''
-            folderExist('opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR)
-            folderExist('opt.ADDRESS.RECOGNITION.TRAIN_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_LABEL_DIR)
-            folderExist('opt.ADDRESS.RECOGNITION.TEST_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TEST_DATA_DIR)
-            folderExist('opt.ADDRESS.RECOGNITION.TEST_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.TEST_LABEL_DIR)
-            folderExist('opt.ADDRESS.RECOGNITION.VAL_DATA_DIR', self.opt.ADDRESS.RECOGNITION.VAL_DATA_DIR)
-            folderExist('opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR)
+        # model_type = self.opt.BASE.TYPE
+        # if model_type == 'D':
+        #     '''检测模型'''
+        #     folderExist('opt.ADDRESS.DETECTION.TRAIN_DATA_DIR', self.opt.ADDRESS.DETECTION.TRAIN_DATA_DIR)
+        #     folderExist('opt.ADDRESS.DETECTION.TRAIN_GT_DIR', self.opt.ADDRESS.DETECTION.TRAIN_GT_DIR)
+        #     folderExist('opt.ADDRESS.DETECTION.TEST_DATA_DIR', self.opt.ADDRESS.DETECTION.TEST_DATA_DIR)
+        #     folderExist('opt.ADDRESS.DETECTION.TEST_GT_DIR', self.opt.ADDRESS.DETECTION.TEST_GT_DIR)
+        #     folderExist('opt.ADDRESS.DETECTION.VAL_DATA_DIR', self.opt.ADDRESS.DETECTION.VAL_DATA_DIR)
+        #     folderExist('opt.ADDRESS.DETECTION.VAL_GT_DIR', self.opt.ADDRESS.DETECTION.VAL_GT_DIR)
+        # elif model_type == 'R':
+        #     '''识别模型'''
+        #     folderExist('opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR)
+        #     folderExist('opt.ADDRESS.RECOGNITION.TRAIN_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_LABEL_DIR)
+        #     folderExist('opt.ADDRESS.RECOGNITION.TEST_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TEST_DATA_DIR)
+        #     folderExist('opt.ADDRESS.RECOGNITION.TEST_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.TEST_LABEL_DIR)
+        #     folderExist('opt.ADDRESS.RECOGNITION.VAL_DATA_DIR', self.opt.ADDRESS.RECOGNITION.VAL_DATA_DIR)
+        #     folderExist('opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR)
 
-        folderExist('opt.ADDRESS.RECOGNITION.ALPHABET', self.opt.ADDRESS.RECOGNITION.ALPHABET)
+
+        folderExist('opt.ADDRESS.TRAIN_DATA_DIR', self.opt.ADDRESS.TRAIN_DATA_DIR)
+        folderExist('opt.ADDRESS.TRAIN_GT_DIR', self.opt.ADDRESS.TRAIN_GT_DIR)
+        folderExist('opt.ADDRESS.TEST_DATA_DIR', self.opt.ADDRESS.TEST_DATA_DIR)
+        folderExist('opt.ADDRESS.TEST_GT_DIR', self.opt.ADDRESS.TEST_GT_DIR)
+        folderExist('opt.ADDRESS.VAL_DATA_DIR', self.opt.ADDRESS.VAL_DATA_DIR)
+        folderExist('opt.ADDRESS.VAL_GT_DIR', self.opt.ADDRESS.VAL_GT_DIR)
+
+        folderExist('opt.ADDRESS.ALPHABET', self.opt.ADDRESS.ALPHABET)
 
 
         createFolder(self.opt.ADDRESS.CHECKPOINTS_DIR)

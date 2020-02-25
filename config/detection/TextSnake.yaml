@@ -1,5 +1,6 @@
 BASE:
   MODEL: 'TextSnake'
+  TYPE: 'D'
   VERSION: 'v1'
   ENV: 'EnvironmentName'
   TASK_ID: 12345

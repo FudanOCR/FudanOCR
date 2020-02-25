@@ -18,7 +18,7 @@ print(opt.BASE.MODEL)
 '''
 ```
 
-Your can define a sub-class of Trainer in main.py
+Your can define a subclass of Trainer in main.py
 ```python
 from engine.trainer import Trainer
 class XXNET_Trainer(Trainer):

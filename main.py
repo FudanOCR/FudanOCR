@@ -205,6 +205,10 @@ class MORAN_Trainer(Trainer):
 
                 return cost, sim_preds, cpu_texts
 
+    def getScheduler(self):
+        from torch.optim.lr_scheduler import LambdaLR, StepLR
+        return LambdaLR(self.optimizer, lr_lambda=lambda epoch: 1 / (epoch + 1))
+
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)

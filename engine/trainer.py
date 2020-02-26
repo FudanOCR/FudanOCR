@@ -7,6 +7,7 @@ import Levenshtein
 import shutil
 import urllib
 from collections import OrderedDict
+from torch.optim.lr_scheduler import LambdaLR, StepLR
 
 from engine.loss import getLoss
 from engine.optimizer import getOptimizer
@@ -48,9 +49,18 @@ class Trainer(object):
         self.train_loader = train_loader
         self.val_loader = val_loader
 
-        '''识别模型工具元件'''
+        '''Loss计算工具类'''
         self.loss_avg = utils.averager()
 
+        '''动态调整lr'''
+        self.scheduler = None
+        if self.opt.MODEL.DYNAMIC_LR == True:
+            self.scheduler = self.getScheduler()
+            assert self.scheduler, "opt.MODEL.DYNAMIC_LR == True. You need to overload the function getScheduler(), then return a valid scheduler."
+
+        '''设置finetune'''
+        if self.opt.FUNCTION.FINETUNE == True:
+            assert self.finetune(), "opt.FUNCTION.FINETUNE == True. You need to overload the function finetune() to adjust the model or the optimizer."
 
         '''常量区'''
         self.i = 0
@@ -266,6 +276,10 @@ class Trainer(object):
 
                 self.i += 1
 
+        '''动态调整学习率'''
+        if self.scheduler != None:
+            scheduler.step()
+
     def checkSaveOrVal(self):
         '''验证'''
         if self.i % self.opt.FREQ.VAL_FREQ == 0:
@@ -297,3 +311,20 @@ class Trainer(object):
             for p in self.model.parameters():
                 p.requires_grad = True
             self.model.train()
+
+    def getScheduler(self):
+        '''
+        需要函数重载，用户指定返回的动态调整lr器
+        '''
+        pass
+        # scheduler_1 = LambdaLR(self.optimizer, lr_lambda=lambda epoch: 1 / (epoch + 1))
+        # scheduler_2 = StepLR(self.optimizer, step_size=3, gamma=0.1)
+
+    def finetune(self):
+        '''
+        微调训练
+        一般修改的位置有：
+        1.模型参数的 require_grad
+        2.optimizer部分的lr
+        '''
+        return False

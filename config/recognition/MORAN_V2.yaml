@@ -10,7 +10,7 @@ DATASETS:
   TYPE: 'Imdb'
 
 ADDRESS:
-  ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
+  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/ic15_words.txt'
   TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
   TRAIN_GT_DIR: ''
   TEST_DATA_DIR: ''
@@ -29,13 +29,14 @@ IMAGE:
 
 FUNCTION:
   VAL_ONLY: False
-  FINETUNE: False
+  FINETUNE: True
 
 MODEL:
   EPOCH: 100000
   BATCH_SIZE: 64
   LR: 1.0
   DECAY_RATE: 0.1
+  DYNAMIC_LR: True
   OPTIMIZER: 'Adadelta'
   LOSS: 'CrossEntropyLoss'
   DETAILS:
@@ -51,10 +52,10 @@ FREQ:
   SHOW_FREQ: 100
   VAL_FREQ: 1000
 
-MORAN:
-  targetH: 32
-  targetW: 100
-  BidirDecoder: True
-  inputDataType: 'torch.cuda.FloatTensor'
-  maxBatch: 256
-  CUDA: True
+
+targetH: 32
+targetW: 100
+BidirDecoder: True
+inputDataType: 'torch.cuda.FloatTensor'
+maxBatch: 256
+CUDA: True

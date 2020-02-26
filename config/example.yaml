@@ -1,12 +1,14 @@
 BASE:
   MODEL: 'MORAN'
+  # [Option] R(recognition)/D(detection)
   TYPE: 'R'
   NUM_GPUS: 1
   GPU_ID: '2,'
   WORKERS: 4
 
 DATASETS:
-  DATASET: 'DatasetName*'
+  DATASET: 'DatasetName'
+  # [Option] Imdb(moran)/custom_dset(AEAST)/total_text(textsnake)/icdar(maskrcnnbenchmark)/CTW1500(psenet)/...
   TYPE: 'Imdb'
 
 ADDRESS:
@@ -36,7 +38,9 @@ MODEL:
   BATCH_SIZE: 64
   LR: 1.0
   DECAY_RATE: 0.1
+  # [Option] Adadelta/Adam/...
   OPTIMIZER: 'Adadelta'
+  # [Option] MSELoss/CrossEntropyLoss/CTCLoss/TextLoss/AEASTLOSS/...
   LOSS: 'CrossEntropyLoss'
   DETAILS:
     HIDDEN_LAYER: 10

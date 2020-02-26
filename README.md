@@ -1,5 +1,7 @@
 # Fudan OCR
 
+![]https://img.shields.io/badge/version-1.0.0-green
+
 Fudan OCR is a platform for OCR researchers, 
 integrating several OCR modules and models. 
 Users can train existing models based on this platform, 

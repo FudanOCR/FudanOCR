@@ -161,7 +161,8 @@ class Env(object):
 
 
         createFolder(self.opt.ADDRESS.CHECKPOINTS_DIR)
-        createFolder(self.opt.ADDRESS.CACHE_DIR)
-        createFolder(self.opt.ADDRESS.LOGGER_DIR)
+        # createFolder(self.opt.ADDRESS.CACHE_DIR)
+        '''保证每次训练时使用的文件夹都是新的'''
+        createFolder(self.opt.ADDRESS.LOGGER_DIR,removeOrigin=True)
 
 

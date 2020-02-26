@@ -21,7 +21,6 @@ ADDRESS:
   VAL_GT_DIR: ''
   CHECKPOINTS_DIR: './MORAN_Checkpoints/'
   PRETRAIN_MODEL_DIR: './pretrain_MORAN/'
-  CACHE_DIR: './Cache/'
   LOGGER_DIR: './Logger/'
 
 IMAGE:

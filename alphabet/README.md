@@ -10,7 +10,7 @@ from alphabet.alphabet import Alphabet
 alphabet1 = Alphabet('0123456789')
 alphabet2 = Alphabet('./alphabet/words/words.txt')
 
-'''Use opt to get parameters from config file
+'''
 > print(len(alphabet1))
 > 10
 '''

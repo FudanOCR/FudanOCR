@@ -13,6 +13,7 @@ from engine.loss import getLoss
 from engine.optimizer import getOptimizer
 from alphabet.alphabet import Alphabet
 from engine.pretrain import pretrain_model
+from logger.info import file_summary
 
 
 class Trainer(object):
@@ -183,7 +184,7 @@ class Trainer(object):
         distance = 0.0
         loss_avg = self.loss_avg
 
-        f = open('./OCR新架构验证测试.txt', 'a', encoding='utf-8')
+        # f = open('./OCR新架构验证测试.txt', 'a', encoding='utf-8')
 
         for i in range(len(val_loader)):
             data = val_iter.next()
@@ -199,11 +200,14 @@ class Trainer(object):
             for pred, target in zip(preds, targets):
                 if pred == target.lower():
                     n_correct += 1
-                f.write("预测 %s      目标 %s\n" % (pred, target))
+
+                '''利用logger工具将结果记录于文件夹中'''
+                file_summary(self.opt.ADDRESS.LOGGER_DIR,self.opt.BASE.MODEL + "_result.txt","预测 %s      目标 %s\n" % (pred, target))
+                # f.write("预测 %s      目标 %s\n" % (pred, target))
                 distance += Levenshtein.distance(pred, target) / max(len(pred), len(target))
                 n_total += 1
 
-        f.close()
+        # f.close()
         accuracy = n_correct / float(n_total)
 
         print("correct / total: %d / %d, " % (n_correct, n_total))

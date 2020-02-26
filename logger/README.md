@@ -44,6 +44,7 @@ Input a list of scalars such as loss and write them to the log file.
 		log_freq(int):Global step value to record
 	```
 
+![](https://i.imgur.com/VN7iHJG.png)
 ### Add scalar
 
 Similar to the former 'Add a list of scalar', but the data in this function is not list but a scalar.
@@ -57,6 +58,7 @@ Similar to the former 'Add a list of scalar', but the data in this function is n
 		iteration_number:The horizontal coordinate value of each scalar
 	```
 	
+![](https://i.imgur.com/Cuq5eCy.png)
 ### Add graph
 
 Visualize a net model.
@@ -83,8 +85,9 @@ Attention:this function requires the `pillow` package.
 			The elements in img_tensor can either have values in [0, 1] (float32) or [0, 255] (uint8).
             Users are responsible to scale the data in the correct range/type.You can use 
 			`torchvision.utils.make_grid()` to convert a batch of tensor into 3xHxW format
+		iteration_number:The horizontal coordinate value of each scalar
 	```
-
+![](https://i.imgur.com/Gi51ejs.png)
 
 
 ## TensorboardX

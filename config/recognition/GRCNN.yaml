@@ -7,16 +7,16 @@ BASE:
 
 DATASETS:
   DATASET: 'DatasetName*'
-  TYPE: 'Imdb'
+  TYPE: 'custom'
 
 ADDRESS:
   ALPHABET: '/home/cjy/FudanOCR/alphabet/words/lsvt_train_words.txt'
-  TRAIN_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_train'
-  TRAIN_GT_DIR: ''
+  TRAIN_DATA_DIR: '/home/cjy/mnt/ramdisk/max/90kDICT32px/'
+  TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_test'
-  VAL_GT_DIR: ''
+  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
+  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
   CHECKPOINTS_DIR: './GRCNN_LSVT_Checkpoints/'
   PRETRAIN_MODEL_DIR: ''
   LOGGER_DIR: './GRCNN_Logger/'

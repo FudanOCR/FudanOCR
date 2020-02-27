@@ -82,5 +82,5 @@ newTrainer = XX_Trainer(modelObject=model, opt=env.opt, train_loader=train_loade
 ```
 
 ## R & D team
-This project was developed by students of Fudan University. The leader is Jingye Chen, and the other members of team are Xiaocong Wang, Siyu Miao, Huafeng Shi and Peiyao Zhang.
+This project was developed by students of Fudan University. The leader is Jingye Chen, and the other members of this team are Xiaocong Wang, Siyu Miao, Huafeng Shi and Peiyao Zhang.
 The supervisors of this team are Bin Li and Xiangyang Xue. 

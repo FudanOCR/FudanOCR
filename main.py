@@ -3,6 +3,7 @@ from engine.trainer import Trainer
 from engine.env import Env
 from data.build import build_dataloader
 
+
 class GRCNN_Trainer(Trainer):
     '''
     重载训练器
@@ -16,7 +17,7 @@ class GRCNN_Trainer(Trainer):
     def __init__(self, modelObject, opt, train_loader, val_loader):
         Trainer.__init__(self, modelObject, opt, train_loader, val_loader)
 
-    def pretreatment(self, data,test=False):
+    def pretreatment(self, data, test=False):
         '''
         将从dataloader加载出来的data转化为可以传入神经网络的数据
         '''
@@ -60,6 +61,7 @@ class GRCNN_Trainer(Trainer):
             sim_preds = self.converter.decode(acc.data, predict_len.data)
 
             return cost, sim_preds, cpu_gt
+
 
 class TextSnake_Trainer(Trainer):
 
@@ -194,7 +196,7 @@ class MORAN_Trainer(Trainer):
             else:
                 cpu_images, cpu_texts = originData
                 preds = modelResult
-                image, length, text, text_rev,_ = pretreatmentData
+                image, length, text, text_rev, _ = pretreatmentData
                 cost = self.criterion(preds, text)
                 _, preds = preds.max(1)
                 preds = preds.view(-1)
@@ -209,4 +211,4 @@ class MORAN_Trainer(Trainer):
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = MORAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()
+newTrainer = GRCNN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()

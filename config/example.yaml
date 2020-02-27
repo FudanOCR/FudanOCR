@@ -42,8 +42,6 @@ MODEL:
   OPTIMIZER: 'Adadelta'
   # [Option] MSELoss/CrossEntropyLoss/CTCLoss/TextLoss/AEASTLOSS/...
   LOSS: 'CrossEntropyLoss'
-  DETAILS:
-    HIDDEN_LAYER: 10
 
 THRESHOLD:
   MAXSIZE: 100

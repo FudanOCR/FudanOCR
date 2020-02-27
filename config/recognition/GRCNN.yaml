@@ -1,0 +1,65 @@
+BASE:
+  MODEL: 'GRCNN'
+  TYPE: 'R'
+  NUM_GPUS: 1
+  GPU_ID: '0,'
+  WORKERS: 0
+
+DATASETS:
+  DATASET: 'DatasetName*'
+  TYPE: 'Imdb'
+
+ADDRESS:
+  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/lsvt_train_words.txt'
+  TRAIN_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_train'
+  TRAIN_GT_DIR: ''
+  TEST_DATA_DIR: ''
+  TEST_GT_DIR: ''
+  VAL_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_test'
+  VAL_GT_DIR: ''
+  CHECKPOINTS_DIR: './GRCNN_LSVT_Checkpoints/'
+  PRETRAIN_MODEL_DIR: ''
+  LOGGER_DIR: './GRCNN_Logger/'
+
+IMAGE:
+  IMG_H: 32
+  IMG_W: 280
+  IMG_CHANNEL: 1
+
+FUNCTION:
+  VAL_ONLY: False
+  FINETUNE: False
+
+MODEL:
+  EPOCH: 100000
+  BATCH_SIZE: 16
+  LR: 0.0001
+  DECAY_RATE: 0.1
+  DYNAMIC_LR: False
+  OPTIMIZER: 'Adam'
+  LOSS: 'CTCLoss'
+  DETAILS:
+    HIDDEN_LAYER: 10
+
+THRESHOLD:
+  MAXSIZE: 100
+  MINSIZE: 1
+  TEXT_SCALE: 75
+
+FREQ:
+  SAVE_FREQ: 4000
+  SHOW_FREQ: 100
+  VAL_FREQ: 1000
+
+BidirDecoder: False
+CUDA: True
+
+CNN:
+    MODEL: "grcnn"
+RNN:
+    MODEL: "compositelstm"
+    n_In: 512
+    n_Hidden: 256
+    n_Layer: "Number: for multi layer lstm."
+    multi_gpu: none
+

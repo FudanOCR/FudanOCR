@@ -11,6 +11,7 @@ import random
 import torch.backends.cudnn as cudnn
 import argparse
 from config.yaml_reader import read_config_file
+from model.modelDict import getModel
 # from config.config import get_cfg_defaults
 # from yacs.config import CfgNode as CN
 
@@ -26,6 +27,7 @@ class Env(object):
         self.setVisibleGpu()
         self.setCudnnBenchmark()
         self.checkAddressExist()
+        self.model = getModel(self.opt.BASE.MODEL)
 
     def seedInit(self):
         '''
@@ -164,5 +166,16 @@ class Env(object):
         # createFolder(self.opt.ADDRESS.CACHE_DIR)
         '''保证每次训练时使用的文件夹都是新的'''
         createFolder(self.opt.ADDRESS.LOGGER_DIR,removeOrigin=True)
+
+    # def getModel(self):
+    #     '''
+    #     读取opt中的model名称，并将其与/model/modelDict.py 下的字典作比较
+    #     如果字典存在该键，则直接返回
+    #     否则设置self.model = None
+    #     '''
+    #     if self.opt.BASE.MODEL in modelDict:
+    #         self.model = modelDict[self.opt.BASE.MODEL]
+    #     else:
+    #         self.model = None
 
 

@@ -1,7 +1,4 @@
 # -*- coding:utf-8 -*-
-# from model.recognition_model.GRCNN.models.crann import newCRANN
-from model.recognition_model.MORAN_V2.models.moran import newMORAN
-#from model.detection_model.TextSnake_pytorch.network.textnet import TextNet
 from engine.trainer import Trainer
 from engine.env import Env
 from data.build import build_dataloader
@@ -19,7 +16,7 @@ class GRCNN_Trainer(Trainer):
     def __init__(self, modelObject, opt, train_loader, val_loader):
         Trainer.__init__(self, modelObject, opt, train_loader, val_loader)
 
-    def pretreatment(self, data):
+    def pretreatment(self, data,test=False):
         '''
         将从dataloader加载出来的data转化为可以传入神经网络的数据
         '''
@@ -212,4 +209,4 @@ class MORAN_Trainer(Trainer):
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = MORAN_Trainer(modelObject=newMORAN, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()
+newTrainer = MORAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()

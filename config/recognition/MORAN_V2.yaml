@@ -35,7 +35,7 @@ MODEL:
   BATCH_SIZE: 64
   LR: 1.0
   DECAY_RATE: 0.1
-  DYNAMIC_LR: True
+  DYNAMIC_LR: False
   OPTIMIZER: 'Adadelta'
   LOSS: 'CrossEntropyLoss'
   DETAILS:

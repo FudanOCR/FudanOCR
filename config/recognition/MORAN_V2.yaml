@@ -10,21 +10,20 @@ DATASETS:
   TYPE: 'Imdb'
 
 ADDRESS:
-  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/ic15_words.txt'
-  TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
+  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/lsvt_train_words.txt'
+  TRAIN_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_train'
   TRAIN_GT_DIR: ''
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic15_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_test'
   VAL_GT_DIR: ''
-  CHECKPOINTS_DIR: './MORAN_Checkpoints/'
-  PRETRAIN_MODEL_DIR: './pretrain_MORAN/'
-  CACHE_DIR: './Cache/'
-  LOGGER_DIR: './Logger/'
+  CHECKPOINTS_DIR: './MORAN_LSVT_Checkpoints/'
+  PRETRAIN_MODEL_DIR: ''
+  LOGGER_DIR: './LSVT_Logger/'
 
 IMAGE:
-  IMG_H: 32
-  IMG_W: 100
+  IMG_H: 64
+  IMG_W: 200
   IMG_CHANNEL: 1
 
 FUNCTION:
@@ -52,7 +51,7 @@ FREQ:
   SHOW_FREQ: 100
   VAL_FREQ: 1000
 
-
+nh: 256
 targetH: 32
 targetW: 100
 BidirDecoder: True

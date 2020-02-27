@@ -100,7 +100,7 @@ class MORAN_Trainer(Trainer):
     def __init__(self, modelObject, opt, train_loader, val_loader):
         Trainer.__init__(self, modelObject, opt, train_loader, val_loader)
 
-    def pretreatment(self, data):
+    def pretreatment(self, data, test=False):
         '''
         将从dataloader加载出来的data转化为可以传入神经网络的数据
         '''
@@ -134,7 +134,7 @@ class MORAN_Trainer(Trainer):
             utils.loadData(text, t)
             utils.loadData(text_rev, t_rev)
             utils.loadData(length, l)
-            return image, length, text, text_rev
+            return image, length, text, text_rev, test
             # preds0, preds1 = self.model(image, length, text, text_rev)
             # cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
         else:
@@ -143,7 +143,7 @@ class MORAN_Trainer(Trainer):
             t, l = self.converter.encode(cpu_texts, scanned=True)
             utils.loadData(text, t)
             utils.loadData(length, l)
-            return image, length, text, text_rev
+            return image, length, text, text_rev, test
             # preds = self.model(image, length, text, text_rev)
             # cost = self.criterion(preds, text)
 
@@ -157,7 +157,7 @@ class MORAN_Trainer(Trainer):
 
         if test == False:
             if self.opt.BidirDecoder:
-                image, length, text, text_rev = pretreatmentData
+                image, length, text, text_rev, _ = pretreatmentData
                 preds0, preds1 = modelResult
                 cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
             else:
@@ -171,7 +171,7 @@ class MORAN_Trainer(Trainer):
             if self.opt.BidirDecoder:
                 preds0, preds1 = modelResult
                 cpu_images, cpu_texts, cpu_texts_rev = originData
-                image, length, text, text_rev = pretreatmentData
+                image, length, text, text_rev, _ = pretreatmentData
 
                 cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
                 preds0, preds1 = modelResult
@@ -197,7 +197,7 @@ class MORAN_Trainer(Trainer):
             else:
                 cpu_images, cpu_texts = originData
                 preds = modelResult
-                image, length, text, text_rev = pretreatmentData
+                image, length, text, text_rev,_ = pretreatmentData
                 cost = self.criterion(preds, text)
                 _, preds = preds.max(1)
                 preds = preds.view(-1)

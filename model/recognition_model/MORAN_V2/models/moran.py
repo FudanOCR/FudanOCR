@@ -63,7 +63,7 @@ class newMORAN(nn.Module):
 
         # self.nclass = len(alphabet)
         self.nclass = len(Alphabet(opt.ADDRESS.ALPHABET))
-        self.nh = opt.IMAGE.IMG_H
+        self.nh = opt.nh
         self.targetH = opt.targetH
         self.targetW = opt.targetW
         self.BidirDecoder = opt.BidirDecoder

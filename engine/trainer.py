@@ -36,22 +36,17 @@ class Trainer(object):
         # 基本信息
         self.opt = opt
         # 读取识别组件需要的字符表
-        if opt.BASE.TYPE == 'R':
-            self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
-            self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
 
         '''初始化模型，并且加载预训练模型'''
         self.model = self.initModel(modelObject)
         self.loadParam()
+        self.loadTool()
 
         self.optimizer = getOptimizer(self.model, self.opt)
         self.criterion = getLoss(self.opt)
 
         self.train_loader = train_loader
         self.val_loader = val_loader
-
-        '''Loss计算工具类'''
-        self.loss_avg = utils.averager()
 
         '''动态调整lr'''
         self.scheduler = None
@@ -63,9 +58,7 @@ class Trainer(object):
         if self.opt.FUNCTION.FINETUNE == True:
             assert self.finetune(), "opt.FUNCTION.FINETUNE == True. You need to overload the function finetune() to adjust the model or the optimizer."
 
-        '''常量区'''
-        self.i = 0
-        self.highestAcc = 0
+
 
     def initModel(self, modelObject):
         '''
@@ -75,6 +68,17 @@ class Trainer(object):
             return modelObject(self.opt).cuda()
         else:
             modelObject(self.opt)
+
+    def loadTool(self):
+        '''
+        根据模型的类型，加载相应的组件
+        '''
+        if self.opt.BASE.TYPE == 'R':
+            self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
+            self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
+            self.highestAcc = 0
+
+
 
     def loadParam(self):
         '''
@@ -128,7 +132,7 @@ class Trainer(object):
                 state_dict_rename[name] = v
             self.model.load_state_dict(state_dict_rename, strict=True)
 
-    def pretreatment(self, data):
+    def pretreatment(self, data, test=False):
         '''
         将从dataloader加载出来的data转化为可以传入神经网络的数据
 
@@ -182,14 +186,16 @@ class Trainer(object):
         n_correct = 0
         n_total = 0
         distance = 0.0
-        loss_avg = self.loss_avg
+        loss_avg = utils.averager()
 
         # f = open('./OCR新架构验证测试.txt', 'a', encoding='utf-8')
 
         for i in range(len(val_loader)):
             data = val_iter.next()
 
-            pretreatmentData = self.pretreatment(data)
+            # print(data)
+
+            pretreatmentData = self.pretreatment(data, True)
 
             modelResult = self.model(*pretreatmentData)
 
@@ -216,8 +222,8 @@ class Trainer(object):
 
         if acc_tmp > self.highestAcc:
             self.highestAcc = acc_tmp
-            torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-                self.opt.ADDRESS.CHECKPOINTS_DIR, self.i, str(self.highestAcc)[:6]))
+            torch.save(self.model.state_dict(), '{0}/{1}.pth'.format(
+                self.opt.ADDRESS.CHECKPOINTS_DIR, str(self.highestAcc)[:6]))
         return acc_tmp
 
     def validate_detection(self):
@@ -241,64 +247,69 @@ class Trainer(object):
             self.validate()
             return
 
+        loss_avg = utils.averager()
+
         t0 = time.time()
         self.highestAcc = 0
         for epoch in range(self.opt.MODEL.EPOCH):
 
-            self.i = 0
+            iteration = 0
             train_iter = iter(self.train_loader)
 
-            while self.i < len(self.train_loader):
+            while iteration < len(self.train_loader):
 
                 '''检查该迭代周期是否需要保存或验证'''
-                self.checkSaveOrVal()
+                self.checkSaveOrVal(iteration)
 
                 data = train_iter.next()
 
-                pretreatmentData = self.pretreatment(data)
+                # print(data)
+
+                pretreatmentData = self.pretreatment(data, False)
 
                 modelResult = self.model(*pretreatmentData)
 
                 cost = self.posttreatment(modelResult, pretreatmentData, data)
 
                 self.optimizer.zero_grad()
+                # self.optimizer.zero_grad()
                 cost.backward()
                 self.optimizer.step()
 
-                self.loss_avg.add(cost)
+                loss_avg.add(cost)
 
                 '''
                 展示阶段
                 在训练的时候仅仅展示在相应阶段的loss
                 '''
-                if self.i % self.opt.FREQ.SHOW_FREQ == 0:
+                if iteration % self.opt.FREQ.SHOW_FREQ == 0:
                     t1 = time.time()
                     print('Epoch: %d/%d; iter: %d/%d; Loss: %f; time: %.2f s;' %
-                          (epoch, self.opt.MODEL.EPOCH, self.i, len(self.train_loader), self.loss_avg.val(), t1 - t0)),
-                    self.loss_avg.reset()
+                          (epoch, self.opt.MODEL.EPOCH, iteration, len(self.train_loader), loss_avg.val(), t1 - t0)),
+                    loss_avg.reset()
                     t0 = time.time()
 
-                self.i += 1
+                iteration += 1
 
         '''动态调整学习率'''
         if self.scheduler != None:
             scheduler.step()
 
-    def checkSaveOrVal(self):
+    def checkSaveOrVal(self,iteration):
         '''验证'''
-        if self.i % self.opt.FREQ.VAL_FREQ == 0:
+        if iteration % self.opt.FREQ.VAL_FREQ == 0:
             self.setModelState('test')
             acc_tmp = self.validate()
             '''记录训练结果最大值的模型文件'''
             if acc_tmp > self.highestAcc:
                 self.highestAcc = acc_tmp
                 torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-                    self.opt.ADDRESS.CHECKPOINTS_DIR, self.i, str(self.highestAcc)[:6]))
+                    self.opt.ADDRESS.CHECKPOINTS_DIR, iteration, str(self.highestAcc)[:6]))
 
         '''保存'''
-        if self.i % self.opt.FREQ.SAVE_FREQ == 0:
+        if iteration % self.opt.FREQ.SAVE_FREQ == 0:
             torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-                self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, self.i))
+                self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, iteration))
 
         '''恢复训练状态'''
         self.setModelState('train')

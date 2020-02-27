@@ -196,7 +196,7 @@ class GRCNN(nn.Module):
         return x
 
 def grcnn(**kwargs):
-    model = GRCNN(imgH=32, nc=1)
+    model = GRCNN(imgH=32, nc=3)
     #print(model)
     return model
 

@@ -6,7 +6,7 @@ import logging
 import torch.utils.data
 from alphabet.alphabet import Alphabet
 from data import LMDB
-from data.grcnndataset import CustomDataset
+import data.grcnndataset as grcnndataset
 # from model.detection_model.TextSnake_pytorch.dataset import total_text
 # from data  importICDAR
 # from data import CTW1500
@@ -58,7 +58,9 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
             return dataset
 
         elif 'custom' == name.lower():
-            dataset = CustomDataset(data_dir, anno_dir, transform=LMDB.resizeNormalize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H)))
+            dataset = grcnndataset.CustomDataset(data_dir, anno_dir, transform=None)
+            # dataset = CustomDataset(data_dir, anno_dir, transform=LMDB.resizeNormalize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H)))
+
             assert dataset
             return dataset
 
@@ -134,7 +136,11 @@ def get_dataloader(cfg, name, dataset, split):
                                                    batch_size=cfg.MODEL.BATCH_SIZE,
                                                    shuffle=shuffle,
                                                    sampler=None,
-                                                   num_workers=cfg.BASE.WORKERS)
+                                                   num_workers=cfg.BASE.WORKERS,
+                                                 collate_fn=grcnndataset.alignCollate(
+                                                     imgH=cfg.IMAGE.IMG_H,
+                                                     imgW=cfg.IMAGE.IMG_W)
+                                                 )
         assert dataloader
         return dataloader
 

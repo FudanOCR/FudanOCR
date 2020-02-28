@@ -348,12 +348,8 @@ class AEAST_Trainer(Trainer):
         gt = gt.cuda()
         return img, gt
 
-<<<<<<< HEAD
-    def posttreatment(self, modelResult, pretreatmentData, data, test):#gt, img, test):
-        img, gt = pretreatmentData
-=======
     def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
->>>>>>> origin/master
+        img, gt = pretreatmentData
         if test == True:
             loss = self.criterion(gt, modelResult)
             return loss

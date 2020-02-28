@@ -1,4 +1,4 @@
-global val_loss
+global val_result
 def detval(input, gt, cfg):
     import numpy as np
     import json
@@ -206,6 +206,8 @@ def detval(input, gt, cfg):
     k = 2
 
     # load json file as dict
+    with open(os.path.join(cfg.opt.ADDRESS.OUTPUT_DIR, 'result.json'), 'w') as f:
+        json.dump(val_result, f)
     with open(input_json_path, 'r') as f:
         input_dict = json.load(f)
 

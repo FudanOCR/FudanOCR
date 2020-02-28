@@ -213,6 +213,32 @@ class MORAN_Trainer(Trainer):
         from torch.optim.lr_scheduler import LambdaLR, StepLR
         return LambdaLR(self.optimizer, lr_lambda=lambda epoch: 1 / (epoch + 1))
 
+class AEAST_Trainer(Trainer):
+    '''
+    重载训练器
+
+    主要重载函数为pretreatment与posttreatment两个函数，为数据前处理与数据后处理
+    数据前处理：从dataloader加载出来的数据需要经过加工才可以进入model进行训练
+    数据后处理：经过模型训练的数据是编码好的，需要进一步解码用来计算损失函数
+    不同模型的数据前处理与后处理的方式不一致，因此需要进行函数重载
+    '''
+
+    def __init__(self, modelObject, opt, train_loader, val_loader):
+        Trainer.__init__(self, modelObject, opt, train_loader, val_loader)
+
+    def pretreatment(self, data):
+        img, gt = data
+        img = img.cuda()
+        gt = gt.cuda()
+        return img, gt
+
+    def posttreatment(self, modelResult, gt, img, test):
+        if test == True:
+            return modelResult
+        else:
+            return modelResult
+
+
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)

@@ -47,6 +47,7 @@ def train_AEAST(config_file):
             self.earlystopping = EarlyStopping(opt.patience, val_loss_min)
 
         def __call__(self):
+            # 一个类实例也可以变成一个可调用对象
             for epoch in tqdm(range(self.start_epoch + 1, opt.max_epoch + 1), desc='Epoch'):
                 if epoch == 1:
                     tqdm.write("Validating pretrained model.")
@@ -130,7 +131,7 @@ def train_AEAST(config_file):
     model = East()
     model = model.cuda()
     os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
-    model = nn.DataParallel(model, device_ids=opt.gpu_ids)
+    model = nn.DataParallel(model, device_ids=opt.gpu_ids)  # 数据并行
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('Total parameters: {0}'.format(params))
 

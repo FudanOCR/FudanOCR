@@ -2,8 +2,8 @@ import numpy as np
 import json
 from tqdm import tqdm
 
-from model.detection_model.AdvancedEAST.tools.polygon_wrapper import iou
-from model.detection_model.AdvancedEAST.tools.polygon_wrapper import iod
+from utils.polygon_wrapper import iou
+from utils.polygon_wrapper import iod
 
 
 def input_reading(polygons):

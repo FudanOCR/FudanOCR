@@ -17,9 +17,9 @@ from alphabet.alphabet import Alphabet
 from engine.pretrain import pretrain_model
 from logger.info import file_summary
 from utils.average import averager
+from utils.Pascal_VOC import eval_func
+from utils.AverageMeter import AverageMeter
 
-# from model.detection_model.AdvancedEAST.tools.Pascal_VOC import eval_func
-# from model.detection_model.AdvancedEAST.utils.utils import AverageMeter
 
 class Trainer(object):
 
@@ -230,30 +230,30 @@ class Trainer(object):
         return accuracy
 
     def validate_detection(self):
+        print('Start val')
+        val_loader = self.val_loader
+        val_iter = iter(val_loader)
+
+        # loss
         losses = AverageMeter()
-        for i, (img, gt) in tqdm(enumerate(self.val_loader), desc='Val', total=len(self.val_loader)):
-            img = img.cuda()
-            gt = gt.cuda()
-            east_detect = self.model(img)
-            loss = self.criterion(gt, east_detect)
+        for i in range(len(val_loader)):
+            data = val_iter.next()
+            img, gt = self.pretreatment(data)
+            modelResult = self.model(img)
+            result = self.posttreatment(modelResult, gt, img, test=True)
+            loss = self.criterion(gt, result)
+            print("No.%d, loss:%f" % (i, loss))
             file_summary(self.opt.ADDRESS.LOGGER_DIR, self.opt.BASE.MODEL + "_result.txt",
                          "No.%d, loss:%f \n" % (i, loss))
             losses.update(loss.item(), img.size(0))
         tqdm.write('Validate Loss - Avg Loss {0}'.format(losses.avg))
 
-        self.setModelState('test')
-
-        print('Start val')
-
+        # Precision / Recall / F_score
         input_json_path = self.res2json()
         gt_json_path = self.opt.ADDRESS.GT_JSON_DIR
         eval_func(input_json_path, gt_json_path, self.opt.THRESHOLD.iou_threshold)
 
-        if acc_tmp > self.highestAcc:
-            self.highestAcc = acc_tmp
-            torch.save(self.model.state_dict(), '{0}/{1}.pth'.format(
-                self.opt.ADDRESS.CHECKPOINTS_DIR, str(self.highestAcc)[:6]))
-        return acc_tmp
+        return losses.avg
 
     def res2json(self):
         result_dir = self.opt.ADDRESS.RESULT_DIR

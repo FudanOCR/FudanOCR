@@ -11,8 +11,29 @@ import cv2
 from PIL import Image
 
 
+def build_transforms(cfg, is_train=True):
+    transform = None
+
+    if cfg.BASE.MODEL == 'MORAN':
+        transform = resizeNormalsize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+
+    elif cfg.BASE.MODEL == "TextSnake":
+        transform = NewAugmentation(size=cfg.input_size, mean=cfg.means, std=cfg.stds, maxlen=1280, minlen=512)
+
+    elif cfg.BASE.MODEL == 'maskrcnn':
+        transform = Normalize(
+            mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD, to_bgr255=to_bgr255
+        )
+
+    return transform
+
+
+
+
+#处理类
+
 class Resize(object):
-    #对图片进行尺度调整
+    # 对图片进行尺度调整
     def __init__(self, min_size, max_size):
         self.min_size = min_size
         self.max_size = max_size
@@ -50,7 +71,7 @@ class Resize(object):
         return (oh, ow)
 
     def __call__(self, image, target):
-        size = self.get_size(target.size) # sth wrong with image.size
+        size = self.get_size(target.size)  # sth wrong with image.size
         image = F.resize(image, size)
         target = target.resize(image.size)
         return image, target
@@ -72,6 +93,7 @@ class Normalize(object):
             image = image[[2, 1, 0]] * 255
         image = F.normalize(image, mean=self.mean, std=self.std)
         return image, target
+
 
 class resizeNormalize(object):
     '''
@@ -99,7 +121,8 @@ class resizeNormalize(object):
         img = self.toTensor(img)
         img.sub_(0.5).div_(0.5)
         return img
-    
+
+
 class NewAugmentation(object):
 
     def __init__(self, size, mean, std, maxlen, minlen):
@@ -118,3 +141,5 @@ class NewAugmentation(object):
 
     def __call__(self, image, polygons=None):
         return self.augmentation(image, polygons)
+
+

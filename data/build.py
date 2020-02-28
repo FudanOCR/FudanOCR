@@ -11,7 +11,7 @@ from data.recognition import LMDB
 from data.recognition import CUSTOM
 from data.sampler import getSampler
 from data.collate_fn import getCollate
-
+from data.transforms import  build_transforms
 # from model.detection_model.TextSnake_pytorch.dataset import total_text
 # from data  importICDAR
 # from data import CTW1500

@@ -51,7 +51,7 @@ class newCRANN(nn.Module):
         from alphabet.alphabet import Alphabet
 
         # self.nclass = len(alphabet)
-        self.n_class = len(Alphabet(opt.ADDRESS.ALPHABET))
+        self.n_class = len(Alphabet(opt.ADDRESS.ALPHABET)) + 1
         # self.n_class = len(alphabet)
         self.crann_config = json.loads(json.dumps(opt))
  

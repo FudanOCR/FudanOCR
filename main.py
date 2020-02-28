@@ -62,6 +62,12 @@ class GRCNN_Trainer(Trainer):
 
             return cost, sim_preds, cpu_gt
 
+    def getScheduler(self):
+        '''动态调整lr'''
+        from torch.optim.lr_scheduler import LambdaLR, StepLR
+        # return LambdaLR(self.optimizer, lr_lambda=lambda epoch: 1 / (epoch + 1))
+        return StepLR(self.optimizer, step_size=20, gamma=0.1)
+
 
 class TextSnake_Trainer(Trainer):
 

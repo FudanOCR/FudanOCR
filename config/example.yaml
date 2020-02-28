@@ -5,11 +5,15 @@ BASE:
   NUM_GPUS: 1
   GPU_ID: '2,'
   WORKERS: 4
+  CUAD: True
 
 DATASETS:
   DATASET: 'DatasetName'
   # [Option] Imdb(moran)/custom_dset(AEAST)/total_text(textsnake)/icdar(maskrcnnbenchmark)/CTW1500(psenet)/...
   TYPE: 'Imdb'
+  # [Option] Random_Sequential / Random / Sequential / None
+  SAMPLER: 'Random_Sequential'
+  COLLATE_FN: ''
 
 ADDRESS:
   ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
@@ -37,7 +41,6 @@ MODEL:
   BATCH_SIZE: 64
   LR: 1.0
   DYNAMIC_LR: False
-  DECAY_RATE: 0.1
   # [Option] Adadelta/Adam/...
   OPTIMIZER: 'Adadelta'
   # [Option] MSELoss/CrossEntropyLoss/CTCLoss/TextLoss/AEASTLOSS/...

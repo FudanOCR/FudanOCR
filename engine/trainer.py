@@ -8,6 +8,9 @@ import shutil
 import urllib
 from collections import OrderedDict
 from torch.optim.lr_scheduler import LambdaLR, StepLR
+from tqdm import tqdm
+import numpy as np
+import json
 
 from engine.loss import getLoss
 from engine.optimizer import getOptimizer
@@ -15,6 +18,8 @@ from alphabet.alphabet import Alphabet
 from engine.pretrain import pretrain_model
 from logger.info import file_summary
 
+from model.detection_model.AdvancedEAST.tools.Pascal_VOC import eval_func
+from model.detection_model.AdvancedEAST.utils.utils import AverageMeter
 
 class Trainer(object):
 
@@ -227,7 +232,48 @@ class Trainer(object):
         return acc_tmp
 
     def validate_detection(self):
-        pass
+        losses = AverageMeter()
+        for i, (img, gt) in tqdm(enumerate(self.val_loader), desc='Val', total=len(self.val_loader)):
+            img = img.cuda()
+            gt = gt.cuda()
+            east_detect = self.model(img)
+            loss = self.criterion(gt, east_detect)
+            file_summary(self.opt.ADDRESS.LOGGER_DIR, self.opt.BASE.MODEL + "_result.txt",
+                         "No.%d, loss:%f \n" % (i, loss))
+            losses.update(loss.item(), img.size(0))
+        tqdm.write('Validate Loss - Avg Loss {0}'.format(losses.avg))
+
+        self.setModelState('test')
+
+        print('Start val')
+
+        input_json_path = self.res2json()
+        gt_json_path = self.opt.ADDRESS.GT_JSON_DIR
+        eval_func(input_json_path, gt_json_path, self.opt.THRESHOLD.iou_threshold)
+
+        if acc_tmp > self.highestAcc:
+            self.highestAcc = acc_tmp
+            torch.save(self.model.state_dict(), '{0}/{1}.pth'.format(
+                self.opt.ADDRESS.CHECKPOINTS_DIR, str(self.highestAcc)[:6]))
+        return acc_tmp
+
+    def res2json(self):
+        result_dir = self.opt.ADDRESS.RESULT_DIR
+        res_list = os.listdir(result_dir)
+        res_dict = {}
+        for rf in tqdm(res_list, desc='toJSON'):
+            if rf[-4:] == '.txt':
+                respath = os.path.join(result_dir, rf)
+                with open(respath, 'r') as f:
+                    reslines = f.readlines()
+                reskey = rf[:-4]
+                res_dict[reskey] = [{'points': np.rint(np.asarray(l.replace('\n', '').split(','), np.float32)).astype(
+                    np.int32).reshape(-1, 2).tolist()} for l in reslines]
+
+        jpath = os.path.join(result_dir, 'res.json')
+        with open(jpath, 'w') as jf:
+            json.dump(res_dict, jf)
+        return jpath
 
     def train(self):
         '''

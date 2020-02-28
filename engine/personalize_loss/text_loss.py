@@ -58,7 +58,7 @@ class TextLoss(nn.Module):
 
         return (loss_pos + loss_neg.sum()) / (n_pos + n_neg).float()
 
-    def forward(self, input, tr_mask, tcl_mask, sin_map, cos_map, radii_map, train_mask, iter):
+    def forward(self, input, tr_mask, tcl_mask, sin_map, cos_map, radii_map, train_mask):
         """
         calculate textsnake loss
         Args:

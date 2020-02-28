@@ -238,10 +238,10 @@ class Trainer(object):
         losses = AverageMeter()
         for i in range(len(val_loader)):
             data = val_iter.next()
-            img, gt = self.pretreatment(data)
+            pretreatmentData = self.pretreatment(data)
+            img = self.get_img_data(pretreatmentData)
             modelResult = self.model(img)
-            result = self.posttreatment(modelResult, gt, img, test=True)
-            loss = self.criterion(gt, result)
+            loss = self.posttreatment(modelResult, pretreatmentData, data, True)
             print("No.%d, loss:%f" % (i, loss))
             file_summary(self.opt.ADDRESS.LOGGER_DIR, self.opt.BASE.MODEL + "_result.txt",
                          "No.%d, loss:%f \n" % (i, loss))
@@ -251,9 +251,17 @@ class Trainer(object):
         # Precision / Recall / F_score
         input_json_path = self.res2json()
         gt_json_path = self.opt.ADDRESS.GT_JSON_DIR
-        eval_func(input_json_path, gt_json_path, self.opt.THRESHOLD.iou_threshold)
+        precision, recall, f_score = \
+            eval_func(input_json_path, gt_json_path, self.opt.THRESHOLD.iou_threshold)
 
-        return losses.avg
+
+        return precision
+
+    def get_img_data(self, pretreatmentData):
+        '''
+        从pretreatment中提取出img数据，可根据需要重载
+        '''
+        return pretreatmentData[0]
 
     def res2json(self):
         result_dir = self.opt.ADDRESS.RESULT_DIR

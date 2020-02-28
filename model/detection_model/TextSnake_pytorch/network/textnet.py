@@ -69,7 +69,7 @@ class Upsample(nn.Module):
 
 
 class TextNet(nn.Module):
-    def __init__(self, cfg, alphabet):
+    def __init__(self, cfg):
         super().__init__()
 
         self.backbone_name = cfg.BASE.NETWORK

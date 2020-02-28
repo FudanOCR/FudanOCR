@@ -8,6 +8,8 @@ BASE:
 DATASETS:
   DATASET: 'DatasetName*'
   TYPE: 'Lmdb'
+  SAMPLER: ''
+  COLLATE_FN: ''
 
 ADDRESS:
   ALPHABET: '/home/cjy/FudanOCR/alphabet/words/lsvt_train_words.txt'

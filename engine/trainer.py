@@ -1,5 +1,4 @@
 import time
-from utils import utils
 import torch
 from torch.autograd import Variable
 import os
@@ -17,9 +16,10 @@ from engine.optimizer import getOptimizer
 from alphabet.alphabet import Alphabet
 from engine.pretrain import pretrain_model
 from logger.info import file_summary
+from utils.average import averager
 
-from model.detection_model.AdvancedEAST.tools.Pascal_VOC import eval_func
-from model.detection_model.AdvancedEAST.utils.utils import AverageMeter
+# from model.detection_model.AdvancedEAST.tools.Pascal_VOC import eval_func
+# from model.detection_model.AdvancedEAST.utils.utils import AverageMeter
 
 class Trainer(object):
 
@@ -81,11 +81,11 @@ class Trainer(object):
         if self.opt.BASE.TYPE == 'R':
             self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
             if self.opt.BASE.MODEL == 'MORAN':
-                from utils import utils
-                self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
+                from utils.strLabelConverterForAttention import strLabelConverterForAttention
+                self.converter = strLabelConverterForAttention(self.alphabet.str)
             elif self.opt.BASE.MODEL == 'GRCNN':
-                from utils import utils_for_grcnn
-                self.converter = utils_for_grcnn.strLabelConverter(self.alphabet.str)
+                from utils.strLabelConverterForCTC import strLabelConverterForCTC
+                self.converter = strLabelConverterForCTC(self.alphabet.str)
             self.highestAcc = 0
 
 
@@ -193,7 +193,7 @@ class Trainer(object):
         n_correct = 0
         n_total = 0
         distance = 0.0
-        loss_avg = utils.averager()
+        loss_avg = averager()
 
         # f = open('./OCR新架构验证测试.txt', 'a', encoding='utf-8')
 
@@ -291,7 +291,7 @@ class Trainer(object):
             self.validate()
             return
 
-        loss_avg = utils.averager()
+        loss_avg = averager()
 
         t0 = time.time()
         self.highestAcc = 0

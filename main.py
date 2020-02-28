@@ -111,7 +111,7 @@ class MORAN_Trainer(Trainer):
         '''
         import torch
         from torch.autograd import Variable
-        from utils import utils
+        from utils.loadData import loadData
 
         image = torch.FloatTensor(self.opt.MODEL.BATCH_SIZE, self.opt.IMAGE.IMG_CHANNEL, self.opt.IMAGE.IMG_H,
                                   self.opt.IMAGE.IMG_H)
@@ -133,21 +133,21 @@ class MORAN_Trainer(Trainer):
 
         if self.opt.BidirDecoder:
             cpu_images, cpu_texts, cpu_texts_rev = data
-            utils.loadData(image, cpu_images)
+            loadData(image, cpu_images)
             t, l = self.converter.encode(cpu_texts, scanned=True)
             t_rev, _ = self.converter.encode(cpu_texts_rev, scanned=True)
-            utils.loadData(text, t)
-            utils.loadData(text_rev, t_rev)
-            utils.loadData(length, l)
+            loadData(text, t)
+            loadData(text_rev, t_rev)
+            loadData(length, l)
             return image, length, text, text_rev, test
             # preds0, preds1 = self.model(image, length, text, text_rev)
             # cost = self.criterion(torch.cat([preds0, preds1], 0), torch.cat([text, text_rev], 0))
         else:
             cpu_images, cpu_texts = data
-            utils.loadData(image, cpu_images)
+            loadData(image, cpu_images)
             t, l = self.converter.encode(cpu_texts, scanned=True)
-            utils.loadData(text, t)
-            utils.loadData(length, l)
+            loadData(text, t)
+            loadData(length, l)
             return image, length, text, text_rev, test
             # preds = self.model(image, length, text, text_rev)
             # cost = self.criterion(preds, text)
@@ -158,7 +158,6 @@ class MORAN_Trainer(Trainer):
         '''
         import torch
         from torch.autograd import Variable
-        from utils import utils
 
         if test == False:
             if self.opt.BidirDecoder:
@@ -217,4 +216,4 @@ class MORAN_Trainer(Trainer):
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = GRCNN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()
+newTrainer = MORAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()

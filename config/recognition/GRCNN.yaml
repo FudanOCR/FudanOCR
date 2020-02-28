@@ -3,16 +3,20 @@ BASE:
   TYPE: 'R'
   NUM_GPUS: 1
   GPU_ID: '0,'
-  WORKERS: 0
+  WORKERS: 4
 
 DATASETS:
   DATASET: 'DatasetName*'
   TYPE: 'custom'
+  SAMPLER: 'Random_Sequential'
+  COLLATE_FN: ''
 
 ADDRESS:
-  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/lsvt_train_words.txt'
-  TRAIN_DATA_DIR: '/home/cjy/mnt/ramdisk/max/90kDICT32px/'
-  TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
+  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/grcnn.txt'
+#  TRAIN_DATA_DIR: '/home/cjy/mnt/ramdisk/max/90kDICT32px/'
+#  TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
+  TRAIN_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
+  TRAIN_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
   VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
@@ -32,7 +36,7 @@ FUNCTION:
 
 MODEL:
   EPOCH: 100000
-  BATCH_SIZE: 16
+  BATCH_SIZE: 8
   LR: 0.0001
   DECAY_RATE: 0.1
   DYNAMIC_LR: False

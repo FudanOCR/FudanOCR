@@ -7,7 +7,7 @@ BASE:
 
 DATASETS:
   DATASET: 'DatasetName*'
-  TYPE: 'Imdb'
+  TYPE: 'Lmdb'
 
 ADDRESS:
   ALPHABET: '/home/cjy/FudanOCR/alphabet/words/lsvt_train_words.txt'
@@ -49,7 +49,7 @@ THRESHOLD:
 FREQ:
   SAVE_FREQ: 3000
   SHOW_FREQ: 100
-  VAL_FREQ: 1000
+  VAL_FREQ: 200
 
 nh: 256
 targetH: 32

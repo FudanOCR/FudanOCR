@@ -107,7 +107,7 @@ class resizeNormalize(object):
 
         :param Image img 图片
         '''
-        print('value of size is', self.size)
+        # print('value of size is', self.size)
         img = img.resize(self.size, self.interpolation)
         img = self.toTensor(img)
         img.sub_(0.5).div_(0.5)

@@ -5,8 +5,13 @@ import logging
 
 import torch.utils.data
 from alphabet.alphabet import Alphabet
-from data import LMDB
-import data.grcnndataset as grcnndataset
+
+'''Recognition Part'''
+from data.recognition import LMDB
+from data.recognition import CUSTOM
+from data.sampler import getSampler
+from data.collate_fn import getCollate
+
 # from model.detection_model.TextSnake_pytorch.dataset import total_text
 # from data  importICDAR
 # from data import CTW1500
@@ -24,6 +29,7 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
     :return: dataset
     '''
 
+    '''识别部分'''
     if cfg.BASE.TYPE == 'R':
         '''
         如果是识别模型，则数据集读取方式划分为lmdb, custom
@@ -58,8 +64,7 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
             return dataset
 
         elif 'custom' == name.lower():
-            dataset = grcnndataset.CustomDataset(data_dir, anno_dir, transform=None)
-            # dataset = CustomDataset(data_dir, anno_dir, transform=LMDB.resizeNormalize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H)))
+            dataset = CUSTOM.CustomDataset(data_dir, anno_dir, transform=CUSTOM.resizeNormalize(cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
             assert dataset
             return dataset
@@ -125,6 +130,7 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
 
 def get_dataloader(cfg, name, dataset, split):
 
+    '''识别部分'''
     if cfg.BASE.TYPE == 'R':
 
         if split == 'train':
@@ -132,20 +138,25 @@ def get_dataloader(cfg, name, dataset, split):
         else:
             shuffle = False
 
+        '''
+        torch中sampler和shuffle是冲突的
+        '''
+        if shuffle == False:
+            sampler = getSampler(cfg,dataset)
+        else:
+            sampler = None
+
         dataloader = torch.utils.data.DataLoader(dataset,
                                                    batch_size=cfg.MODEL.BATCH_SIZE,
-                                                   shuffle=shuffle,
-                                                   sampler=None,
+                                                   shuffle=shuffle, sampler=sampler,
                                                    num_workers=cfg.BASE.WORKERS,
-                                                 collate_fn=grcnndataset.alignCollate(
-                                                     imgH=cfg.IMAGE.IMG_H,
-                                                     imgW=cfg.IMAGE.IMG_W)
+                                                 collate_fn=getCollate(cfg,dataset)
                                                  )
         assert dataloader
         return dataloader
 
 
-    if 'Imdb' in name:
+    if 'Lmdb' in name:
         dataloader = torch.utils.data.DataLoader(
             dataset, batch_size=cfg.MODEL.BATCH_SIZE,
             shuffle=False, sampler=LMDB.randomSequentialSampler(dataset, cfg.MODEL.BATCH_SIZE),

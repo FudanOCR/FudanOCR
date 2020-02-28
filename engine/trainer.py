@@ -75,7 +75,12 @@ class Trainer(object):
         '''
         if self.opt.BASE.TYPE == 'R':
             self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
-            self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
+            if self.opt.BASE.MODEL == 'MORAN':
+                from utils import utils
+                self.converter = utils.strLabelConverterForAttention(self.alphabet.str)
+            elif self.opt.BASE.MODEL == 'GRCNN':
+                from utils import utils_for_grcnn
+                self.converter = utils_for_grcnn.strLabelConverter(self.alphabet.str)
             self.highestAcc = 0
 
 
@@ -177,9 +182,6 @@ class Trainer(object):
         在特定训练次数后执行验证模型能力操作
         '''
 
-        acc_tmp = 0
-        self.setModelState('test')
-
         print('Start val')
         val_loader = self.val_loader
         val_iter = iter(val_loader)
@@ -220,11 +222,7 @@ class Trainer(object):
         print('levenshtein distance: %f' % (distance / n_total))
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
 
-        if acc_tmp > self.highestAcc:
-            self.highestAcc = acc_tmp
-            torch.save(self.model.state_dict(), '{0}/{1}.pth'.format(
-                self.opt.ADDRESS.CHECKPOINTS_DIR, str(self.highestAcc)[:6]))
-        return acc_tmp
+        return accuracy
 
     def validate_detection(self):
         pass

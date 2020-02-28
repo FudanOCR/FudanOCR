@@ -342,14 +342,18 @@ class AEAST_Trainer(Trainer):
     def __init__(self, modelObject, opt, train_loader, val_loader):
         Trainer.__init__(self, modelObject, opt, train_loader, val_loader)
 
-    def pretreatment(self, data):
+    def pretreatment(self, data, test=False):
         img, gt = data
         img = img.cuda()
         gt = gt.cuda()
         return img, gt
 
+<<<<<<< HEAD
     def posttreatment(self, modelResult, pretreatmentData, data, test):#gt, img, test):
         img, gt = pretreatmentData
+=======
+    def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
+>>>>>>> origin/master
         if test == True:
             loss = self.criterion(gt, modelResult)
             return loss

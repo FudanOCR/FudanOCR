@@ -47,7 +47,6 @@ def train_AEAST(config_file):
             self.earlystopping = EarlyStopping(opt.patience, val_loss_min)
 
         def __call__(self):
-            # 一个类实例也可以变成一个可调用对象
             for epoch in tqdm(range(self.start_epoch + 1, opt.max_epoch + 1), desc='Epoch'):
                 if epoch == 1:
                     tqdm.write("Validating pretrained model.")

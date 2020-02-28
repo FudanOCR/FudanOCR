@@ -64,33 +64,28 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
             assert dataset
             return dataset
 
-    if 'Lmdb' in name:
-        dataset = LMDB.lmdbDataset(root=data_dir,
-                                   transform=LMDB.resizeNormalize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H)),
-                                   reverse=cfg.BidirDecoder, alphabet=alphabet.str)
-        assert dataset
-        return dataset
+    if cfg.BASE.TYPE == 'D':
+        '''若模型为检测模型，数据集划分方式为常见的数据集标注模式，
+            如icdar系列：TRAIN(VAL)_DATA_DIR内为图片地址，
+            TRAIN_(VAL)_GT_DIR为标注所在的文件夹，每个Txt文件与图片标注一一对应
+        '''
+        if 'ctw1500' == name.lower():
+            dataset = CTW1500.CTW1500Loader(data_dir, anno_dir)
+            return dataset
 
-    elif 'custom_dset' in name:
-        dataset = custom_dset(split=split)
-        assert dataset
-        return dataset
+        # elif 'totol_text' in name:
 
-    if 'CTW1500' in name:
-        dataset = CTW1500.CTW1500Loader(data_dir, anno_dir)
-        return dataset
+        elif 'icdar2013' == name.lower():
+            dataset = icdar_seriers.ICDAR2013Dataset(data_dir, anno_dir)
+            assert dataset
+            return dataset
 
-    # elif 'totol_text' in name:
+        elif 'custom_dset' == name.lower():
+            dataset = custom_dset(split=split)
+            assert dataset
+            return dataset
 
-    elif 'ICDAR2013Dataset' in name:
-        dataset = icdar_seriers.ICDAR2013Dataset(data_dir, anno_dir)
-        assert dataset
-        return dataset
 
-    elif 'ICDAR2015TRAIN' in name:
-        dataset = icdar_seriers.ICDAR2015TRAIN(data_dir, anno_dir)
-        assert dataset
-        return dataset
     '''
     elif 'total_text' in name:
         if split == 'train':
@@ -145,7 +140,7 @@ def get_dataloader(cfg, name, dataset, split):
         return dataloader
 
 
-    if 'Imdb' in name:
+    if 'lmdb' in name.lower():
         dataloader = torch.utils.data.DataLoader(
             dataset, batch_size=cfg.MODEL.BATCH_SIZE,
             shuffle=False, sampler=LMDB.randomSequentialSampler(dataset, cfg.MODEL.BATCH_SIZE),
@@ -153,7 +148,7 @@ def get_dataloader(cfg, name, dataset, split):
         assert dataloader
         return dataloader
 
-    elif 'custom_dset' in name:
+    elif 'custom_dset' in name.lower():
         if split == 'train':
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True,
                                                      collate_fn=collate_fn,

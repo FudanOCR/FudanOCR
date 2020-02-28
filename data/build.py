@@ -166,7 +166,7 @@ def get_dataloader(cfg, name, dataset, split):
 
     elif 'custom_dset' in name:
         if split == 'train':
-            dataloader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MOEDL.BATCH_SIZE, shuffle=True,
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True,
                                                      collate_fn=collate_fn,
                                                      num_workers=int(cfg.BASE.WORKERS), drop_last=False)
         elif split == 'val':

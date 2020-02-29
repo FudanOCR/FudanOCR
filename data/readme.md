@@ -3,7 +3,7 @@
 - build.py: The main processing part including getdataset and getdatadoader
 - folders: different types dataset from models
 - collate_fn/sampler/transforms.py: set fixed method for data processing.
-- generator: for data enhancement (now only support GRCNN).
+- generator: for data enhancement.
 ## dataset-type list
 Here list datasets:
 - Imdb:moran
@@ -40,7 +40,7 @@ In build.py , mainly function :
 - You can set your own method in sampler/transforms/collate_fn.py.
   And use it in build.by with getSampler/getTransforms..
 - For data enhancement:
-  You can use classes in generator.py (now only for GRCNN model)
+  You can use classes in generator.py
 
 ## Make your own Lmdb dataset
 Look at lmdbMaker.py for more details. You need to create an environment with python2 to run this code.

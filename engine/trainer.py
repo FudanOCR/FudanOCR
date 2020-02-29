@@ -16,9 +16,11 @@ from engine.optimizer import getOptimizer
 from alphabet.alphabet import Alphabet
 from engine.pretrain import pretrain_model
 from logger.info import file_summary
+from logger.logger import Logger
 from utils.average import averager
 from utils.Pascal_VOC import eval_func
 from utils.AverageMeter import AverageMeter
+
 
 
 class Trainer(object):
@@ -52,6 +54,7 @@ class Trainer(object):
 
         self.train_loader = train_loader
         self.val_loader = val_loader
+        self.Logger = Logger(self.opt.VISUALIZE.TAG)
 
         '''动态调整lr'''
         self.scheduler = None
@@ -365,6 +368,7 @@ class Trainer(object):
         '''动态调整学习率'''
         if self.scheduler != None:
             scheduler.step()
+        self.Logger.close_summary()
 
     def checkSaveOrVal(self,iteration):
         '''验证'''

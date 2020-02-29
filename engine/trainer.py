@@ -311,9 +311,10 @@ class Trainer(object):
 
         t0 = time.time()
         self.highestAcc = 0
+        iteration = 0
+
         for epoch in range(self.opt.MODEL.EPOCH):
 
-            iteration = 0
             train_iter = iter(self.train_loader)
 
             while iteration < len(self.train_loader):

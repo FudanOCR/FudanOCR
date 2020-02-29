@@ -16,7 +16,7 @@ For details, see the README file under each directory.
 
 <div align=center><img width="636" height="374" src="./images/architecture.jpeg"></div>
 
-- alphabet: Alphabet module. User can use it to create an alphabet object.
+- alphabet: Alphabet module. Users can use it to create an alphabet object.
 - config: Config module. Provide configuration file template inside, users fill in new configuration files as needed.
 - data: Data module. Contain functions such as obtaining datasets, obtaining data loaders, and data preprocessing, etc.
 - engine: Engine module(Important!). Users can use this module to initialize a new training environment. Then define a subclass of Trainer to train.
@@ -75,7 +75,7 @@ opt = env.getOpt()
 print(opt.BASE.MODEL)
 '''
 ```
-- 4 Get dataloader from the data module.
+- 4 Get a dataloader from the data module.
 ```python
 train_loader, test_loader  = build_dataloader(env.opt)
 ```
@@ -87,5 +87,7 @@ newTrainer = XX_Trainer(modelObject=model, opt=env.opt, train_loader=train_loade
 ```
 
 ## R & D team
-This project was developed by students of Fudan University. The leader is Jingye Chen, and the other members of this team are Xiaocong Wang, Siyu Miao, Huafeng Shi and Peiyao Zhang.
+This project was developed by students of Fudan University. The leader is Jingye Chen, and the other members of this team are Xiaocong Wang, Siyu Miao, Huafeng Shi, and Peiyao Zhang.
 The supervisors of this team are Bin Li and Xiangyang Xue. 
+
+:smile: We are very grateful to those who helped us in the project. And if you have new ideas or suggestions for this project, welcome to provide pull requests:)

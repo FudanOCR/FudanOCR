@@ -14,6 +14,7 @@ FudanOCR is divided into several parts.
 The following is a brief introduction to each module. 
 For details, see the README file under each directory.
 
+![](./images/architecture.png)
 
 - alphabet: Alphabet module. User can use it to create an alphabet object.
 - config: Config module. Provide configuration file template inside, users fill in new configuration files as needed.

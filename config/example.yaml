@@ -61,8 +61,8 @@ FREQ:
   VAL_FREQ: 1000
 
 VISUALIZE:
-  TAG: 'Logger/runs/exp-1'
   #the tag to indentify log file, starts with 'Logger/'
+  TAG: 'Logger/runs/exp-1'
 
 MORAN:
   targetH: 32

@@ -20,6 +20,7 @@ from test.DocumentSRModel import test_documentsrmodel
 from test.HARN import test_HARN
 from test.PixelLink import test_PixelLink
 from test.maskscoring_rcnn import test_maskscoring_rcnn
+from test.LSN import test_LSN
 
 from yacs.config import CfgNode as CN
 import argparse
@@ -39,6 +40,7 @@ function_dict = {
     'HARN': test_HARN,
     'PixelLink': test_PixelLink,
     'maskscoring_rcnn': test_maskscoring_rcnn,
+    'LSN': LSN,
     'Your Model Name': 'Your Model Function'
 }
 

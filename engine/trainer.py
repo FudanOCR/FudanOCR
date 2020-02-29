@@ -16,9 +16,11 @@ from engine.optimizer import getOptimizer
 from alphabet.alphabet import Alphabet
 from engine.pretrain import pretrain_model
 from logger.info import file_summary
+from logger.logger import Logger
 from utils.average import averager
 from utils.Pascal_VOC import eval_func
 from utils.AverageMeter import AverageMeter
+
 
 
 class Trainer(object):
@@ -52,6 +54,7 @@ class Trainer(object):
 
         self.train_loader = train_loader
         self.val_loader = val_loader
+        self.Logger = Logger(self.opt.VISUALIZE.TAG)
 
         '''动态调整lr'''
         self.scheduler = None
@@ -174,16 +177,16 @@ class Trainer(object):
         '''
         pass
 
-    def validate(self):
+    def validate(self, epoch, iteration):
         '''
         将验证函数拆分为识别和检测两部分
         '''
         if self.opt.BASE.TYPE == 'R':
-            return self.validate_recognition()
+            return self.validate_recognition(epoch, iteration)
         elif self.opt.BASE.TYPE == 'D':
-            return self.validate_detection()
+            return self.validate_detection(epoch, iteration)
 
-    def validate_recognition(self):
+    def validate_recognition(self, epoch, iteration):
         '''
         在特定训练次数后执行验证模型能力操作
         '''
@@ -226,6 +229,11 @@ class Trainer(object):
                 n_total += 1
 
         accuracy = n_correct / float(n_total)
+        '''利用logger工具将结果进行可视化'''
+        total_index = epoch(iteration * self.opt.FREQ.VAL_FREQ) + iteration // self.opt.FREQ.VAL_FREQ
+        self.Logger.scalar_summary('Levenshtein Distance', distance / n_total, total_index)
+        self.Logger.scalar_summary('Accuracy', accuracy, total_index)
+        self.Logger.scalar_summary('Avg Loss', loss_avg.val(), total_index)
 
         print("correct / total: %d / %d, " % (n_correct, n_total))
         print('levenshtein distance: %f' % (distance / n_total))
@@ -233,7 +241,7 @@ class Trainer(object):
 
         return accuracy
 
-    def validate_detection(self):
+    def validate_detection(self, epoch, iteration):
         print('Start val')
         val_loader = self.val_loader
         val_iter = iter(val_loader)
@@ -258,6 +266,12 @@ class Trainer(object):
         precision, recall, f_score = \
             eval_func(input_json_path, gt_json_path, self.opt)
 
+        # Generate log
+        total_index = epoch(iteration * self.opt.FREQ.VAL_FREQ) + iteration // self.opt.FREQ.VAL_FREQ
+        self.Logger.scalar_summary('Precision', precision, total_index)
+        self.Logger.scalar_summary('Recall', recall, total_index)
+        self.Logger.scalar_summary('F_score', f_score, total_index)
+        self.Logger.scalar_summary('Avg Loss', losses.avg, total_index)
 
         return precision
 
@@ -304,7 +318,7 @@ class Trainer(object):
 
         '''如果只需验证，只需要一次验证过程即可无需训练'''
         if self.opt.FUNCTION.VAL_ONLY == True:
-            self.validate()
+            self.validate(1, self.opt.FREQ.VAL_FREQ)
             return
 
         loss_avg = averager()
@@ -320,7 +334,7 @@ class Trainer(object):
             while iteration < len(self.train_loader):
 
                 '''检查该迭代周期是否需要保存或验证'''
-                self.checkSaveOrVal(iteration)
+                self.checkSaveOrVal(epoch, iteration)
 
                 data = train_iter.next()
 
@@ -355,12 +369,13 @@ class Trainer(object):
         '''动态调整学习率'''
         if self.scheduler != None:
             scheduler.step()
+        self.Logger.close_summary()
 
-    def checkSaveOrVal(self,iteration):
+    def checkSaveOrVal(self, epoch, iteration):
         '''验证'''
         if iteration % self.opt.FREQ.VAL_FREQ == 0:
             self.setModelState('test')
-            acc_tmp = self.validate()
+            acc_tmp = self.validate(epoch, iteration)
             '''记录训练结果最大值的模型文件'''
             if acc_tmp > self.highestAcc:
                 self.highestAcc = acc_tmp

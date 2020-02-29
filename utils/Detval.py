@@ -1,4 +1,3 @@
-global val_result
 def detval(input, gt, cfg):
     import numpy as np
     import json
@@ -9,6 +8,7 @@ def detval(input, gt, cfg):
 
     input_json_path = input#os.path.join(cfg.ADDRESS.OUTPUT_DIR, 'result.json')
     gt_json_path = gt#os.path.join(cfg.ADDRESS.DETECTION.TRAIN_GT_DIR, 'train_labels.json')
+    global val_result
 
     def input_reading(polygons):
         det = []
@@ -65,8 +65,11 @@ def detval(input, gt, cfg):
         return groundtruths
 
     def generate_json(cfg):
+
         if cfg.BASE.MODEL == 'TEXTNET':
-            with open(os.path.join(cfg.ADDRESS.OUTPUT_DIR, 'result.json'), 'w') as f:
+            from model.detection_model.TextSnake_pytorch.util import global_data
+            val_result = global_data._get_det_value()
+            with open(os.path.join(cfg.ADDRESS.DET_RESULT_DIR, 'result.json'), 'w') as f:
                 json.dump(val_result, f)
 
     def sigma_calculation(det_x, det_y, gt_x, gt_y):
@@ -314,8 +317,8 @@ def detval(input, gt, cfg):
     except ZeroDivisionError:
         f_score = 0
 
-    print('Global Precision: {:.4f}, Recall: {:.4f}'.format(precision, recall))
+    print('Global Precision: {:.4f}, Recall: {:.4f}, f_score: {:.4f}'.format(precision, recall, f_score))
 
     print('over')
 
-    return precision, recall
+    return precision, recall, f_score

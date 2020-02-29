@@ -30,7 +30,6 @@ ADDRESS:
   DET_RESULT_DIR : ''
   GT_JSON_DIR: ''
 
-
 IMAGE:
   IMG_H: 32
   IMG_W: 100
@@ -64,10 +63,7 @@ VISUALIZE:
   #the tag to indentify log file, starts with 'Logger/'
   TAG: 'Logger/runs/exp-1'
 
+# your own parameters
 MORAN:
-  targetH: 32
-  targetW: 100
-  BidirDecoder: True
-  inputDataType: 'torch.cuda.FloatTensor'
-  maxBatch: 256
-  CUDA: True
+  TARGET_H: 32
+  TARGET_W: 100

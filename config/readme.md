@@ -27,8 +27,10 @@
 
 ##### `THRESHOLD`: Threshold-related parameters
 
-##### `xx_FREQ`: Frequency-Related Parameters
+##### `FREQ`: Frequency-Related Parameters
 - Such as showing frequency and saving frequency.
+
+##### `VISUALIZE`: Log file parameters
 
 ## Others
 Other parameters that cannot be classified are suggested to be recorded at the end of the document.

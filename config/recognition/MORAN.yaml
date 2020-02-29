@@ -43,6 +43,10 @@ MODEL:
   DETAILS:
     HIDDEN_LAYER: 10
 
+VISUALIZE:
+  #the tag to indentify log file, starts with 'Logger/'
+  TAG: 'Logger/runs/exp-1'
+
 THRESHOLD:
   MAXSIZE: 100
   MINSIZE: 1

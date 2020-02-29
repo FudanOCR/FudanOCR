@@ -66,7 +66,7 @@ def detval(input, gt, cfg):
 
     def generate_json(cfg):
         if cfg.BASE.MODEL == 'TEXTNET':
-            with open(os.path.join(cfg.ADDRESS.OUTPUT_DIR, 'result.json'), 'w') as f:
+            with open(os.path.join(cfg.ADDRESS.RESULT_DIR, 'result.json'), 'w') as f:
                 json.dump(val_result, f)
 
     def sigma_calculation(det_x, det_y, gt_x, gt_y):

@@ -100,7 +100,7 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
                     data_root=data_dir,
                     ignore_list=os.path.join(data_dir, 'ignore_list.txt'),
                     is_training=True,
-                    transform=NewAugmentation(size=cfg.input_size, mean=cfg.means, std=cfg.stds, maxlen=1280, minlen=512)
+                    transform=NewAugmentation(size=cfg.TEXTSNAKE.input_size, mean=cfg.TEXTSNAKE.means, std=cfg.TEXTSNAKE.stds, maxlen=1280, minlen=512)
                 )
                 return  trainset
             if split == 'val':
@@ -112,7 +112,7 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
                     #NewAugmentation(size=opt.TEXTSNAKE.input_size, mean=opt.TEXTSNAKE.means, std=opt.TEXTSNAKE.stds, maxlen=1280, minlen=512)
                 )
                 return  valset
-            '''
+            
             if split == 'test':
                 testset = TotalText(
                     data_root=data_dir,
@@ -122,7 +122,7 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
                     # transform=BaseTransform(size=1280, mean=cfg.means, std=cfg.stds)
                 )
                 return  testset
-            '''
+
 
 
     raise RuntimeError("Dataset not available: {}".format(name))

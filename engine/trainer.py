@@ -318,7 +318,7 @@ class Trainer(object):
 
         '''如果只需验证，只需要一次验证过程即可无需训练'''
         if self.opt.FUNCTION.VAL_ONLY == True:
-            self.validate(epoch, iteration)
+            self.validate(1, self.opt.FREQ.VAL_FREQ)
             return
 
         loss_avg = averager()

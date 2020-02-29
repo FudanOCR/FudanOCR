@@ -4,8 +4,9 @@
 - others: different types dataset from models
 
 ## dataset-type list
-Here list the finished dataset
+Here list datasets:
 - Imdb:moran
+- custom:grcnn
 - custom_dset: AEST
 - total_text: textsnake
 - icdar: maskrcnnbenchmark
@@ -33,6 +34,10 @@ In build.py , mainly function :
 - build_dataloader: read config and return dataloader
 - getdataset :  choose different dataset building strategy 
 - getdataloader:  choose different loader strategy for different dataset
+
+## Sampler/Transforms/Collate_fn
+You can set your own method in sampler/transforms/collate_fn.py
+And use it in build.by with getSampler/getTransforms..
 
 ## Make your own Lmdb dataset
 Look at lmdbMaker.py for more details. You need to create an environment with python2 to run this code.

@@ -10,9 +10,8 @@ The name of the file represents the function of this file.
 - `Pascal_VOC.py`: Another functions to calculate Precision, Recall and F_score.
 - `polygon_wrapper.py`: Area-related operations.
 
-##### Related to ...
-- `average.py`:
-- `loadData.py`:
-- `strLabelConverterForAttention.py`: 
-- `strLabelConverterForCTC.py`:
-- ...
+##### Related to recognition models
+- `average.py`: A class to calculate the average value.
+- `loadData.py`: Copy the value of variable a to b.
+- `strLabelConverterForAttention.py`: Encode-decode tool for recogniton tasks, especially for attention model. 
+- `strLabelConverterForCTC.py`: Encode-decode tool for recogniton tasks, especially for model using CTCLoss. 

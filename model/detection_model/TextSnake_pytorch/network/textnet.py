@@ -72,7 +72,7 @@ class TextNet(nn.Module):
     def __init__(self, cfg):
         super().__init__()
 
-        self.backbone_name = cfg.BASE.NETWORK
+        self.backbone_name = cfg.TEXTSNAKE.backbone
         self.output_channel = cfg.TEXTSNAKE.output_channel
         self.bottleneck = 32
 

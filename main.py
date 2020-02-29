@@ -212,7 +212,7 @@ class TextSnake_Trainer(Trainer):
         global val_result
         val_result = dict()
 
-        result_dir = self.opt.ADDRESS.OUTPUT_DIR
+        result_dir = self.opt.ADDRESS.RESULT_DIR
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
         jpath = os.path.join(result_dir, 'result.json')

@@ -1,28 +1,31 @@
 BASE:
   MODEL: 'AdvancedEAST'
+  TYPE: 'D'
   TASK_ID: '3T1280'
   CUDA: True
   NUM_GPUS: 1
-  GPU_ID: [0, 1]
+  GPU_ID: '1, 2'
   WORKERS: 1
 
 DATASETS:
   DATASET: 'ICADR15'
+  # [Option] Imdb(moran)/custom_dset(AEAST)/total_text(textsnake)/icdar(maskrcnnbenchmark)/CTW1500(psenet)/...
+  TYPE: 'custom_dset'
 
 ADDRESS:
-  DETECTION:
-    TRAIN_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/img/'
-    TRAIN_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/gt/'
-    TEST_DATA_DIR: './Test/Data/'
-    TEST_GT_DIR: './Test/GT/'
-    VAL_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/img/'
-    VAL_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/gt/'
-    GT_JSON_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/res.json'
-  CHECKPOINTS_DIR: './Checkpoints/'
-  PRETRAIN_MODEL_DIR: './Pretrain_model/'
-  RESULT_DIR: '/home/msy/AdvancedEAST1/result/'
-  CACHE_DIR: './Cache/'
-  LOGGER_DIR: './Logger/'
+  ALPHABET: ''
+  TRAIN_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/img/'
+  TRAIN_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/gt/'
+  VAL_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/img/'
+  VAL_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/gt/'
+  TEST_DATA_DIR: ''
+  TEST_GT_DIR: ''
+  GT_JSON_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/res.json'
+  CHECKPOINTS_DIR: ''
+  PRETRAIN_MODEL_DIR: ''
+  RESULT_DIR: '/home/msy/AdvancedEAST1/result/3T1280/'
+  CACHE_DIR: ''
+  LOGGER_DIR: '/home/msy/useful_bak/logger_bak/'
 
 IMAGE:
   IMG_H: 32
@@ -30,7 +33,7 @@ IMAGE:
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: False
+  VAL_ONLY: True
   FINETUNE: False
 
 MODEL:
@@ -40,9 +43,10 @@ MODEL:
   DECAY_RATE: 0.1
   DECAY_STEP: 45
   OPTIMIZER: 'Adadelta'
-  LOSS: 'CrossEntropyLoss'
+  LOSS: 'AEASTLOSS'
   PATIENCE: 5
   INIT_TYPE: 'xavier'
+  DYNAMIC_LR: False
   lambda_inside_score_loss: 4.0
   lambda_side_vertex_code_loss: 1.0
   lambda_side_vertex_coord_loss: 1.0
@@ -57,9 +61,10 @@ THRESHOLD:
   side_vertex_pixel_threshold: 0.9
   trunc_threshold: 0.1
 
-SAVE_FREQ: 4000
-SHOW_FREQ: 270
-VAL_FREQ: 1000
+FREQ:
+  SAVE_FREQ: 3000
+  SHOW_FREQ: 100
+  VAL_FREQ: 1000
 
 predict_cut_text_line: False
 draw: 'store_true'

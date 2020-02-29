@@ -8,5 +8,8 @@ def getModel(model_name):
     elif model_name == 'TEXTNET':
         from model.detection_model.TextSnake_pytorch.network.textnet import TextNet
         return TextNet
+    elif model_name == 'AdvancedEAST':
+        from model.detection_model.AdvancedEAST.network.AEast import East
+        return East
     else:
         return None

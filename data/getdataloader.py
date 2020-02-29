@@ -10,28 +10,26 @@ import torch
 import os
 
 def getDataLoader(opt):
-    train_root = opt.ADDRESS.DETECTION.TRAIN_DATA_DIR
-    val_root = opt.ADDRESS.DETECTION.TEST_DATA_DIR
-
-    alphabet = Alphabet(opt.ADDRESS.RECOGNITION.ALPHABET)
+    train_root = opt.ADDRESS.TRAIN_DATA_DIR
+    val_root = opt.ADDRESS.VAL_DATA_DIR
 
 
     train_dataset = TotalText(
             data_root=train_root,
-            ignore_list=False,#os.path.join(train_root, 'ignore_list.txt'),
+            ignore_list=os.path.join(train_root, 'ignore_list.txt'),
             is_training=True,
             transform=NewAugmentation(size=opt.TEXTSNAKE.input_size, mean=opt.TEXTSNAKE.means, std=opt.TEXTSNAKE.stds, maxlen=1280, minlen=512)
     )
     assert train_dataset
 
     test_dataset = TotalText(
-            data_root=train_root,
-            ignore_list=False,#os.path.join(train_root, 'ignore_list.txt'),
-            is_training=True,
-            transform=NewAugmentation(size=opt.TEXTSNAKE.input_size, mean=opt.TEXTSNAKE.means, std=opt.TEXTSNAKE.stds, maxlen=1280, minlen=512)
+            data_root=val_root,
+            ignore_list=os.path.join(train_root, 'ignore_list.txt'),
+            is_training=False,
+            transform=EvalTransform(size=1280, mean=opt.TEXTSNAKE.means, std=opt.TEXTSNAKE.stds),
+            #NewAugmentation(size=opt.TEXTSNAKE.input_size, mean=opt.TEXTSNAKE.means, std=opt.TEXTSNAKE.stds, maxlen=1280, minlen=512)
     )
     assert test_dataset
-
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.MODEL.BATCH_SIZE, shuffle=True, num_workers=opt.BASE.WORKERS)
 

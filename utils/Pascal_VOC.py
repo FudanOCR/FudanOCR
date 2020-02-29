@@ -2,8 +2,8 @@ import numpy as np
 import json
 from tqdm import tqdm
 
-from model.detection_model.AdvancedEAST.tools.polygon_wrapper import iou
-from model.detection_model.AdvancedEAST.tools.polygon_wrapper import iod
+from utils.polygon_wrapper import iou
+from utils.polygon_wrapper import iod
 
 
 def input_reading(polygons):
@@ -134,3 +134,5 @@ def eval_func(input_json_path, gt_json_path, iou_threshold=0.5):
 
     print('Global Precision: {:.4f}, Recall: {:.4f}, F_score: {:.4f}'.format(global_precision, global_recall, f_score))
     print('over')
+
+    return global_precision, global_recall, f_score

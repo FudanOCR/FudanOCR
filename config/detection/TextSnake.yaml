@@ -1,37 +1,32 @@
 BASE:
-  MODEL: 'TextSnake'
+  MODEL: 'TEXTNET'
   TYPE: 'D'
   VERSION: 'v1'
   ENV: 'EnvironmentName'
   TASK_ID: 12345
   NETWORK: 'vgg'
   NUM_GPUS: 1
-  GPU_ID: '2,'
+  GPU_ID: '3,'
   WORKERS: 4
+  CUDA: True
+  DEVICE: 'cuda:0'
 
 DATASETS:
   DATASET: 'TotalText'
   TYPE: 'DataType'
-
 ADDRESS:
-  DETECTION:
-    TRAIN_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/'
-    TRAIN_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/'
-    TEST_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/Test/'
-    TEST_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/Test/'
-    VAL_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/Images/Test/'
-    VAL_GT_DIR: '/home/shf/fudan_ocr_system/datasets/totaltext/gt/Test/'
-  RECOGNITION:
-    ALPHABET: '/home/shf/ml/FudanOCR/alphabet/ic15_words.txt'
-    TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
-    TRAIN_LABEL_DIR: './Train/Label/'
-    TEST_DATA_DIR: '/home/cjy/ic15_test_lmdb'
-    TEST_LABEL_DIR: './Test/Label/'
-    VAL_DATA_DIR: './Val/Data/'
-    VAL_LABEL_DIR: './Val/Label/'
+  ALPHABET: ''
+  TRAIN_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR19/'
+  TRAIN_GT_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR19/'
+  VAL_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR19/'
+  VAL_GT_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR19/'
+  TEST_DATA_DIR: ''
+  TEST_GT_DIR: ''
+  GT_JSON_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR19/test_labels.json'
   CHECKPOINTS_DIR: './Checkpoints/'
-  PRETRAIN_MODEL_DIR: './Pretrain_model/'
-  CACHE_DIR: './Cache/'
+  PRETRAIN_MODEL_DIR: ''
+  RESULT_DIR: './Output/'
+  CACHE_DIR: ''
   LOGGER_DIR: './Logger/'
 
 IMAGE:
@@ -50,6 +45,7 @@ MODEL:
   DECAY_RATE: 0.1
   OPTIMIZER: 'Adam'
   LOSS: 'TextLoss'
+  DYNAMIC_LR: False
   DETAILS:
     HIDDEN_LAYER: 10
 
@@ -57,10 +53,12 @@ THRESHOLD:
   MAXSIZE: 100
   MINSIZE: 1
   TEXT_SCALE: 75
+  iou_threshold: 0.5
 
-SAVE_FREQ: 4000
-SHOW_FREQ: 100
-VAL_FREQ: 1000
+FREQ:
+  SAVE_FREQ: 3000
+  SHOW_FREQ: 100
+  VAL_FREQ: 1000
 
 targetH: 32
 targetW: 100

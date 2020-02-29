@@ -130,7 +130,7 @@ def train_AEAST(config_file):
     model = East()
     model = model.cuda()
     os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
-    model = nn.DataParallel(model, device_ids=opt.gpu_ids)
+    model = nn.DataParallel(model, device_ids=opt.gpu_ids)  # 数据并行
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('Total parameters: {0}'.format(params))
 

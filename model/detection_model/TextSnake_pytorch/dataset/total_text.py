@@ -54,6 +54,7 @@ class TotalText(TextDataset):
         return len(self.image_list)
 
 
+
 if __name__ == '__main__':
     import os
     from util.augmentation import BaseTransform, Augmentation

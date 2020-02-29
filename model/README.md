@@ -1,6 +1,6 @@
 # Model module
 
-This system integrates several OCR methods, including detection, identification, and end-to-end framework, designed to provide convenience to researchers. The system includes models used in the 2019 ICDAR competition, as well as models used by graduation thesis of brothers and sisters. The experimental data of the model is recorded in a shared document, which is linked as follows:
+This system integrates several OCR methods, including detection, identification, and end-to-end framework, designed to provide convenience to researchers. The system includes models used in the 2019 ICDAR competition, as well as models used by the graduation thesis of brothers and sisters. The experimental data of the model is recorded in a shared document, which is linked as follows:
 #### [Shared documents recording experimental data](https://docs.qq.com/desktop/mydoc/folder/aE338MoFVm_100001)
 
 ## Useful files

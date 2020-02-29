@@ -3,12 +3,12 @@
 - env.py: Initialize your training environment and read the config file from the command line.
 - loss.py: Get loss functions for your trainer. Add your specialize loss function in /personalize_loss.
 - optimizer.py: Get optimizers for your trainer. Add your specialize optimizer in /personalize_optimizer.
-- pretrain.py: Define a dictionary for (model_name,pretrain_address), your can decide whether to use pretrained model in config file.
-- trainer.py: Define a class Trainer. Use that class in main.py and you need to overload some of the funcitons to achieve yours target.
+- pretrain.py: Define a dictionary for (model_name,pretrain_address), yourcan decide whether to use the pretrained model in the config file.
+- trainer.py: Define a class Trainer. Use that class in main.py and you need to overload some of the functions to achieve your target.
 
 ## Usage
 
-To initialize a new training environment, just creat a new Env object!
+To initialize a new training environment, just create a new Env object!
 ```python
 from engine.env import Env
 env = Env()

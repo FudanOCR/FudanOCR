@@ -25,7 +25,7 @@ train_loader, test_loader = build_dataloader(env.opt)
 test_loader = build_dataloader(env.opt, is_train = False)
 ```
 In your config file:
-you should assign DATASETS.TYPE as your datasset-type,and appoint the data_dir；
+you should assign DATASETS.TYPE as your dataset-type, and appoint the data_dir；
 
 Then you can use dataloader in trainer or tester.
 
@@ -44,7 +44,7 @@ In build.py , mainly function :
 
 ## Make your own Lmdb dataset
 Look at lmdbMaker.py for more details. You need to create an environment with python2 to run this code.
-In the next step we will transfer the environment to python3.
+In the next step, we will transfer the environment to python3.
 
 ## More..
 Add your own dataset in getdataset and getdataloader  

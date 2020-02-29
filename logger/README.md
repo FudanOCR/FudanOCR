@@ -2,11 +2,11 @@
 
 ## info.py
 
-### Write the string to the file in specified path.
+### Write the string to the file in the specified path.
 
 Open a file for append. If the file already exists, the file pointer will be placed at the end of the file. That is, the new content will be written to the existing content. If the file or path does not exist, create a new one to write to.
 
-P.S. file_name needs to include filename extension
+P.S. file_name needs to include the filename extension
 
 
 	file_summary(path, file_name, content, encoding='utf8')

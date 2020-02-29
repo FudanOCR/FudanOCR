@@ -37,6 +37,6 @@ class XXNET_Trainer(Trainer):
 After declaring dataset and model, use Trainer.train() to run.
 ```python
 train, test  = build_dataloader(env.opt)
-newTrainer = XX_Trainer(modelObject=model, opt=env.opt, train_loader=train, val_loader=test).train()
+newTrainer = XX_Trainer(modelObject=your_model_name, opt=env.opt, train_loader=train, val_loader=test).train()
 ```
 

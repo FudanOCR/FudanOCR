@@ -34,5 +34,9 @@ In build.py , mainly function :
 - getdataset :  choose different dataset building strategy 
 - getdataloader:  choose different loader strategy for different dataset
 
+## Make your own Lmdb dataset
+Look at lmdbMaker.py for more details. You need to create an environment with python2 to run this code.
+In the next step we will transfer the environment to python3.
+
 ## More..
 Add your own dataset in getdataset and getdataloader  

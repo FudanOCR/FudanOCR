@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Please execute the code with python2 
+Please execute the code with python2
 '''
 
 import os
@@ -21,7 +21,7 @@ def checkImageIsValid(imageBin):
         if imgH * imgW == 0:
             return False
     except:
-        print("检查")
+        print("Image is invalid!")
     return True
 
 
@@ -53,11 +53,10 @@ def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkV
         imagePath = imagePathList[i]
         label = labelList[i]
 
-        # 鍒ゆ柇鏄惁瀛樺湪璺緞
         if not os.path.exists(imagePath):
             print('%s does not exist' % imagePath)
             continue
-        # 鐩存帴璇诲彇鍥剧墖
+
         import codecs
         with open(imagePath, 'r') as f:
             imageBin = f.read()
@@ -147,13 +146,13 @@ def extract_result_from_xml():
     for i in range(len(result1)):
         result1[i] = '/home/chenjingye/datasets/ICDAR2003/WordR/TrialTest/' + result1[i]
 
-
     print(result1)
 
     result2 = re.findall(r'tag=\"(.*?)\"', string)
     print(result2)
 
     return result1, result2
+
 
 def ic15():
     f = open('/home/chenjingye/datasets/ICDAR2015/Word_recognition/Challenge4_Test_Task3_GT.txt', 'r')
@@ -165,23 +164,23 @@ def ic15():
         # print(line.split())
         a, b = line.split(', ')
         print(a, b)
-        result1.append('/home/chenjingye/datasets/ICDAR2015/Word_recognition/ch4_test_word_images_gt/' + a.replace(',', ''))
-        result2.append(b.replace("\"", "").replace('\r\n',''))
+        result1.append(
+            '/home/chenjingye/datasets/ICDAR2015/Word_recognition/ch4_test_word_images_gt/' + a.replace(',', ''))
+        result2.append(b.replace("\"", "").replace('\r\n', ''))
 
     print(result1)
     print(result2)
-    return result1 , result2
+    return result1, result2
 
 
 def find_jpg():
-
     import os
 
     root = "/mnt/sdb1/zifuzu/chenjingye/datasets/mnt/ramdisk/max/90kDICT32px"
 
     flag = True
 
-    def findtxt(path, ret):
+    def findjpg(path, ret):
         """Finding the *.txt file in specify path"""
         filelist = os.listdir(path)
         for filename in filelist:
@@ -204,44 +203,44 @@ def find_jpg():
     for path in ret:
         print(path)
 
-    # 删除一个temp.txt，再创建一个txt
     try:
         os.remove('./temp.txt')
     except:
         pass
-    f = open('./temp.txt','a')
+    f = open('./temp.txt', 'a')
     for element in ret:
         f.write(element + '\n')
     f.close()
 
 
 def syn90():
-
     import re
-    f = open('./temp.txt','r')
+    f = open('./temp.txt', 'r')
 
     result1 = []
     result2 = []
 
     for line in f.readlines():
-        result1.append(line.replace('\n',''))
+        result1.append(line.replace('\n', ''))
 
-        target = re.findall(r'_(.*?)_',line)[0]
+        target = re.findall(r'_(.*?)_', line)[0]
         result2.append(target)
 
     return result1, result2
 
 
-
 if __name__ == '__main__':
-    # find_jpg()
-    # TODO
-    #result1, result2 = read_image_label('./ArTtest', './ArTtest.txt')
-    result1, result2 = ic15()
-    print(result1)
-    print(result2)
-    print("总数据量为",len(result2))
-    createDataset('/mnt/sdb1/zifuzu/chenjingye/datasets/syn90_train_500000data_lmdb', result1, result2)
+    '''
+    将两个list传进createDataset函数
+    list1: 图片路径列表
+    list2: 图片标签列表
+    其中两个列表在相同位置
+    '''
 
+    imgList, labelList = ic15()
+    print(imgList)
+    print(labelList)
+    print("The length of the list is ", len(imgList))
 
-
+    '''Input the address you want to generate the lmdb file.'''
+    createDataset('/mnt/sdb1/zifuzu/chenjingye/datasets/syn90_train_500000data_lmdb', imgList, labelList)

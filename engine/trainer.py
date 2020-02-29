@@ -88,6 +88,7 @@ class Trainer(object):
                 self.converter = strLabelConverterForCTC(self.alphabet.str)
             self.highestAcc = 0
 
+            self.val_times = 0
 
 
     def loadParam(self):
@@ -195,12 +196,10 @@ class Trainer(object):
         distance = 0.0
         loss_avg = averager()
 
-        # f = open('./OCR新架构验证测试.txt', 'a', encoding='utf-8')
+        self.val_times += 1
 
         for i in range(len(val_loader)):
             data = val_iter.next()
-
-            # print(data)
 
             pretreatmentData = self.pretreatment(data, True)
 
@@ -215,12 +214,17 @@ class Trainer(object):
                     n_correct += 1
 
                 '''利用logger工具将结果记录于文件夹中'''
-                file_summary(self.opt.ADDRESS.LOGGER_DIR,self.opt.BASE.MODEL + "_result.txt","预测 %s      目标 %s\n" % (pred, target))
-                # f.write("预测 %s      目标 %s\n" % (pred, target))
+                file_summary(self.opt.ADDRESS.LOGGER_DIR,self.opt.BASE.MODEL +'_'+str(self.val_times)+ "_result" +".txt","预测 %s      目标 %s\n" % (pred, target))
+
+                '''添加功能：对正确文本和错误文本进行分类'''
+                if pred == target.lower():
+                    file_summary(self.opt.ADDRESS.LOGGER_DIR,self.opt.BASE.MODEL +'_' +str(self.val_times)+ "_right"+".txt","预测 %s      目标 %s\n" % (pred, target))
+                else:
+                    file_summary(self.opt.ADDRESS.LOGGER_DIR,self.opt.BASE.MODEL +'_' +str(self.val_times)+ "_wrong"+".txt","预测 %s      目标 %s\n" % (pred, target))
+
                 distance += Levenshtein.distance(pred, target) / max(len(pred), len(target))
                 n_total += 1
 
-        # f.close()
         accuracy = n_correct / float(n_total)
 
         print("correct / total: %d / %d, " % (n_correct, n_total))

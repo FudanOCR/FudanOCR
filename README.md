@@ -41,6 +41,9 @@ we recommend you to use `python 3.6+`, `torch>=1.2.0` and install the other pack
 from engine.trainer import Trainer
 from engine.env import Env
 from data.build import build_dataloader
+'''
+The following statements can be omitted.Look at /model/modelDict for more details
+'''
 from model.recognition_model.MORAN_V2.models.moran import newMORAN
 ```
 
@@ -76,8 +79,9 @@ print(opt.BASE.MODEL)
 train_loader, test_loader  = build_dataloader(env.opt)
 ```
 
-- 5 Train your model.
+- 5 Train your model. (If you have registered your model in /model/modelDict.py, use `model = env.model` for convenience.)
 ```python
+model = newMORAN
 newTrainer = XX_Trainer(modelObject=model, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()
 ```
 

@@ -1,7 +1,7 @@
 import os
 import torch
 
-def file_summary(path, file_name, content, encoding='utf8'):
+def file_summary(path, file_name, content, encoding='utf8',mode= 'a'):
     '''
     Args:
         path(string):the path to the file needed to write in.
@@ -11,6 +11,6 @@ def file_summary(path, file_name, content, encoding='utf8'):
     '''
     if os.path.exists(path) is False:
         os.makedirs(path)
-    f = open(os.path.join(path, file_name), 'a', encoding=encoding)
+    f = open(os.path.join(path, file_name), mode, encoding=encoding)
     f.write(content)
     f.close()

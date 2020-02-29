@@ -14,7 +14,7 @@ This system integrates several OCR methods, including detection, identification,
 
 ## Other files
 Some files from the previous version of FudanOCR, which are no longer used.
-`README_Chinese.md` is the README file of the previous version.
+[`README_Chinese.md`](./README_Chinese.md) is the README file of the previous version.
 - `/config`: Config files.
 - `/toolkit`: Several useful utility functions.
 - `/technical_report`: Technical report, including Fudan's previous OCR technical reports.

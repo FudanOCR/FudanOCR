@@ -13,8 +13,8 @@ from data.sampler import getSampler
 from data.collate_fn import getCollate
 from data.transforms import  build_transforms
 # from model.detection_model.TextSnake_pytorch.dataset import total_text
-# from data  importICDAR
-# from data import CTW1500
+# from data.detection  importICDAR
+# from data.detection import CTW1500
 from model.detection_model.AdvancedEAST.utils.data_utils import custom_dset, collate_fn
 from model.detection_model.TextSnake_pytorch.util.augmentation import EvalTransform, NewAugmentation
 import torch

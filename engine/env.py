@@ -153,7 +153,7 @@ class Env(object):
 
         model_type = self.opt.BASE.TYPE
         if model_type == 'D':
-            assert opt.ADDRESS.RESULT_DIR != ''
+            assert opt.ADDRESS.DET_RESULT_DIR != ''
             assert opt.ADDRESS.GT_JSON_DIR != ''
 
         folderExist('opt.ADDRESS.TRAIN_DATA_DIR', self.opt.ADDRESS.TRAIN_DATA_DIR)

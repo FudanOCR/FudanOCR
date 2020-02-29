@@ -72,7 +72,7 @@ class Trainer(object):
         '''
         根据配置文件初始化模型
         '''
-        if self.opt.CUDA:
+        if self.opt.BASE.CUDA:
             return modelObject(self.opt).cuda()
         else:
             modelObject(self.opt)

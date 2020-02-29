@@ -221,7 +221,6 @@ class TextSnake_Trainer(Trainer):
             os.remove(jpath)
         return jpath
 
-
 class MORAN_Trainer(Trainer):
     '''
     重载训练器

@@ -1,5 +1,5 @@
 # Config File
-- `example.yaml`: Each model has its own YAML file. Change the different parameter values for each model in YAML file.
+- `example.yaml`: Each model has its own YAML file. Change the different parameter values for each model in the YAML file.
 
 ## Parameters
 
@@ -12,7 +12,7 @@
 
 ##### `ADDRESS`: Address information.   
 - Add all used addresses to this section. 
-- Don't forget to delete unused address parameters. Or change their values to empty string, such as `CHECKPOINTS_DIR=''`
+- Don't forget to delete unused address parameters. Or change their values to an empty string, such as `CHECKPOINTS_DIR=''`
 - `PRETRAIN_MODEL_DIR`: This parameter value ends with the name of the pre-trained model file.
  If this parameter value is a directory, the pre-trained model will be obtained from the cloud and stored in this directory.
 
@@ -28,7 +28,7 @@
 ##### `THRESHOLD`: Threshold-related parameters
 
 ##### `xx_FREQ`: Frequency-Related Parameters
-- Such as show frequency and save frequency.
+- Such as showing frequency and saving frequency.
 
 ## Others
 Other parameters that cannot be classified are suggested to be recorded at the end of the document.

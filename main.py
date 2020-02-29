@@ -2,7 +2,7 @@
 from engine.trainer import Trainer
 from engine.env import Env
 from data.build import build_dataloader
-from data.getdataloader import getDataLoader
+# from data.getdataloader import getDataLoader
 
 
 class GRCNN_Trainer(Trainer):
@@ -372,6 +372,5 @@ class AEAST_Trainer(Trainer):
 
 
 env = Env()
-# train_loader, test_loader = build_dataloader(env.opt)
-train_loader, test_loader = getDataLoader(env.opt)
-newTrainer = TextSnake_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()
+train_loader, test_loader = build_dataloader(env.opt)
+newTrainer = MORAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader, val_loader=test_loader).train()

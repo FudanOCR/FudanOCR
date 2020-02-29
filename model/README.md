@@ -1,49 +1,43 @@
-# 复旦OCR系统
+# Model module
 
-------
+This system integrates several OCR methods, including detection, identification, and end-to-end framework, designed to provide convenience to researchers. The system includes models used in the 2019 ICDAR competition, as well as models used by the graduation thesis of brothers and sisters. The experimental data of the model is recorded in a shared document, which is linked as follows:
+#### [Shared documents recording experimental data](https://docs.qq.com/desktop/mydoc/folder/aE338MoFVm_100001)
 
-此系统集成若干OCR方法，包括检测、识别、端到端框架，旨在为研究人员提供便利性。系统包括的模型既有2019年ICDAR比赛中使用的模型，还有师兄师姐毕业论文使用的模型。模型跑通后的实验数据记录在共享文档中，链接如下
+## Useful files
+- `/documents`: Environment configuration document, use `pip` to install.
+- `/detection_model`: Detection model.
+- `/recognition_model`: Recognition mode.
+- `/end2end_model`: End-to-end model combining detection and recognition.
+- `/super_resolution_model`: Super resolution model.
+- `/maskrcnn_benchmark_architecture`: Model using open source architecture
+- `modelDict.py`: This function is used to get the model network. 
 
-### [记录实验数据的共享文档](https://docs.qq.com/desktop/mydoc/folder/aE338MoFVm_100001)
+## Other files
+Some files from the previous version of FudanOCR, which are no longer used.
+[`README_Chinese.md`](./README_Chinese.md) is the README file of the previous version.
+- `/config`: Config files.
+- `/toolkit`: Several useful utility functions.
+- `/technical_report`: Technical report, including Fudan's previous OCR technical reports.
+- `/train`:  The main method import the training model from this folder.
+- `/test`: The main method import the test model from this folder.
+- `/demo`: Visualizing experimental results.
+- `train_entry.py`: Use `python train_entry.py --config_file xxx.yaml` to train the model.
+- `test_entry.py`: Use `python test_entry.py --config_file xxx.yaml` to test the model.
+- `demo_entry.py`: Use `python demo_entry.py --config_file xxx.yaml` to show the demo.
 
-### 注意事项 :wink:
-* /train下的文件最好不要在函数外包含import语句，否则会出现例如执行MORAN_V2模型却要安装GRCNN模型的相关包
-* 在train文件夹下编写文件时，文件头请加入# -*- coding: utf-8 -*-
-
-
-### 主要文件
-> * /config   配置文件，里面应该包含model参数指定使用的模型
-> * /toolkit  包含若干实用的工具函数
-> * /technical_report 技术报告，包括复旦OCR白皮书与若干毕业论文
-> * /documents 各种模型配置文档，pip安装文档
-> * /detection_model 检测模型
-> * /recognition_model 识别模型
-> * /end2end_model 结合检测和识别功能的端到端模型
-> * /super_resulution_model 超分辨率模型
-> * /maskrcnn_benchmark_architecture 使用开源架构的模型
-> * /train  主方法从该文件夹中导入训练模型的方法
-> * /test 主方法从该文件夹中导入测试模型的方法
-> * /demo 实验结果可视化
-> * train_entry.py 使用python train_entry.py --config_file xxx 传入配置文件训练模型
-> * test_entry.py  使用python test_entry.py --config_file xxx 传入配置文件测试模型
-> * demo_entry.py 使用python demo_entry.py --config_file xxx 传入配置文件测试模型，用于显示结果（部分模型运行结果于test阶段显示）
-
-### 导入模型需要修改train_entry.py的部分   
-
+## Usage
+modelDict.py:
 ```python
-import re
-import argparse
-from yacs.config import CfgNode as CN
+def getModel(model_name):
+    if model_name == 'MORAN':
+        from model.recognition_model.MORAN_V2.models.moran import newMORAN
+        return newMORAN
 
-from train.moran_v2 import train_moran_v2
-# 添加 from train.文件名 import 模型训练函数
+    ''' Add your network as follow '''
+    elif model_name == 'YourModelName':
+        from model.recognition_model.YourNetworkFile import NetworkName
+        return Networkname
 
-# 在这个位置扩充函数
-function_dict = {
-
-    'MORAN': train_moran_v2,
-    # 添加'Your Model Name': 'Your Model Function'
-}
+    else:
+        return None
 ```
-
-

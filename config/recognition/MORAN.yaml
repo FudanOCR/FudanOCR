@@ -2,7 +2,7 @@ BASE:
   MODEL: 'MORAN'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '2,'
+  GPU_ID: '0,'
   WORKERS: 4
 
 DATASETS:
@@ -21,7 +21,7 @@ ADDRESS:
   VAL_GT_DIR: ''
   CHECKPOINTS_DIR: './MORAN_LSVT_Checkpoints/'
   PRETRAIN_MODEL_DIR: ''
-  LOGGER_DIR: './LSVT_Logger/'
+  LOGGER_DIR: './MORAN_Logger/'
 
 IMAGE:
   IMG_H: 64

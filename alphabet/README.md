@@ -1,6 +1,6 @@
 # Alphabet  Module
 
-- alphabet.py: Define class Alphabet. Your can input a string or .txt file to initialize a object.
+- alphabet.py: Define class Alphabet. You can input a string or .txt file to initialize an object.
 - /words: Move your alphabet in that folder.
 
 ## Usage

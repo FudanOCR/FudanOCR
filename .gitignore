@@ -8,6 +8,8 @@
 *.swp
 *.txt
 
+.idea
+
 __pycache__
 /testplace
 /runs

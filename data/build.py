@@ -13,7 +13,7 @@ from data.sampler import getSampler
 from data.collate_fn import getCollate
 from data.transforms import getTransforms
 
-# from model.detection_model.TextSnake_pytorch.dataset import total_text
+from data.detection.total_text import TotalText
 # from data.detection  importICDAR
 # from data.detection import CTW1500
 from model.detection_model.AdvancedEAST.utils.data_utils import custom_dset, collate_fn
@@ -70,62 +70,61 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
             assert dataset
             return dataset
 
-    if 'Lmdb' in name:
-        dataset = LMDB.lmdbDataset(root=data_dir,
-                                   transform=LMDB.resizeNormalize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H)),
-                                   reverse=cfg.BidirDecoder, alphabet=alphabet.str)
-        assert dataset
-        return dataset
+    if cfg.BASE.TYPE == 'D':
+        '''检测部分'''
 
-    elif 'custom_dset' in name:
-        dataset = custom_dset(split=split)
-        assert dataset
-        return dataset
+        if 'custom_dset' == name:
+            dataset = custom_dset(split=split)
+            assert dataset
+            return dataset
 
-    if 'CTW1500' in name:
-        dataset = CTW1500.CTW1500Loader(data_dir, anno_dir)
-        return dataset
+        elif 'CTW1500' == name:
+            dataset = CTW1500.CTW1500Loader(data_dir, anno_dir)
+            return dataset
 
-    # elif 'totol_text' in name:
+        # elif 'totol_text' in name:
 
-    elif 'ICDAR2013Dataset' in name:
-        dataset = icdar_seriers.ICDAR2013Dataset(data_dir, anno_dir)
-        assert dataset
-        return dataset
+        elif 'ICDAR2013Dataset' in name:
+            dataset = icdar_seriers.ICDAR2013Dataset(data_dir, anno_dir)
+            assert dataset
+            return dataset
 
-    elif 'ICDAR2015TRAIN' in name:
-        dataset = icdar_seriers.ICDAR2015TRAIN(data_dir, anno_dir)
-        assert dataset
-        return dataset
-    '''
-    elif 'total_text' in name:
-        if split == 'train':
-            trainset = TotalText(
-                data_root=data_dir,
-                ignore_list=os.path.join(data_dir, 'ignore_list.txt'),
-                is_training=True,
-                transform=NewAugmentation(size=cfg.input_size, mean=cfg.means, std=cfg.stds, maxlen=1280, minlen=512)
-            )
-            return  trainset
-        if split == 'val':
-            trainset = TotalText(
-                data_root=data_dir,
-                ignore_list=os.path.join(data_dir, 'ignore_list.txt'),
-                is_training=True,
-                transform=NewAugmentation(size=cfg.input_size, mean=cfg.means, std=cfg.stds, maxlen=1280, minlen=512)
-            )
-            return  trainset
-        if split == 'test':
-            testset = TotalText(
-                data_root=data_dir,
-                ignore_list=os.path.join(data_dir, 'ignore_list.txt'),
-                is_training=False,
-                transform=EvalTransform(size=1280, mean=cfg.means, std=cfg.stds)
-                # transform=BaseTransform(size=1280, mean=cfg.means, std=cfg.stds)
-            )
-            return  testset
+        elif 'ICDAR2015TRAIN' in name:
+            dataset = icdar_seriers.ICDAR2015TRAIN(data_dir, anno_dir)
+            assert dataset
+            return dataset
 
-    '''
+        elif 'total_text' in name:
+            if split == 'train':
+                trainset = TotalText(
+                    data_root=data_dir,
+                    ignore_list=os.path.join(data_dir, 'ignore_list.txt'),
+                    is_training=True,
+                    transform=NewAugmentation(size=cfg.input_size, mean=cfg.means, std=cfg.stds, maxlen=1280, minlen=512)
+                )
+                return  trainset
+            if split == 'val':
+                valset = TotalText(
+                    data_root=val_root,
+                    ignore_list=os.path.join(train_root, 'ignore_list.txt'),
+                    is_training=False,
+                    transform=EvalTransform(size=1280, mean=cfg.TEXTSNAKE.means, cfg=opt.TEXTSNAKE.stds),
+                    #NewAugmentation(size=opt.TEXTSNAKE.input_size, mean=opt.TEXTSNAKE.means, std=opt.TEXTSNAKE.stds, maxlen=1280, minlen=512)
+                )
+                return  valset
+            '''
+            if split == 'test':
+                testset = TotalText(
+                    data_root=data_dir,
+                    ignore_list=os.path.join(data_dir, 'ignore_list.txt'),
+                    is_training=False,
+                    transform=EvalTransform(size=1280, mean=cfg.means, std=cfg.stds)
+                    # transform=BaseTransform(size=1280, mean=cfg.means, std=cfg.stds)
+                )
+                return  testset
+            '''
+
+
     raise RuntimeError("Dataset not available: {}".format(name))
 
 
@@ -156,79 +155,49 @@ def get_dataloader(cfg, name, dataset, split):
         assert dataloader
         return dataloader
 
+    if cfg.BASE.TYPE == 'D':
+        '''检测部分'''
 
-    if 'Lmdb' in name:
-        dataloader = torch.utils.data.DataLoader(
-            dataset, batch_size=cfg.MODEL.BATCH_SIZE,
-            shuffle=False, sampler=LMDB.randomSequentialSampler(dataset, cfg.MODEL.BATCH_SIZE),
-            num_workers=int(cfg.BASE.WORKERS))
-        assert dataloader
-        return dataloader
+        if 'custom_dset' in name:
+            if split == 'train':
+                dataloader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True,
+                                                         collate_fn=collate_fn,
+                                                         num_workers=int(cfg.BASE.WORKERS), drop_last=False)
+            elif split == 'val':
+                dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, collate_fn=collate_fn,
+                                                         num_workers=int(cfg.BASE.WORKERS))
 
-    elif 'custom_dset' in name:
-        if split == 'train':
-            dataloader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True,
-                                                     collate_fn=collate_fn,
-                                                     num_workers=int(cfg.BASE.WORKERS), drop_last=False)
-        elif split == 'val':
-            dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, collate_fn=collate_fn,
-                                                     num_workers=int(cfg.BASE.WORKERS))
+            assert dataloader
+            return dataloader
 
-        assert dataloader
-        return dataloader
 
-    elif 'ICDAR2013Dataset' in name:
-        sampler = make_data_sampler(dataset, shuffle, is_distributed)
-        batch_sampler = make_batch_data_sampler(
-            dataset, sampler, aspect_grouping, images_per_gpu, num_iters, start_iter
-        )
-        dataloader = torch.utils.data.DataLoader(
-            dataset,
-            num_workers=int(cfg.BASE.WORKERS),
-            batch_sampler=batch_sampler,
-        )
-        assert dataloader
-        return dataloader
+        elif 'CTW1500' in name:
+            dataloader = torch.utils.data.DataLoader(
+                dataset,
+                batch_size=cfg.MODEL.BATCH_SIZE,
+                shuffle=True,
+                num_workers=3,
+                drop_last=True,
+                pin_memory=True)
+            assert dataloader
+            return dataloader
 
-    elif 'ICDAR2015TRAIN' in name:
-        sampler = make_data_sampler(dataset, shuffle, is_distributed)
-        batch_sampler = make_batch_data_sampler(
-            dataset, sampler, aspect_grouping, images_per_gpu, num_iters, start_iter
-        )
-        dataloader = torch.utils.data.DataLoader(
-            dataset,
-            num_workers=int(cfg.BASE.WORKERS),
-            batch_sampler=batch_sampler,
-        )
-        assert dataloader
-        return dataloader
-
-    elif 'CTW1500' in name:
-        dataloader = torch.utils.data.DataLoader(
-            dataset,
-            batch_size=cfg.MODEL.BATCH_SIZE,
-            shuffle=True,
-            num_workers=3,
-            drop_last=True,
-            pin_memory=True)
-        assert dataloader
-        return dataloader
-
-    '''
-       elif 'total_text' in name:
+        elif 'total_text' in name:
            if split == 'train':
                train_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MOEDL.BATCH_SIZE, shuffle=True,
                                               num_workers=int(cfg.BASE.WORKERS))
                return train_loader
            #total_text doesn't need val_data
            if split == 'val':
-               train_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MOEDL.BATCH_SIZE, shuffle=True,
+               val_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MOEDL.BATCH_SIZE, shuffle=False,
                                               num_workers=int(cfg.BASE.WORKERS))
-               return train_loader
+               return val_loader
+           '''
            if split == 'test':
                test_loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=cfg.int(cfg.BASE.WORKERS))
                return  test_loader
-       '''
+            '''
+
 
     raise RuntimeError("Dataset not available: {}".format(name))
 

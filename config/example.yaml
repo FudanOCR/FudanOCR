@@ -5,7 +5,7 @@ BASE:
   NUM_GPUS: 1
   GPU_ID: '2,'
   WORKERS: 4
-  CUAD: True
+  CUDA: True
 
 DATASETS:
   DATASET: 'DatasetName'
@@ -26,6 +26,10 @@ ADDRESS:
   CHECKPOINTS_DIR: './MORAN_Checkpoints/'
   PRETRAIN_MODEL_DIR: './pretrain_MORAN/'
   LOGGER_DIR: './Logger/'
+  # If opt.BASE.TYPE == 'D', you need to fill in the following parameters
+  DET_RESULT_DIR : ''
+  GT_JSON_DIR: ''
+
 
 IMAGE:
   IMG_H: 32

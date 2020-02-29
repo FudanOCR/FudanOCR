@@ -177,14 +177,14 @@ class Trainer(object):
         '''
         pass
 
-    def validate(self):
+    def validate(self, epoch, iteration):
         '''
         将验证函数拆分为识别和检测两部分
         '''
         if self.opt.BASE.TYPE == 'R':
-            return self.validate_recognition()
+            return self.validate_recognition(epoch, iteration)
         elif self.opt.BASE.TYPE == 'D':
-            return self.validate_detection()
+            return self.validate_detection(epoch, iteration)
 
     def validate_recognition(self, epoch, iteration):
         '''
@@ -333,7 +333,7 @@ class Trainer(object):
             while iteration < len(self.train_loader):
 
                 '''检查该迭代周期是否需要保存或验证'''
-                self.checkSaveOrVal(iteration)
+                self.checkSaveOrVal(epoch, iteration)
 
                 data = train_iter.next()
 
@@ -370,11 +370,11 @@ class Trainer(object):
             scheduler.step()
         self.Logger.close_summary()
 
-    def checkSaveOrVal(self,iteration):
+    def checkSaveOrVal(self, epoch, iteration):
         '''验证'''
         if iteration % self.opt.FREQ.VAL_FREQ == 0:
             self.setModelState('test')
-            acc_tmp = self.validate()
+            acc_tmp = self.validate(epoch, iteration)
             '''记录训练结果最大值的模型文件'''
             if acc_tmp > self.highestAcc:
                 self.highestAcc = acc_tmp

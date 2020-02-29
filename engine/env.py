@@ -151,6 +151,10 @@ class Env(object):
         #     folderExist('opt.ADDRESS.RECOGNITION.VAL_DATA_DIR', self.opt.ADDRESS.RECOGNITION.VAL_DATA_DIR)
         #     folderExist('opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR)
 
+        model_type = self.opt.BASE.TYPE
+        if model_type == 'D':
+            assert opt.ADDRESS.RESULT_DIR != ''
+            assert opt.ADDRESS.GT_JSON_DIR != ''
 
         folderExist('opt.ADDRESS.TRAIN_DATA_DIR', self.opt.ADDRESS.TRAIN_DATA_DIR)
         folderExist('opt.ADDRESS.TRAIN_GT_DIR', self.opt.ADDRESS.TRAIN_GT_DIR)
@@ -166,16 +170,5 @@ class Env(object):
         # createFolder(self.opt.ADDRESS.CACHE_DIR)
         '''保证每次训练时使用的文件夹都是新的'''
         createFolder(self.opt.ADDRESS.LOGGER_DIR,removeOrigin=True)
-
-    # def getModel(self):
-    #     '''
-    #     读取opt中的model名称，并将其与/model/modelDict.py 下的字典作比较
-    #     如果字典存在该键，则直接返回
-    #     否则设置self.model = None
-    #     '''
-    #     if self.opt.BASE.MODEL in modelDict:
-    #         self.model = modelDict[self.opt.BASE.MODEL]
-    #     else:
-    #         self.model = None
 
 

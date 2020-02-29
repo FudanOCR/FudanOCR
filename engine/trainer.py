@@ -230,7 +230,7 @@ class Trainer(object):
 
         accuracy = n_correct / float(n_total)
         '''利用logger工具将结果进行可视化'''
-        total_index = (epoch-1)*(iteration * self.opt.FREQ.VAL_FREQ) + iteration // self.opt.FREQ.VAL_FREQ
+        total_index = epoch*(iteration//self.opt.FREQ.VAL_FREQ) + iteration // self.opt.FREQ.VAL_FREQ
         self.Logger.scalar_summary('Levenshtein Distance', distance / n_total, total_index)
         self.Logger.scalar_summary('Accuracy', accuracy, total_index)
         self.Logger.scalar_summary('Avg Loss', loss_avg.val(), total_index)
@@ -267,7 +267,7 @@ class Trainer(object):
             eval_func(input_json_path, gt_json_path, self.opt)
 
         # Generate log
-        total_index = (epoch-1)*(iteration * self.opt.FREQ.VAL_FREQ) + iteration // self.opt.FREQ.VAL_FREQ
+        total_index = epoch*(iteration//self.opt.FREQ.VAL_FREQ) + iteration // self.opt.FREQ.VAL_FREQ
         self.Logger.scalar_summary('Precision', precision, total_index)
         self.Logger.scalar_summary('Recall', recall, total_index)
         self.Logger.scalar_summary('F_score', f_score, total_index)

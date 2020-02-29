@@ -74,11 +74,11 @@ class TextSnake_Trainer(Trainer):
 
     def __init__(self, modelObject, opt, train_loader, val_loader):
         Trainer.__init__(self, modelObject, opt, train_loader, val_loader)
-        global val_result
-        val_result = dict()
+        from model.detection_model.TextSnake_pytorch.util import global_data
+        global_data._init()
 
     def to_device(self, *tensors):
-        return (t.to(self.opt.BASE.DEVICE) for t in tensors)
+        return (t.to(self.opt.TEXTSNAKE.device) for t in tensors)
 
     def pretreatment(self, data, test=False):
 
@@ -106,6 +106,7 @@ class TextSnake_Trainer(Trainer):
             from PIL import Image
             from model.detection_model.TextSnake_pytorch.util.detection import TextDetector
             from model.detection_model.TextSnake_pytorch.util.visualize import visualize_detection
+            from model.detection_model.TextSnake_pytorch.util import global_data
 
             Image.MAX_IMAGE_PIXELS = None
             result = dict()
@@ -201,7 +202,7 @@ class TextSnake_Trainer(Trainer):
 
                 result[meta['image_id'][idx].replace('.jpg', '').replace('gt', 'res')] = polygons
 
-            val_result.update(result)
+            global_data._update(result)
 
 
                 # print("Output json file in {}.".format(self.opt.ADDRESS.OUTPUT_DIR))
@@ -209,10 +210,10 @@ class TextSnake_Trainer(Trainer):
 
     def res2json(self):
         import os
-        global val_result
-        val_result = dict()
+        from model.detection_model.TextSnake_pytorch.util import global_data
+        global_data._reset()
 
-        result_dir = self.opt.ADDRESS.RESULT_DIR
+        result_dir = self.opt.ADDRESS.DET_RESULT_DIR
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
         jpath = os.path.join(result_dir, 'result.json')

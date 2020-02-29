@@ -1,15 +1,10 @@
 BASE:
   MODEL: 'TEXTNET'
   TYPE: 'D'
-  VERSION: 'v1'
-  ENV: 'EnvironmentName'
-  TASK_ID: 12345
-  NETWORK: 'vgg'
   NUM_GPUS: 1
   GPU_ID: '3,'
   WORKERS: 4
   CUDA: True
-  DEVICE: 'cuda:0'
 
 DATASETS:
   DATASET: 'TotalText'
@@ -25,8 +20,7 @@ ADDRESS:
   GT_JSON_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR19/test_labels.json'
   CHECKPOINTS_DIR: './Checkpoints/'
   PRETRAIN_MODEL_DIR: ''
-  RESULT_DIR: './Output/'
-  CACHE_DIR: ''
+  DET_RESULT_DIR: './Output/'
   LOGGER_DIR: './Logger/'
 
 IMAGE:
@@ -40,34 +34,36 @@ FUNCTION:
 
 MODEL:
   EPOCH: 100000
-  BATCH_SIZE: 8
+  BATCH_SIZE: 4
   LR: 0.0001
-  DECAY_RATE: 0.1
   OPTIMIZER: 'Adam'
   LOSS: 'TextLoss'
   DYNAMIC_LR: False
-  DETAILS:
-    HIDDEN_LAYER: 10
 
 THRESHOLD:
   MAXSIZE: 100
   MINSIZE: 1
   TEXT_SCALE: 75
-  iou_threshold: 0.5
+  IOU_THRESHOLD: 0.5
 
 FREQ:
   SAVE_FREQ: 3000
   SHOW_FREQ: 100
   VAL_FREQ: 1000
 
+VISUALIZE:
+  TAG: 'Logger/runs/exp-1'
+
 targetH: 32
 targetW: 100
 BidirDecoder: True
 inputDataType: 'torch.cuda.FloatTensor'
 maxBatch: 256
-CUDA: True
 
 TEXTSNAKE:
+
+  device: 'cuda'
+  backbone: 'vgg'
   input_size: 512
   exp_name: 'example1'
   output_channel: 7

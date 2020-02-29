@@ -183,7 +183,7 @@ class Trainer(object):
         elif self.opt.BASE.TYPE == 'D':
             return self.validate_detection()
 
-    def validate_recognition(self):
+    def validate_recognition(self, epoch, iteration):
         '''
         在特定训练次数后执行验证模型能力操作
         '''
@@ -226,6 +226,11 @@ class Trainer(object):
                 n_total += 1
 
         accuracy = n_correct / float(n_total)
+        '''利用logger工具将结果进行可视化'''
+        total_index = epoch(iteration * self.opt.FREQ.VAL_FREQ) + iteration // self.opt.FREQ.VAL_FREQ
+        self.Logger.scalar_summary('Levenshtein Distance', distance / n_total, total_index)
+        self.Logger.scalar_summary('Accuracy', accuracy, total_index)
+        self.Logger.scalar_summary('Avg Loss', loss_avg.val(), total_index)
 
         print("correct / total: %d / %d, " % (n_correct, n_total))
         print('levenshtein distance: %f' % (distance / n_total))
@@ -233,7 +238,7 @@ class Trainer(object):
 
         return accuracy
 
-    def validate_detection(self):
+    def validate_detection(self, epoch, iteration):
         print('Start val')
         val_loader = self.val_loader
         val_iter = iter(val_loader)
@@ -258,6 +263,12 @@ class Trainer(object):
         precision, recall, f_score = \
             eval_func(input_json_path, gt_json_path, self.opt)
 
+        # Generate log
+        total_index = epoch(iteration * self.opt.FREQ.VAL_FREQ) + iteration // self.opt.FREQ.VAL_FREQ
+        self.Logger.scalar_summary('Precision', precision, total_index)
+        self.Logger.scalar_summary('Recall', recall, total_index)
+        self.Logger.scalar_summary('F_score', f_score, total_index)
+        self.Logger.scalar_summary('Avg Loss', losses.avg, total_index)
 
         return precision
 

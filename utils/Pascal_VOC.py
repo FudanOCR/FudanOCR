@@ -5,7 +5,6 @@ import os
 
 from utils.polygon_wrapper import iou
 from utils.polygon_wrapper import iod
-global val_result
 
 
 def input_reading(polygons):
@@ -18,7 +17,9 @@ def input_reading(polygons):
 
 def generate_json(cfg):
     if cfg.BASE.MODEL == 'TEXTNET':
-        with open(os.path.join(cfg.ADDRESS.RESULT_DIR, 'result.json'), 'w') as f:
+        from model.detection_model.TextSnake_pytorch.util import global_data
+        val_result = global_data._get_det_value()
+        with open(os.path.join(cfg.ADDRESS.DET_RESULT_DIR, 'result.json'), 'w') as f:
             json.dump(val_result, f)
 
 

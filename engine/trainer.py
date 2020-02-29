@@ -233,6 +233,8 @@ class Trainer(object):
         print('Start val')
         val_loader = self.val_loader
         val_iter = iter(val_loader)
+        input_json_path = self.res2json()
+        gt_json_path = self.opt.ADDRESS.GT_JSON_DIR
 
         # loss
         losses = AverageMeter()
@@ -249,10 +251,8 @@ class Trainer(object):
         tqdm.write('Validate Loss - Avg Loss {0}'.format(losses.avg))
 
         # Precision / Recall / F_score
-        input_json_path = self.res2json()
-        gt_json_path = self.opt.ADDRESS.GT_JSON_DIR
         precision, recall, f_score = \
-            eval_func(input_json_path, gt_json_path, self.opt.THRESHOLD.iou_threshold)
+            eval_func(input_json_path, gt_json_path, self.opt)
 
 
         return precision

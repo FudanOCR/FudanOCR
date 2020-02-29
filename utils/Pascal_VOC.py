@@ -1,9 +1,11 @@
 import numpy as np
 import json
 from tqdm import tqdm
+import os
 
 from utils.polygon_wrapper import iou
 from utils.polygon_wrapper import iod
+global val_result
 
 
 def input_reading(polygons):
@@ -12,6 +14,12 @@ def input_reading(polygons):
         polygon['points'] = np.array(polygon['points'])
         det.append(polygon)
     return det
+
+
+def generate_json(cfg):
+    if cfg.BASE.MODEL == 'TEXTNET':
+        with open(os.path.join(cfg.opt.ADDRESS.OUTPUT_DIR, 'result.json'), 'w') as f:
+            json.dump(val_result, f)
 
 
 def gt_reading(gt_dict, img_key):
@@ -56,7 +64,9 @@ def gt_filtering(groundtruths):
     return groundtruths
 
 
-def eval_func(input_json_path, gt_json_path, iou_threshold=0.5):
+def eval_func(input_json_path, gt_json_path, cfg):
+    generate_json(cfg)
+    iou_threshold = cfg.THRESHOLD.iou_threshold
     # load json file as dict
     with open(input_json_path, 'r') as f:
         input_dict = json.load(f)

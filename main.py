@@ -207,6 +207,18 @@ class TextSnake_Trainer(Trainer):
                 # print("Output json file in {}.".format(self.opt.ADDRESS.OUTPUT_DIR))
             return loss
 
+    def res2json(self):
+        import os
+        global val_result
+        val_result = dict()
+
+        result_dir = self.opt.ADDRESS.OUTPUT_DIR
+        if not os.path.exists(result_dir):
+            os.mkdir(result_dir)
+        jpath = os.path.join(result_dir, 'result.json')
+        if os.path.isfile(jpath):
+            os.remove(jpath)
+        return jpath
 
 class MORAN_Trainer(Trainer):
     '''

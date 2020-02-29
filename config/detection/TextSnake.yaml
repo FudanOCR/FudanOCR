@@ -53,6 +53,7 @@ THRESHOLD:
   MAXSIZE: 100
   MINSIZE: 1
   TEXT_SCALE: 75
+  iou_threshold: 0.5
 
 FREQ:
   SAVE_FREQ: 3000

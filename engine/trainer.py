@@ -264,6 +264,10 @@ class Trainer(object):
         return pretreatmentData[0]
 
     def res2json(self):
+        '''
+        生成res.json文件，可根据需要进行重载
+        :return:
+        '''
         result_dir = self.opt.ADDRESS.RESULT_DIR
         res_list = os.listdir(result_dir)
         res_dict = {}

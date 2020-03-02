@@ -86,7 +86,7 @@ class Trainer(object):
             if self.opt.BASE.MODEL == 'MORAN':
                 from utils.strLabelConverterForAttention import strLabelConverterForAttention
                 self.converter = strLabelConverterForAttention(self.alphabet.str)
-            elif self.opt.BASE.MODEL == 'GRCNN':
+            elif self.opt.BASE.MODEL == 'GRCNN' or self.opt.BASE.MODEL == 'CRNN':
                 from utils.strLabelConverterForCTC import strLabelConverterForCTC
                 self.converter = strLabelConverterForCTC(self.alphabet.str)
             self.highestAcc = 0
@@ -213,19 +213,19 @@ class Trainer(object):
             loss_avg.add(cost)
 
             for pred, target in zip(preds, targets):
-                if pred == target.lower():
+                if pred.lower() == target.lower():
                     n_correct += 1
 
                 '''利用logger工具将结果记录于文件夹中'''
-                file_summary(self.opt.ADDRESS.LOGGER_DIR,self.opt.BASE.MODEL +'_'+str(self.val_times)+ "_result" +".txt","预测 %s      目标 %s\n" % (pred, target))
+                file_summary(self.opt.ADDRESS.LOGGER_DIR,str(self.val_times) +'_'+self.opt.BASE.MODEL+ "_result" +".txt","预测 %s      目标 %s\n" % (pred, target))
 
                 '''添加功能：对正确文本和错误文本进行分类'''
-                if pred == target.lower():
-                    file_summary(self.opt.ADDRESS.LOGGER_DIR,self.opt.BASE.MODEL +'_' +str(self.val_times)+ "_right"+".txt","预测 %s      目标 %s\n" % (pred, target))
+                if pred.lower() == target.lower():
+                    file_summary(self.opt.ADDRESS.LOGGER_DIR,str(self.val_times) +'_'+self.opt.BASE.MODEL+ "_right"+".txt","预测 %s      目标 %s\n" % (pred, target))
                 else:
-                    file_summary(self.opt.ADDRESS.LOGGER_DIR,self.opt.BASE.MODEL +'_' +str(self.val_times)+ "_wrong"+".txt","预测 %s      目标 %s\n" % (pred, target))
+                    file_summary(self.opt.ADDRESS.LOGGER_DIR,str(self.val_times) +'_'+self.opt.BASE.MODEL+ "_wrong"+".txt","预测 %s      目标 %s\n" % (pred, target))
 
-                distance += Levenshtein.distance(pred, target) / max(len(pred), len(target))
+                distance += Levenshtein.distance(pred.lower(), target.lower()) / max(len(pred), len(target))
                 n_total += 1
 
         accuracy = n_correct / float(n_total)
@@ -380,7 +380,7 @@ class Trainer(object):
             if acc_tmp > self.highestAcc:
                 self.highestAcc = acc_tmp
                 torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-                    self.opt.ADDRESS.CHECKPOINTS_DIR, iteration, str(self.highestAcc)[:6]))
+                    self.opt.ADDRESS.CHECKPOINTS_DIR, str(self.highestAcc)[:6], iteration))
 
         '''保存'''
         if iteration % self.opt.FREQ.SAVE_FREQ == 0:

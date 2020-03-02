@@ -58,11 +58,13 @@ class DefaultCNN(nn.Module):
         convRelu(3, True)
         # 8 * 25
         cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d((2,2), (2,1), (0,1)))
+        # cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d(kernel_size=(1,2),stride=2))
         # 4 * 27
         convRelu(4, True)
         convRelu(5, True)
         # 4 * 27
         cnn.add_module('pooling{0}'.format(3), nn.MaxPool2d((2,2), (2,1), (0,1)))
+        # cnn.add_module('pooling{0}'.format(3), nn.MaxPool2d(kernel_size=(1,2),stride=2))
         # 2 * 29
         convRelu(6, True)
         # 1 * ?

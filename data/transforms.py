@@ -17,8 +17,9 @@ def getTransforms(cfg, is_train=True):
     if cfg.BASE.MODEL == 'MORAN':
         transform = resizeNormalize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
-    elif cfg.BASE.MODEL == 'GRCNN':
+    elif cfg.BASE.MODEL == 'GRCNN' or cfg.BASE.MODEL == 'CRNN':
         transform = resizeNormalizeAndPadding(cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H)
+        # transform = None
 
     elif cfg.BASE.MODEL == "TextSnake":
         transform = NewAugmentation(size=cfg.input_size, mean=cfg.means, std=cfg.stds, maxlen=1280, minlen=512)

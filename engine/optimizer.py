@@ -29,7 +29,7 @@ def getOptimizer(model,opt=''):
         '''
         平方差损失函数
         '''
-        return optim.Adadelta(model.parameters(), lr=opt.MODEL.LR)
+        return optim.Adadelta(model.parameters(), lr=opt.MODEL.LR, rho=0.9)
 
 
     # 获取loss函数的名称

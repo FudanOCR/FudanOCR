@@ -1,8 +1,8 @@
 BASE:
-  MODEL: 'GRCNN'
+  MODEL: 'CRNN'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '1,'
+  GPU_ID: '2,'
   WORKERS: 4
   CUDA: True
 
@@ -22,13 +22,13 @@ ADDRESS:
   TEST_GT_DIR: ''
   VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
   VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
-  CHECKPOINTS_DIR: './GRCNN_LSVT_Checkpoints_usetransform/'
+  CHECKPOINTS_DIR: './CRNN_LSVT_Checkpoints_usetransform/'
   PRETRAIN_MODEL_DIR: ''
-  LOGGER_DIR: './GRCNN_Logger_usetransform/'
+  LOGGER_DIR: './CRNN_Logger_usetransform/'
 
 IMAGE:
   IMG_H: 32
-  IMG_W: 280
+  IMG_W: 100
   IMG_CHANNEL: 3
 
 FUNCTION:
@@ -41,14 +41,11 @@ VISUALIZE:
 
 MODEL:
   EPOCH: 100000
-  BATCH_SIZE: 8
-  LR: 0.0001
-  DECAY_RATE: 0.1
-  DYNAMIC_LR: True
-  OPTIMIZER: 'Adam'
+  BATCH_SIZE: 16
+  LR: 1.0
+  DYNAMIC_LR: False
+  OPTIMIZER: 'Adadelta'
   LOSS: 'CTCLoss'
-  DETAILS:
-    HIDDEN_LAYER: 10
 
 THRESHOLD:
   MAXSIZE: 100
@@ -60,15 +57,4 @@ FREQ:
   SHOW_FREQ: 100
   VAL_FREQ: 1000
 
-BidirDecoder: False
-CUDA: True
-
-CNN:
-    MODEL: "grcnn"
-RNN:
-    MODEL: "compositelstm"
-    n_In: 512
-    n_Hidden: 256
-    n_Layer: "Number: for multi layer lstm."
-    multi_gpu: none
 

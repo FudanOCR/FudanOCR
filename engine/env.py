@@ -133,28 +133,12 @@ class Env(object):
                         print('Make folder: ' , root)
                         os.makedirs(root)
 
-        # model_type = self.opt.BASE.TYPE
-        # if model_type == 'D':
-        #     '''检测模型'''
-        #     folderExist('opt.ADDRESS.DETECTION.TRAIN_DATA_DIR', self.opt.ADDRESS.DETECTION.TRAIN_DATA_DIR)
-        #     folderExist('opt.ADDRESS.DETECTION.TRAIN_GT_DIR', self.opt.ADDRESS.DETECTION.TRAIN_GT_DIR)
-        #     folderExist('opt.ADDRESS.DETECTION.TEST_DATA_DIR', self.opt.ADDRESS.DETECTION.TEST_DATA_DIR)
-        #     folderExist('opt.ADDRESS.DETECTION.TEST_GT_DIR', self.opt.ADDRESS.DETECTION.TEST_GT_DIR)
-        #     folderExist('opt.ADDRESS.DETECTION.VAL_DATA_DIR', self.opt.ADDRESS.DETECTION.VAL_DATA_DIR)
-        #     folderExist('opt.ADDRESS.DETECTION.VAL_GT_DIR', self.opt.ADDRESS.DETECTION.VAL_GT_DIR)
-        # elif model_type == 'R':
-        #     '''识别模型'''
-        #     folderExist('opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_DATA_DIR)
-        #     folderExist('opt.ADDRESS.RECOGNITION.TRAIN_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.TRAIN_LABEL_DIR)
-        #     folderExist('opt.ADDRESS.RECOGNITION.TEST_DATA_DIR', self.opt.ADDRESS.RECOGNITION.TEST_DATA_DIR)
-        #     folderExist('opt.ADDRESS.RECOGNITION.TEST_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.TEST_LABEL_DIR)
-        #     folderExist('opt.ADDRESS.RECOGNITION.VAL_DATA_DIR', self.opt.ADDRESS.RECOGNITION.VAL_DATA_DIR)
-        #     folderExist('opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR', self.opt.ADDRESS.RECOGNITION.VAL_LABEL_DIR)
-
         model_type = self.opt.BASE.TYPE
         if model_type == 'D':
             assert self.opt.ADDRESS.DET_RESULT_DIR != ''
             assert self.opt.ADDRESS.GT_JSON_DIR != ''
+        if model_type == 'R':
+            folderExist('opt.ADDRESS.ALPHABET', self.opt.ADDRESS.ALPHABET)
 
         folderExist('opt.ADDRESS.TRAIN_DATA_DIR', self.opt.ADDRESS.TRAIN_DATA_DIR)
         folderExist('opt.ADDRESS.TRAIN_GT_DIR', self.opt.ADDRESS.TRAIN_GT_DIR)
@@ -163,7 +147,7 @@ class Env(object):
         folderExist('opt.ADDRESS.VAL_DATA_DIR', self.opt.ADDRESS.VAL_DATA_DIR)
         folderExist('opt.ADDRESS.VAL_GT_DIR', self.opt.ADDRESS.VAL_GT_DIR)
 
-        folderExist('opt.ADDRESS.ALPHABET', self.opt.ADDRESS.ALPHABET)
+
 
 
         createFolder(self.opt.ADDRESS.CHECKPOINTS_DIR,removeOrigin=True)

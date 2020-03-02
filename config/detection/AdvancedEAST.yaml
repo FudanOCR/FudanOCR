@@ -10,20 +10,20 @@ BASE:
 DATASETS:
   DATASET: 'ICADR15'
   # [Option] Imdb(moran)/custom_dset(AEAST)/total_text(textsnake)/icdar(maskrcnnbenchmark)/CTW1500(psenet)/...
-  TYPE: 'custom_dset'
+  TYPE: 'total_text'
 
 ADDRESS:
   ALPHABET: ''
-  TRAIN_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/img/'
-  TRAIN_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/gt/'
-  VAL_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/img/'
-  VAL_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/gt/'
+  TRAIN_DATA_DIR: '//home/wxc/fudan_ocr_system/fudan_ocr_system/datasets/ICDAR15/Text_Localization/ch4_training_images/'
+  TRAIN_GT_DIR: '/home/wxc/fudan_ocr_system/fudan_ocr_system/datasets/ICDAR15/Text_Localization/ch4_training_localization_transcription_gt/'
+  VAL_DATA_DIR: '/home/wxc/fudan_ocr_system/fudan_ocr_system/datasets/ICDAR15/Text_Localization/ch4_test_images/'
+  VAL_GT_DIR: '/home/wxc/fudan_ocr_system/fudan_ocr_system/datasets/ICDAR15/Text_Localization/Challenge4_Test_Task1_GT'
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
   GT_JSON_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/res.json'
   CHECKPOINTS_DIR: ''
   PRETRAIN_MODEL_DIR: ''
-  RESULT_DIR: '/home/msy/AdvancedEAST1/result/3T1280/'
+  DET_RESULT_DIR: '/home/wxc/temp/'
   CACHE_DIR: ''
   LOGGER_DIR: '/home/msy/useful_bak/logger_bak/'
 
@@ -68,3 +68,25 @@ FREQ:
 
 predict_cut_text_line: False
 draw: 'store_true'
+
+
+TEXTSNAKE:
+  input_size: 512
+  exp_name: 'example1'
+  output_channel: 7
+
+  # train opts
+  start_iter: 0
+  max_iters: 50000
+  lr_adjust: 'fix'
+  stepvalues: []
+  weight_decay: '0.'
+  wd: '0.'
+  gamma: 0.1
+  momentum: 0.9
+
+  # data args
+  rescale: 255.0
+  means: [0.474, 0.445, 0.418]
+  stds: [1., 1., 1.]
+

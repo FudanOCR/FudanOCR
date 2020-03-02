@@ -21,6 +21,7 @@ ADDRESS:
   CHECKPOINTS_DIR: './Checkpoints/'
   PRETRAIN_MODEL_DIR: ''
   DET_RESULT_DIR: './Output/'
+  CACHE_DIR: ''
   LOGGER_DIR: './Logger/'
 
 IMAGE:

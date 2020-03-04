@@ -2,8 +2,9 @@ BASE:
   MODEL: 'MORAN'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '0,'
+  GPU_ID: '1,'
   WORKERS: 4
+  CUDA: True
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -20,7 +21,7 @@ ADDRESS:
   VAL_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_test'
   VAL_GT_DIR: ''
   CHECKPOINTS_DIR: './MORAN_LSVT_Checkpoints/'
-  PRETRAIN_MODEL_DIR: ''
+  PRETRAIN_MODEL_DIR: './MORAN_PRETRAIN'
   LOGGER_DIR: './MORAN_Logger/'
 
 IMAGE:

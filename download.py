@@ -4,7 +4,7 @@ import urllib.request
 
 class Resource():
     def __init__(self, name, path, size, description):
-        self.name = name
+        self.name = name 
         self.path = path
         self.size = size
         self.description = description

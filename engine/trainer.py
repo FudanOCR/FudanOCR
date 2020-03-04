@@ -4,7 +4,7 @@ from torch.autograd import Variable
 import os
 import Levenshtein
 import shutil
-import urllib
+import urllib.request as request
 from collections import OrderedDict
 from torch.optim.lr_scheduler import LambdaLR, StepLR
 from tqdm import tqdm
@@ -20,6 +20,7 @@ from logger.logger import Logger
 from utils.average import averager
 from utils.Pascal_VOC import eval_func
 from utils.AverageMeter import AverageMeter
+from utils.downloadCallback import callbackfunc
 
 
 
@@ -130,22 +131,9 @@ class Trainer(object):
             model_name = self.opt.BASE.MODEL
             print('Load pretrained model from : ', pretrain_model[model_name])
 
-            def callbackfunc(blocknum, blocksize, totalsize):
-                '''回调函数
-                @blocknum: 已经下载的数据块
-                @blocksize: 数据块的大小
-                @totalsize: 远程文件的大小
-                '''
-                percent = 100.0 * blocknum * blocksize / totalsize
 
-                nowLoad = blocknum * blocksize / 1024 / 1024
-                total = totalsize / 1024 / 1024
 
-                if percent > 100:
-                    percent = 100
-                print("\r %.2fM/%.2fM    %.2f%%" % (nowLoad, total, percent), end=" ")
-
-            urllib.request.urlretrieve(pretrain_model[model_name], os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR,
+            request.urlretrieve(pretrain_model[model_name], os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR,
                                                                                 pretrain_model[model_name].split('/')[
                                                                                     -1]),callbackfunc)
             print("Finish loading!")

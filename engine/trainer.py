@@ -366,9 +366,9 @@ class Trainer(object):
 
                 iteration += 1
 
-        '''动态调整学习率'''
-        if self.scheduler != None:
-            scheduler.step()
+            '''动态调整学习率'''
+            if self.scheduler != None:
+                scheduler.step()
         self.Logger.close_summary()
 
     def checkSaveOrVal(self, epoch, iteration):

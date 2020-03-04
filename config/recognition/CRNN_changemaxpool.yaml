@@ -2,7 +2,7 @@ BASE:
   MODEL: 'CRNN'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '0,'
+  GPU_ID: '1,'
   WORKERS: 4
   CUDA: True
 
@@ -22,9 +22,9 @@ ADDRESS:
   TEST_GT_DIR: ''
   VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
   VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
-  CHECKPOINTS_DIR: './CRNN_Syn800w_IC13_Checkpoints_usetransform_网络架构调整前/'
+  CHECKPOINTS_DIR: './CRNN_Syn800w_IC13_Checkpoints_usetransform_网络架构调整后/'
   PRETRAIN_MODEL_DIR: ''
-  LOGGER_DIR: './CRNN_Logger_usetransform_网络架构调整前/'
+  LOGGER_DIR: './CRNN_Logger_usetransform_网络架构调整后/'
 
 IMAGE:
   IMG_H: 32
@@ -37,7 +37,7 @@ FUNCTION:
 
 VISUALIZE:
   #the tag to indentify log file, starts with 'Logger/'
-  TAG: 'Logger/runs/exp-crnn_网路架构调整前'
+  TAG: 'Logger/runs/exp-crnn_网路架构调整后'
 
 MODEL:
   EPOCH: 100000

@@ -20,10 +20,11 @@ class strLabelConverterForCTC(object):
             # NOTE: 0 is reserved for 'blank' required by wrap_ctc
             self.dict[char] = i + 1
 
-    def encode(self, text, depth=0):
+    def encode(self, text, depth=0, lower=True):
         """Support batch or single str."""
         if isinstance(text, str):
-            # text = text.lower()
+            if lower:
+                text = text.lower()
             for char in text:
                 # Fix the bug
                 if self.alphabet.find(char) == -1:

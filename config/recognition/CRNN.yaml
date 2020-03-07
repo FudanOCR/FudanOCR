@@ -5,6 +5,7 @@ BASE:
   GPU_ID: '0,'
   WORKERS: 4
   CUDA: True
+  EXPERIMENT_NAME:  '2_4_6_BN_True_Adam重新训练'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -18,13 +19,16 @@ ADDRESS:
   TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
 #  TRAIN_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
 #  TRAIN_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
+
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
+#  VAL_DATA_DIR: '/home/cjy/ICDAR2003/WordR/TrialTest/'
+#  VAL_GT_DIR: '/home/cjy/ICDAR2003/WordR/TrialTest/target.txt'
   VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
   VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
-  CHECKPOINTS_DIR: './CRNN_Syn800w_IC13_Checkpoints_usetransform_网络架构调整前/'
+  CHECKPOINTS_DIR: './CRNN_Syn800w_IC13_Checkpoints/'
   PRETRAIN_MODEL_DIR: ''
-  LOGGER_DIR: './CRNN_Logger_usetransform_网络架构调整前/'
+  LOGGER_DIR: './CRNN_Logger/'
 
 IMAGE:
   IMG_H: 32
@@ -37,14 +41,14 @@ FUNCTION:
 
 VISUALIZE:
   #the tag to indentify log file, starts with 'Logger/'
-  TAG: 'Logger/runs/exp-crnn_网路架构调整前'
+  TAG: 'Logger/runs/exp'
 
 MODEL:
   EPOCH: 100000
-  BATCH_SIZE: 32
-  LR: 1.0
+  BATCH_SIZE: 64
+  LR: 0.01
   DYNAMIC_LR: False
-  OPTIMIZER: 'Adadelta'
+  OPTIMIZER: 'Adam'
   LOSS: 'CTCLoss'
 
 THRESHOLD:

@@ -2,9 +2,10 @@ import prettytable as pt
 import argparse
 import urllib.request
 
+
 class Resource():
     def __init__(self, name, path, size, description):
-        self.name = name 
+        self.name = name
         self.path = path
         self.size = size
         self.description = description
@@ -13,6 +14,7 @@ class Resource():
         if des_root == '.':
             des_root = './' + self.path.split('/')[-1]
         urllib.request.urlretrieve(self.path, des_root, self.callbackfunc)
+        print('\n Finish! \n')
 
     def callbackfunc(self, blocknum, blocksize, totalsize):
         '''回调函数
@@ -27,6 +29,7 @@ class Resource():
 
         if percent > 100:
             percent = 100
+
         print("\r %.2fM/%.2fM    %.2f%%" % (nowLoad, total, percent), end=" ")
 
 
@@ -62,12 +65,47 @@ resourceDict = {
         size='412M',
         description='D Dataset'
     ),
+    'LSVT_TRAIN': Resource(
+        name='LSVT_TRAIN',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LVST_TRAIN.zip',
+        size='1.0G',
+        description='R Dataset'
+    ),
+    'LSVT_TEST': Resource(
+        name='LSVT_TEST',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LVST_TEST.zip',
+        size='115.3M',
+        description='R Dataset'
+    ),
+    'LSVT_LABEL': Resource(
+        name='LSVT_LABEL',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LVST_LABEL.zip',
+        size='2.6M',
+        description='R Dataset'
+    ),
+    'ART_TRAIN': Resource(
+        name='ART_TRAIN',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_ART_TRAIN.zip',
+        size='285.6M',
+        description='R Dataset'
+    ),
+    'ART_TEST': Resource(
+        name='ART_TEST',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_ART_TEST.zip',
+        size='33M',
+        description='R Dataset'
+    ),
+    'ART_LABEL': Resource(
+        name='ART_LABEL',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_ART_LABEL.zip',
+        size='451K',
+        description='R Dataset'
+    ),
 }
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--all', action='store_true', help='List all available resources')
-parser.add_argument('--name', type=str, help='Resource name',default='null')
+parser.add_argument('--name', type=str, help='Resource name', default='null')
 parser.add_argument('--path', type=str, help='The path where you want to download the resource to', default='.')
 opt = parser.parse_args()
 # print(opt)

@@ -249,7 +249,7 @@ class MORAN_Trainer(Trainer):
         text_rev = torch.LongTensor(self.opt.MODEL.BATCH_SIZE * 5)
         length = torch.IntTensor(self.opt.MODEL.BATCH_SIZE)
 
-        if self.opt.CUDA:
+        if self.opt.BASE.CUDA:
             # self.model = torch.nn.DataParallel(self.model, device_ids=range(self.opt.ngpu))
             image = image.cuda()
             text = text.cuda()
@@ -440,5 +440,5 @@ class CRNN_Trainer(Trainer):
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = MORAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
+newTrainer = CRNN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
                            val_loader=test_loader).train()

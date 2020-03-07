@@ -61,17 +61,17 @@ class CRNN(nn.Module):
         # 16 * 50
         cnn.add_module('pooling{0}'.format(1), nn.MaxPool2d(2, 2))
         # 8 * 25
-        convRelu(2, False)
+        convRelu(2, True)
         convRelu(3, False)
         # 8 * 25
         cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d((2, 2), (2, 1), (0, 1)))
         # # 4 * 27
         convRelu(4, True)
-        convRelu(5, True)
+        convRelu(5, False)
         # 4 * 27
         cnn.add_module('pooling{0}'.format(3), nn.MaxPool2d((2, 2), (2, 1), (0, 1)))
         # 2 * 29
-        convRelu(6, False)
+        convRelu(6, True)
         # 1 * ?
         # 也就是说，当图片的高为32时，经过卷积层之后，输出的特征图维度的高将变为1
 

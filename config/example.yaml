@@ -6,6 +6,7 @@ BASE:
   GPU_ID: '2,'
   WORKERS: 4
   CUDA: True
+  EXPERIMENT_NAME:  ''
 
 DATASETS:
   DATASET: 'DatasetName'

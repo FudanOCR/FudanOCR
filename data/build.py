@@ -141,7 +141,7 @@ def get_dataloader(cfg, name, dataset, split):
         '''
         torch中sampler和shuffle是冲突的
         '''
-        if shuffle == False:
+        if shuffle == False and split == 'train':
             sampler = getSampler(cfg,dataset)
         else:
             sampler = None

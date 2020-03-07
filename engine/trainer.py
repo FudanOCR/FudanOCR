@@ -110,7 +110,7 @@ class Trainer(object):
             '''本地文件'''
             address = self.opt.ADDRESS.PRETRAIN_MODEL_DIR
             print('loading pretrained model from %s' % address)
-            if opt.CUDA:
+            if self.opt.BASE.CUDA:
                 state_dict = torch.load(address)
             else:
                 state_dict = torch.load(address, map_location='cpu')
@@ -195,6 +195,8 @@ class Trainer(object):
         '''
 
         print('Start val')
+        self.model.eval()
+
         val_loader = self.val_loader
         val_iter = iter(val_loader)
         n_correct = 0
@@ -246,6 +248,7 @@ class Trainer(object):
 
     def validate_detection(self, epoch, iteration):
         print('Start val')
+        self.model.eval()
         val_loader = self.val_loader
         val_iter = iter(val_loader)
         input_json_path = self.res2json()
@@ -328,10 +331,11 @@ class Trainer(object):
 
         t0 = time.time()
         self.highestAcc = 0
-        iteration = 0
+
 
         for epoch in range(self.opt.MODEL.EPOCH):
 
+            iteration = 0
             train_iter = iter(self.train_loader)
 
             while iteration < len(self.train_loader):

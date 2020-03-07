@@ -61,6 +61,20 @@ class Env(object):
         # return cfg
 
         opt = read_config_file(arg.config_file)
+
+        '''这里需要对opt做进一步处理'''
+
+        def deleteLastLine(str):
+            while str[-1] == '/' or str[-1] == '\\':
+                str = str[:-1]
+            return str
+
+        opt.ADDRESS.CHECKPOINTS_DIR = deleteLastLine(opt.ADDRESS.CHECKPOINTS_DIR) + '_' + opt.BASE.EXPERIMENT_NAME
+        opt.ADDRESS.LOGGER_DIR = deleteLastLine(opt.ADDRESS.LOGGER_DIR) + '_' + opt.BASE.EXPERIMENT_NAME
+        opt.VISUALIZE.TAG = deleteLastLine(opt.VISUALIZE.TAG) + '_' + opt.BASE.EXPERIMENT_NAME
+
+        # print("opt.BASE.EXPERIMENT_NAME is not defined. Please update your yaml according to the example.yaml.")
+
         return opt
 
 

@@ -4,7 +4,7 @@ from model.detection_model.AdvancedEAST.network.resnet import resnet50
 
 
 class East(nn.Module):
-    def __init__(self):
+    def __init__(self, cfg):
         super(East, self).__init__()
         self.resnet = resnet50(pretrained=True)
         self.conv1 = nn.Conv2d(3072, 128, 1)

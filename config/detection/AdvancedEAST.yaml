@@ -2,28 +2,29 @@ BASE:
   MODEL: 'AdvancedEAST'
   TYPE: 'D'
   TASK_ID: '3T1280'
+  EXPERIMENT_NAME: '1'
   CUDA: True
   NUM_GPUS: 1
-  GPU_ID: '1, 2'
+  GPU_ID: '2, 3'
   WORKERS: 1
 
 DATASETS:
   DATASET: 'ICADR15'
   # [Option] Imdb(moran)/custom_dset(AEAST)/total_text(textsnake)/icdar(maskrcnnbenchmark)/CTW1500(psenet)/...
-  TYPE: 'total_text'
+  TYPE: 'custom_dset'
 
 ADDRESS:
   ALPHABET: ''
-  TRAIN_DATA_DIR: '//home/wxc/fudan_ocr_system/fudan_ocr_system/datasets/ICDAR15/Text_Localization/ch4_training_images/'
-  TRAIN_GT_DIR: '/home/wxc/fudan_ocr_system/fudan_ocr_system/datasets/ICDAR15/Text_Localization/ch4_training_localization_transcription_gt/'
-  VAL_DATA_DIR: '/home/wxc/fudan_ocr_system/fudan_ocr_system/datasets/ICDAR15/Text_Localization/ch4_test_images/'
-  VAL_GT_DIR: '/home/wxc/fudan_ocr_system/fudan_ocr_system/datasets/ICDAR15/Text_Localization/Challenge4_Test_Task1_GT'
+  TRAIN_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/img/'
+  TRAIN_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/gt/'
+  VAL_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/img/'
+  VAL_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/gt/'
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
   GT_JSON_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/res.json'
-  CHECKPOINTS_DIR: ''
+  CHECKPOINTS_DIR: '/home/msy/useful_bak/checkpoint/'
   PRETRAIN_MODEL_DIR: ''
-  DET_RESULT_DIR: '/home/wxc/temp/'
+  DET_RESULT_DIR: '/home/msy/useful_bak/result_AEAST/'
   CACHE_DIR: ''
   LOGGER_DIR: '/home/msy/useful_bak/logger_bak/'
 
@@ -33,11 +34,11 @@ IMAGE:
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: True
+  VAL_ONLY: False
   FINETUNE: False
 
 MODEL:
-  EPOCH: 50
+  EPOCH: 100000
   BATCH_SIZE: 1
   LR: 0.0001
   DECAY_RATE: 0.1
@@ -62,12 +63,16 @@ THRESHOLD:
   trunc_threshold: 0.1
 
 FREQ:
-  SAVE_FREQ: 3000
+  SAVE_FREQ: 4000
   SHOW_FREQ: 100
   VAL_FREQ: 1000
 
 predict_cut_text_line: False
 draw: 'store_true'
+
+VISUALIZE:
+  #the tag to indentify log file, starts with 'Logger/'
+  TAG: 'Logger/runs/exp-1'
 
 
 TEXTSNAKE:

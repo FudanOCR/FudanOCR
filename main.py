@@ -393,6 +393,12 @@ class CRNN_Trainer(Trainer):
         from torch.autograd import Variable
         cpu_images, cpu_gt = data
         v_images = Variable(cpu_images.cuda())
+        '''可以加上保存image的功能，并且就执行一次'''
+        from utils.imageVisualize import saveByOrder
+        if test == True:
+            saveByOrder(cpu_images,self.opt)
+
+
         return (v_images,)
 
     def posttreatment(self, modelResult, pretreatmentData, originData, test=False):

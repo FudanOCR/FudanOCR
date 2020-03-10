@@ -1,5 +1,6 @@
+# python main.py --config_file ./config/recognition/RARE.yaml
 BASE:
-  MODEL: 'MORAN'
+  MODEL: 'RARE'
   # [Option] R(recognition)/D(detection)
   TYPE: 'R'
   NUM_GPUS: 1
@@ -63,7 +64,7 @@ FREQ:
 VISUALIZE:
   #the tag to indentify log file, starts with 'Logger/'
   TAG: 'Logger/runs/exp-1'
-  RECOGNITION_VISUALIZE: True
+  RECOGNITION_VISUALIZE: False
 
 # your own parameters
 MORAN:

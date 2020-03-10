@@ -21,6 +21,7 @@ from utils.average import averager
 from utils.Pascal_VOC import eval_func
 from utils.AverageMeter import AverageMeter
 from utils.downloadCallback import callbackfunc
+from utils.imageVisualize import wrong_gt_predict
 
 
 
@@ -195,7 +196,7 @@ class Trainer(object):
         '''
 
         print('Start val')
-        self.model.eval()
+        self.setModelState('test')
 
         val_loader = self.val_loader
         val_iter = iter(val_loader)
@@ -206,6 +207,7 @@ class Trainer(object):
 
         self.val_times += 1
 
+        cnt = 0
         for i in range(len(val_loader)):
             data = val_iter.next()
 
@@ -217,9 +219,12 @@ class Trainer(object):
 
             loss_avg.add(cost)
 
+
             for pred, target in zip(preds, targets):
                 if pred.lower() == target.lower():
                     n_correct += 1
+                else:
+                    wrong_gt_predict(target,pred,cnt,self.opt)
 
                 '''利用logger工具将结果记录于文件夹中'''
                 file_summary(self.opt.ADDRESS.LOGGER_DIR,str(self.val_times) +'_'+self.opt.BASE.MODEL+ "_result" +".txt","预测 %s      目标 %s\n" % (pred, target))
@@ -233,6 +238,8 @@ class Trainer(object):
                 distance += Levenshtein.distance(pred.lower(), target.lower()) / max(len(pred), len(target))
                 n_total += 1
 
+                cnt += 1
+
         accuracy = n_correct / float(n_total)
         '''利用logger工具将结果进行可视化'''
         total_index = epoch*(len(self.train_loader)//self.opt.FREQ.VAL_FREQ+1)+iteration//self.opt.FREQ.VAL_FREQ
@@ -243,12 +250,13 @@ class Trainer(object):
         print("correct / total: %d / %d, " % (n_correct, n_total))
         print('levenshtein distance: %f' % (distance / n_total))
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
+        self.setModelState('train')
 
         return accuracy
 
     def validate_detection(self, epoch, iteration):
         print('Start val')
-        self.model.eval()
+        self.setModelState('test')
         val_loader = self.val_loader
         val_iter = iter(val_loader)
         input_json_path = self.res2json()
@@ -278,7 +286,7 @@ class Trainer(object):
         self.Logger.scalar_summary('Recall', recall, total_index)
         self.Logger.scalar_summary('F_score', f_score, total_index)
         self.Logger.scalar_summary('Avg Loss', losses.avg, total_index)
-
+        self.setModelState('train')
         return precision
 
     def get_img_data(self, pretreatmentData):

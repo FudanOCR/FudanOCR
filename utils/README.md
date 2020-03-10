@@ -15,6 +15,7 @@ The name of the file represents the function of this file.
 - `loadData.py`: Copy the value of variable a to b.
 - `strLabelConverterForAttention.py`: Encode-decode tool for recogniton tasks, especially for attention model. 
 - `strLabelConverterForCTC.py`: Encode-decode tool for recogniton tasks, especially for model using CTCLoss. 
+- `imageVisualize.py`: Contains some functions that can display the misidentified images in a specific folder.
 
 ##### Other tools
 - `downloadCallback.py`: As a callback function, display a progress bar during the download process.

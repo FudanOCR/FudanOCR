@@ -133,22 +133,17 @@ def get_dataloader(cfg, name, dataset, split):
     '''识别部分'''
     if cfg.BASE.TYPE == 'R':
 
-        if split == 'train':
-            shuffle = True
-        else:
-            shuffle = False
-
         '''
         torch中sampler和shuffle是冲突的
         '''
-        if shuffle == False and split == 'train':
+        if  split == 'train':
             sampler = getSampler(cfg,dataset)
         else:
             sampler = None
 
         dataloader = torch.utils.data.DataLoader(dataset,
                                                    batch_size=cfg.MODEL.BATCH_SIZE,
-                                                   shuffle=shuffle, sampler=sampler,
+                                                    sampler=sampler,
                                                    num_workers=cfg.BASE.WORKERS,
                                                  collate_fn=getCollate(cfg,dataset)
                                                  )

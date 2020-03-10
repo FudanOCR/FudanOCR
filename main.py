@@ -361,10 +361,14 @@ class AEAST_Trainer(Trainer):
         img, gt = data
         img = img.cuda()
         gt = gt.cuda()
-        return img, gt
+        if test == True:
+            return img, gt
+        else:
+            return (img, )
 
     def posttreatment(self, modelResult, pretreatmentData, originData, test=False):
-        img, gt = pretreatmentData
+        img, gt = originData
+        gt = gt.cuda()
         if test == True:
             loss = self.criterion(gt, modelResult)
             return loss
@@ -446,5 +450,5 @@ class CRNN_Trainer(Trainer):
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = CRNN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
+newTrainer = AEAST_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
                            val_loader=test_loader).train()

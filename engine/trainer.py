@@ -85,7 +85,7 @@ class Trainer(object):
         '''
         if self.opt.BASE.TYPE == 'R':
             self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
-            if self.opt.BASE.MODEL == 'MORAN':
+            if self.opt.BASE.MODEL == 'MORAN' or self.opt.BASE.MODEL == 'RARE':
                 from utils.strLabelConverterForAttention import strLabelConverterForAttention
                 self.converter = strLabelConverterForAttention(self.alphabet.str)
             elif self.opt.BASE.MODEL == 'GRCNN' or self.opt.BASE.MODEL == 'CRNN':
@@ -140,7 +140,7 @@ class Trainer(object):
             print("Finish loading!")
 
             address = os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR, pretrain_model[model_name].split('/')[-1])
-            if self.opt.CUDA:
+            if self.opt.BASE.CUDA:
                 state_dict = torch.load(address)
             else:
                 state_dict = torch.load(address, map_location='cpu')
@@ -221,6 +221,7 @@ class Trainer(object):
 
 
             for pred, target in zip(preds, targets):
+                # print(pred,target)
                 if pred.lower() == target.lower():
                     n_correct += 1
                 else:

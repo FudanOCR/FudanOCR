@@ -10,11 +10,13 @@ import numpy as np
 import cv2
 from PIL import Image
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
+import PIL
+
 
 def getTransforms(cfg, is_train=True):
     transform = None
 
-    if cfg.BASE.MODEL == 'MORAN' :
+    if cfg.BASE.MODEL == 'MORAN':
         transform = resizeNormalize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
     elif cfg.BASE.MODEL == 'GRCNN':
@@ -27,6 +29,9 @@ def getTransforms(cfg, is_train=True):
     elif cfg.BASE.MODEL == 'CRNN':
         transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
+    elif cfg.BASE.MODEL == 'RARE':
+        transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+
     elif cfg.BASE.MODEL == 'maskrcnn':
         transform = Normalize(
             mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD, to_bgr255=to_bgr255
@@ -35,9 +40,7 @@ def getTransforms(cfg, is_train=True):
     return transform
 
 
-
-
-#处理类
+# 处理类
 
 class Resize(object):
     # 对图片进行尺度调整
@@ -129,6 +132,7 @@ class resizeNormalize(object):
         img.sub_(0.5).div_(0.5)
         return img
 
+
 class resizeNormalizeAndGray(object):
     '''
     将图片进行放缩，并标准化，转化为灰度图
@@ -151,8 +155,12 @@ class resizeNormalizeAndGray(object):
         :param Image img 图片
         '''
         # print('value of size is', self.size)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img = cv2.resize(img,self.size)
+        if isinstance(img, PIL.Image.Image):
+            img = img.resize(self.size, self.interpolation)
+            img = img.convert('L')
+        else:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            img = cv2.resize(img, self.size)
         # img = img.resize(self.size, self.interpolation)
         img = self.toTensor(img)
         img.sub_(0.5).div_(0.5)
@@ -203,7 +211,7 @@ class resizeNormalizeAndPadding(object):
         img = self.toTensor(img)
         img.sub_(0.5).div_(0.5)
         return img
-    
+
 
 class NewAugmentation(object):
 

@@ -15,7 +15,7 @@ class fracPickup(nn.Module):
         assert len(x_shape) == 4
         assert x_shape[2] == 1
 
-        fracPickup_num = 1
+        fracPickup_num = 0
         
         h_list = 1.
         w_list = np.arange(x_shape[3])*2./(x_shape[3]-1)-1

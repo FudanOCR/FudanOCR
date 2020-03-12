@@ -32,7 +32,7 @@ ADDRESS:
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
   CHECKPOINTS_DIR: './CRNN_Syn800w_IC13_Checkpoints/'
-  PRETRAIN_MODEL_DIR: '/home/cjy/FudanOCR/CRNN_Syn800w_IC13_Checkpoints_2_4_6_BN_True_FINETUNE_Adam_0.0001/0.8136_133000.pth'
+  PRETRAIN_MODEL_DIR: ''
   LOGGER_DIR: './CRNN_Logger/'
 
 IMAGE:

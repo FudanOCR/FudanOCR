@@ -7,6 +7,7 @@ import lmdb
 import six
 import sys
 from PIL import Image
+import numpy as np
 
 class lmdbDataset(Dataset):
     '''
@@ -77,6 +78,7 @@ class lmdbDataset(Dataset):
                 label_rev = label[-1::-1]
                 label_rev += '$'
             label += '$'
+            label = label.lower()
 
             if self.transform is not None:
                 img = self.transform(img)

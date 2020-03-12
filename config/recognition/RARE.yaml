@@ -1,36 +1,39 @@
 # python main.py --config_file ./config/recognition/RARE.yaml
 BASE:
   MODEL: 'RARE'
-  # [Option] R(recognition)/D(detection)
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '2,'
-  WORKERS: 4
+  GPU_ID: '3,'
+  WORKERS: 0
   CUDA: True
-  EXPERIMENT_NAME:  ''
+  EXPERIMENT_NAME:  'RARE'
 
 DATASETS:
-  DATASET: 'DatasetName'
-  # [Option] Imdb(moran)/custom_dset(AEAST)/total_text(textsnake)/icdar(maskrcnnbenchmark)/CTW1500(psenet)/...
-  TYPE: 'Imdb'
-  # [Option] Random_Sequential / Random / Sequential / None
+  DATASET: 'DatasetName*'
+  TYPE: 'lmdb'
   SAMPLER: 'Random_Sequential'
   COLLATE_FN: ''
 
 ADDRESS:
-  ALPHABET: '/home/cjy/FudanOCR/alphabet/ic15_words.txt'
-  TRAIN_DATA_DIR: '/home/cjy/syn90_train_100000data_lmdb'
+  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/ic15_words.txt'
+#  TRAIN_DATA_DIR: '/home/cjy/mnt/ramdisk/max/90kDICT32px/'
+#  TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
+  TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb'
   TRAIN_GT_DIR: ''
+
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic15_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
   VAL_GT_DIR: ''
-  CHECKPOINTS_DIR: './MORAN_Checkpoints/'
-  PRETRAIN_MODEL_DIR: './pretrain_MORAN/'
+#  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
+#  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
+
+#  VAL_DATA_DIR: "/home/cjy/Word_recognition/ch4_test_word_images_gt"
+#  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
+
+  CHECKPOINTS_DIR: './Syn800w_IC13_Checkpoints/'
+  PRETRAIN_MODEL_DIR: ''
   LOGGER_DIR: './Logger/'
-  # If opt.BASE.TYPE == 'D', you need to fill in the following parameters
-  DET_RESULT_DIR : ''
-  GT_JSON_DIR: ''
 
 IMAGE:
   IMG_H: 32
@@ -41,14 +44,17 @@ FUNCTION:
   VAL_ONLY: False
   FINETUNE: False
 
+VISUALIZE:
+  #the tag to indentify log file, starts with 'Logger/'
+  TAG: 'Logger/runs/exp'
+  RECOGNITION_VISUALIZE: True
+
 MODEL:
   EPOCH: 100000
   BATCH_SIZE: 64
   LR: 1.0
   DYNAMIC_LR: False
-  # [Option] Adadelta/Adam/...
   OPTIMIZER: 'Adadelta'
-  # [Option] MSELoss/CrossEntropyLoss/CTCLoss/TextLoss/AEASTLOSS/...
   LOSS: 'CrossEntropyLoss'
 
 THRESHOLD:
@@ -57,16 +63,8 @@ THRESHOLD:
   TEXT_SCALE: 75
 
 FREQ:
-  SAVE_FREQ: 3000
+  SAVE_FREQ: 4000
   SHOW_FREQ: 100
   VAL_FREQ: 1000
 
-VISUALIZE:
-  #the tag to indentify log file, starts with 'Logger/'
-  TAG: 'Logger/runs/exp-1'
-  RECOGNITION_VISUALIZE: False
-
-# your own parameters
-MORAN:
-  TARGET_H: 32
-  TARGET_W: 100
+BidirDecoder: False

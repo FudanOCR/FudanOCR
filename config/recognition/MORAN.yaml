@@ -1,3 +1,4 @@
+# python main.py --config_file ./config/recognition/MORAN.yaml
 BASE:
   MODEL: 'MORAN'
   TYPE: 'R'
@@ -5,24 +6,25 @@ BASE:
   GPU_ID: '1,'
   WORKERS: 4
   CUDA: True
+  EXPERIMENT_NAME:  'MORAN_noBidecoder'
 
 DATASETS:
   DATASET: 'DatasetName*'
-  TYPE: 'Lmdb'
+  TYPE: 'lmdb'
   SAMPLER: ''
   COLLATE_FN: ''
 
 ADDRESS:
-  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/lsvt_train_words.txt'
-  TRAIN_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_train'
+  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/ic15_words.txt'
+  TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb'
   TRAIN_GT_DIR: ''
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/xuxixidatasets/LSVT_test'
+  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
   VAL_GT_DIR: ''
-  CHECKPOINTS_DIR: './MORAN_LSVT_Checkpoints/'
-  PRETRAIN_MODEL_DIR: './MORAN_PRETRAIN'
-  LOGGER_DIR: './MORAN_Logger/'
+  CHECKPOINTS_DIR: './IC13_Checkpoints/'
+  PRETRAIN_MODEL_DIR: ''
+  LOGGER_DIR: './IC13_Logger/'
 
 IMAGE:
   IMG_H: 64
@@ -37,16 +39,15 @@ MODEL:
   EPOCH: 100000
   BATCH_SIZE: 64
   LR: 1.0
-  DECAY_RATE: 0.1
   DYNAMIC_LR: False
   OPTIMIZER: 'Adadelta'
   LOSS: 'CrossEntropyLoss'
-  DETAILS:
-    HIDDEN_LAYER: 10
+
 
 VISUALIZE:
   #the tag to indentify log file, starts with 'Logger/'
   TAG: 'Logger/runs/exp-1'
+  RECOGNITION_VISUALIZE: True
 
 THRESHOLD:
   MAXSIZE: 100
@@ -56,12 +57,13 @@ THRESHOLD:
 FREQ:
   SAVE_FREQ: 3000
   SHOW_FREQ: 100
-  VAL_FREQ: 200
+  VAL_FREQ: 1000
 
 nh: 256
 targetH: 32
 targetW: 100
-BidirDecoder: True
+BidirDecoder: False
 inputDataType: 'torch.cuda.FloatTensor'
 maxBatch: 256
 CUDA: True
+fp: 0

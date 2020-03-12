@@ -10,4 +10,7 @@ def loadData(v, data):
     :param torch.Tensor v 目标张量
     :param torch.Tensor data 源张量
     '''
-    v.data.resize_(data.size()).copy_(data)
+    try:
+        v.resize_(data.size()).copy_(data)
+    except:
+        v.data.resize_(data.size()).copy_(data)

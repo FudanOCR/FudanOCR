@@ -6,12 +6,12 @@ BASE:
   GPU_ID: '3,'
   WORKERS: 0
   CUDA: True
-  EXPERIMENT_NAME:  'RARE'
+  EXPERIMENT_NAME:  'RARE_用moran的attention'
 
 DATASETS:
   DATASET: 'DatasetName*'
   TYPE: 'lmdb'
-  SAMPLER: 'Random_Sequential'
+  SAMPLER: ''
   COLLATE_FN: ''
 
 ADDRESS:

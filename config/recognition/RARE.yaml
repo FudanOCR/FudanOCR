@@ -3,10 +3,10 @@ BASE:
   MODEL: 'RARE'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '1,'
+  GPU_ID: '0,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'RARE_finetune_adam_scratch'
+  EXPERIMENT_NAME:  'RARE_stn'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -52,9 +52,9 @@ VISUALIZE:
 MODEL:
   EPOCH: 100000
   BATCH_SIZE: 64
-  LR: 0.001
+  LR: 1.0
   DYNAMIC_LR: False
-  OPTIMIZER: 'Adam'
+  OPTIMIZER: 'Adadelta'
   LOSS: 'CrossEntropyLoss'
 
 THRESHOLD:

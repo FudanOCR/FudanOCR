@@ -5,6 +5,8 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 
+from component.stn import SpatialTransformer
+
 class RARE(nn.Module):
 
     def __init__(self, opt):
@@ -14,6 +16,7 @@ class RARE(nn.Module):
         self.n_class = len(Alphabet(opt.ADDRESS.ALPHABET))
         self.opt = opt
 
+        self.stn = SpatialTransformer(self.opt)
         self.cnn = self.getCNN()
         self.rnn = self.getEncoder()
         # n_class,hidden_size,num_embedding,input_size
@@ -97,6 +100,7 @@ class RARE(nn.Module):
     # image, length, text, text_rev, test
     def forward(self, input,text_length,text,text_rev,test=False):
 
+        input,_ = self.stn(input)
         result = self.cnn(input)
         # (bs,512,1,5)
 

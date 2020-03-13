@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 import PIL
 
 
-def getTransforms(cfg, is_train=True):
+def getTransforms(cfg ):
     transform = None
 
     if cfg.BASE.MODEL == 'MORAN':
@@ -39,8 +39,38 @@ def getTransforms(cfg, is_train=True):
 
     return transform
 
+def getTranforms_by_assignment(cfg ):
+    transforms = None
+    if cfg.DATASETS.TRANSFORM == 'Normalize' :
+        transforms = Normalize(
+            mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD, to_bgr255=to_bgr255
+        )
+    elif cfg.DATASETS.TRANSFORM == 'resizeNormalizeAndGray':
+        transforms = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
-# 处理类
+    elif cfg.DATASETS.TRANSFORM == 'resizeNormalizeAndPadding':
+        transforms = resizeNormalizeAndPadding(cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H)
+
+    elif cfg.DATASETS.TRANSFORM == 'resizeNormalize':
+        transforms = resizeNormalize((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+
+    elif cfg.DATASETS.TRANSFORM == 'NewAugmentation':
+        transforms = NewAugmentation(size=cfg.input_size, mean=cfg.means, std=cfg.stds, maxlen=1280, minlen=512)
+
+    elif cfg.DATASETS.TRANSFORM == 'Compose':
+        #need modify to adapt a list of strings
+        transforms = Compose(
+            [
+                '''
+                Resize(min_size, max_size),
+                ToTensor(),
+                MixUp(mix_ratio=0.1),
+                Normalize(mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD, to_bgr255=to_bgr255),
+                '''
+            ]
+        )
+
+    return  transforms
 
 class Resize(object):
     # 对图片进行尺度调整
@@ -232,4 +262,20 @@ class NewAugmentation(object):
     def __call__(self, image, polygons=None):
         return self.augmentation(image, polygons)
 
+class Compose(object):
+    def __init__(self, transforms):
+        self.transforms = transforms
+
+    def __call__(self, image, target):
+        for t in self.transforms:
+            image, target = t(image, target)
+        return image, target
+
+    def __repr__(self):
+        format_string = self.__class__.__name__ + "("
+        for t in self.transforms:
+            format_string += "\n"
+            format_string += "    {0}".format(t)
+        format_string += "\n)"
+        return format_string
 

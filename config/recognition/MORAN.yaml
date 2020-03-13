@@ -62,7 +62,7 @@ FREQ:
 nh: 256
 targetH: 32
 targetW: 100
-BidirDecoder: False
+BidirDecoder: True
 inputDataType: 'torch.cuda.FloatTensor'
 maxBatch: 256
 CUDA: True

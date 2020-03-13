@@ -326,7 +326,7 @@ class Attention_my(nn.Module):
             target = torch.zeros(B,num_step+1).long().cuda()
             stard_id = 0
             for i in range(B):
-                target[i][1:1+text_length[i]] = text[stard_id:stard_id+text_length[i]]
+                target[i][1:1+text_length[i]] = text[stard_id:stard_id+text_length[i]] +1
                 stard_id += text_length[i]
             target = Variable(target.transpose(0,1).contiguous())
 

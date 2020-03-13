@@ -23,8 +23,14 @@ def getLoss(opt=''):
         '''
         持续连接损失函数
         '''
-        from warpctc_pytorch import CTCLoss
-        return CTCLoss()
+        try:
+            from torch.nn import CTCLoss
+            return CTCLoss()
+
+        except:
+            from warpctc_pytorch import CTCLoss
+            return CTCLoss()
+
 
     def TextLoss(opt):
         from engine.personalize_loss.text_loss import TextLoss

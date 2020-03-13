@@ -526,7 +526,7 @@ class RARE_Trainer(Trainer):
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = RARE_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
+newTrainer = MORAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
                            val_loader=test_loader).train()
 
 # from model.recognition_model.RARE.models import RARE

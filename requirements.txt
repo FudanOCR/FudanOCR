@@ -81,7 +81,7 @@ tensorflow-estimator==2.0.1
 tensorflow-gpu==1.8.0
 termcolor==1.1.0
 text-unidecode==1.3
-torch==1.2.0
+torch==1.1.0
 torchsummary
 torchvision==0.4.2
 tqdm==4.40.1

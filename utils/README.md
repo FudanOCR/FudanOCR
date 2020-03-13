@@ -19,3 +19,4 @@ The name of the file represents the function of this file.
 
 ##### Other tools
 - `downloadCallback.py`: As a callback function, display a progress bar during the download process.
+- `stnVisualize.py`: Compare the effect of STN.

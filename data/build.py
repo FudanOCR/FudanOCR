@@ -5,6 +5,7 @@ import logging
 
 import torch.utils.data
 from alphabet.alphabet import Alphabet
+from torch.utils.data.sampler import RandomSampler, WeightedRandomSampler
 
 '''Recognition Part'''
 from data.recognition import LMDB
@@ -172,8 +173,8 @@ def get_dataloader(cfg, name, dataset, split):
             return dataloader
 
         elif 'pixellink' == name:
-            sampler = WeightedRandomSampler([1 / len(dataset)] * len(dataset), cfg.MODEL.BATCH_SIZE, replacement=True)
-            dataloader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, sampler=sampler)
+            # sampler = WeightedRandomSampler([1 / len(dataset)] * len(dataset), cfg.MODEL.BATCH_SIZE, replacement=True)
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE)
             assert dataloader
             return dataloader
 

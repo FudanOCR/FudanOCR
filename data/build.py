@@ -5,6 +5,7 @@ import logging
 
 import torch.utils.data
 from alphabet.alphabet import Alphabet
+from torch.utils.data.sampler import RandomSampler, WeightedRandomSampler
 
 '''Recognition Part'''
 from data.recognition import LMDB
@@ -13,6 +14,7 @@ from data.sampler import getSampler
 from data.collate_fn import getCollate
 from data.transforms import getTransforms, getTranforms_by_assignment
 
+from data.detection import dataset_pixellink
 from data.detection.total_text import TotalText
 # from data.detection  importICDAR
 # from data.detection import CTW1500
@@ -75,6 +77,11 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
 
         if 'custom_dset' == name:
             dataset = custom_dset(split=split)
+            assert dataset
+            return dataset
+
+        elif 'pixellink' == name:
+            dataset = dataset_pixellink.PixelLinkIC15Dataset(data_dir, anno_dir)
             assert dataset
             return dataset
 
@@ -162,6 +169,12 @@ def get_dataloader(cfg, name, dataset, split):
                 dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, collate_fn=collate_fn,
                                                          num_workers=int(cfg.BASE.WORKERS))
 
+            assert dataloader
+            return dataloader
+
+        elif 'pixellink' == name:
+            # sampler = WeightedRandomSampler([1 / len(dataset)] * len(dataset), cfg.MODEL.BATCH_SIZE, replacement=True)
+            dataloader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE)
             assert dataloader
             return dataloader
 

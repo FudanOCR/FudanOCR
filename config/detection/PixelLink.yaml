@@ -1,0 +1,88 @@
+BASE:
+  MODEL: 'PixelLink'
+  VERSION: '2s'
+  # [Option] R(recognition)/D(detection)
+  TYPE: 'D'
+  NUM_GPUS: 1
+  GPU_ID: '2,'
+  WORKERS: 4
+  CUDA: True
+  EXPERIMENT_NAME:  'PL_2s'
+
+DATASETS:
+  DATASET: 'ICDAR15'
+  # [Option] Imdb(moran)/custom_dset(AEAST)/total_text(textsnake)/icdar(maskrcnnbenchmark)/CTW1500(psenet)/...
+  TYPE: 'pixellink'
+  # [Option] Random_Sequential / Random / Sequential / None
+  SAMPLER: 'Random_Sequential'
+  COLLATE_FN: ''
+
+ADDRESS:
+  ALPHABET: ''
+  TRAIN_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/img/'
+  TRAIN_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/train/gt/'
+  TEST_DATA_DIR: ''
+  TEST_GT_DIR: ''
+  VAL_DATA_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/img/'
+  VAL_GT_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/gt/'
+  CHECKPOINTS_DIR: '/home/msy/TEMP/PL-checkpoints/'
+  PRETRAIN_MODEL_DIR: ''
+  LOGGER_DIR: '/home/msy/TEMP/PL-logger/'
+  # If opt.BASE.TYPE == 'D', you need to fill in the following parameters
+  DET_RESULT_DIR : '/home/msy/TEMP/PL-model/'
+  GT_JSON_DIR: '/home/msy/datasets/ICDAR15/Text_Localization/val/res.json'
+
+IMAGE:
+  IMG_H: 512
+  IMG_W: 512
+  IMG_CHANNEL: 3
+
+FUNCTION:
+  VAL_ONLY: False
+  FINETUNE: False
+
+MODEL:
+  EPOCH: 60000
+  BATCH_SIZE: 12
+  test_batch: 1 #
+  LR: 0.001
+  DYNAMIC_LR: False
+  # [Option] Adadelta/Adam/...
+  OPTIMIZER: 'Adadelta'
+  # [Option] MSELoss/CrossEntropyLoss/CTCLoss/TextLoss/AEASTLOSS/...
+  LOSS: 'CrossEntropyLoss'
+  ALL_TRAINS: 1000
+  MOMENTUM: 0.9
+  weight_decay: 0.0005
+  DILATION: True
+  use_crop: False
+  use_rotate: True
+  PIXEL_WEIGHT: 2
+  LINK_WEIGHT: 1
+  r_mean: 123.
+  g_mean: 117.
+  b_mean: 104.
+  NEG_POS_RATIO: 3 # parameter r in paper
+  retrain_model_index: 26200 # retrain from which model, e.g. ${saving_model_dir}/156600.mdl
+  test_model_index: 43800 # test for which model, e.g. ${saving_model_dir}/156600.mdl
+
+
+THRESHOLD:
+  MAXSIZE: 100
+  MINSIZE: 1
+  TEXT_SCALE: 75
+  iou_threshold: 0.5
+
+FREQ:
+  SAVE_FREQ: 3000
+  SHOW_FREQ: 100
+  VAL_FREQ: 1000
+
+VISUALIZE:
+  #the tag to indentify log file, starts with 'Logger/'
+  TAG: 'Logger/runs/exp-1'
+
+# your own parameters
+MORAN:
+  TARGET_H: 32
+  TARGET_W: 100

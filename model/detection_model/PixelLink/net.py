@@ -1,8 +1,9 @@
 import torch.nn as nn
-import config
+# import config
 
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self, opt):
+        self.opt = opt
         super(Net, self).__init__()
         # TODO: modify padding
         self.conv1_1 = nn.Conv2d(3, 64, 3, stride=1, padding=1)
@@ -36,7 +37,7 @@ class Net(nn.Module):
         self.conv5_3 = nn.Conv2d(512, 512, 3, stride=1, padding=1)
         self.relu5_3 = nn.ReLU()
         self.pool5 = nn.MaxPool2d(kernel_size=[3, 3], stride=1, padding=1)
-        if config.dilation:
+        if self.opt.MODEL.DILATION:
             self.conv6 = nn.Conv2d(512, 1024, 3, stride=1, padding=6, dilation=6)
         else:
             self.conv6 = nn.Conv2d(512, 1024, 3, stride=1, padding=1)
@@ -79,7 +80,7 @@ class Net(nn.Module):
 
         upsample1_1 = nn.functional.upsample(l5_1x + l4_1x, scale_factor=2, mode="bilinear", align_corners=True)
         upsample2_1 = nn.functional.upsample(upsample1_1 + l3_1x, scale_factor=2, mode="bilinear", align_corners=True)
-        if config.version == "2s":
+        if self.opt.BASE.VERSION == "2s":
             upsample3_1 = nn.functional.upsample(upsample2_1 + l2_1x, scale_factor=2, mode="bilinear", align_corners=True)
             out_1 = upsample3_1 + l1_1x
         else:
@@ -87,7 +88,7 @@ class Net(nn.Module):
 
         upsample1_2 = nn.functional.upsample(l5_2x + l4_2x, scale_factor=2, mode="bilinear", align_corners=True)
         upsample2_2 = nn.functional.upsample(upsample1_2 + l3_2x, scale_factor=2, mode="bilinear", align_corners=True)
-        if config.version == "2s":
+        if self.opt.BASE.VERSION == "2s":
             upsample3_2 = nn.functional.upsample(upsample2_2 + l2_2x, scale_factor=2, mode="bilinear", align_corners=True)
             out_2 = upsample3_2 + l1_2x
         else:

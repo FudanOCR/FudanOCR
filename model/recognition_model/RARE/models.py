@@ -7,6 +7,7 @@ from torch.nn.parameter import Parameter
 
 from component.stn import SpatialTransformer
 
+
 class RARE(nn.Module):
 
     def __init__(self, opt):
@@ -16,12 +17,46 @@ class RARE(nn.Module):
         self.n_class = len(Alphabet(opt.ADDRESS.ALPHABET))
         self.opt = opt
 
-        self.stn = SpatialTransformer(self.opt)
+        # self.stn = SpatialTransformer(self.opt)
         self.cnn = self.getCNN()
         self.rnn = self.getEncoder()
         # n_class,hidden_size,num_embedding,input_size
         # self.attention = Attention(self.n_class,256, 128,256)
-        self.attention = Attention(256,256,self.n_class,128)
+        self.attention = Attention(256, 256, self.n_class, 128)
+
+
+        # Spatial transformer localization-network
+        self.localization = nn.Sequential(
+            nn.Conv2d(1, 8, kernel_size=7),
+            nn.MaxPool2d(2, stride=2),
+            nn.ReLU(True),
+            nn.Conv2d(8, 10, kernel_size=5),
+            nn.MaxPool2d(2, stride=2),
+            nn.ReLU(True)
+        )
+
+        # Regressor for the 3 * 2 affine matrix
+        self.fc_loc = nn.Sequential(
+            nn.Linear(10 * 4 * 21, 32),
+            nn.ReLU(True),
+            nn.Linear(32, 3 * 2)
+        )
+
+        # Initialize the weights/bias with identity transformation
+        self.fc_loc[2].weight.data.fill_(0)
+        self.fc_loc[2].bias.data = torch.FloatTensor([1, 0, 0, 0, 1, 0])
+
+    def stn(self, x):
+        xs = self.localization(x)
+        # print("size:", xs.size())
+        xs = xs.view(-1, 10 * 4 * 21)
+        theta = self.fc_loc(xs)
+        theta = theta.view(-1, 2, 3)
+
+        grid = F.affine_grid(theta, x.size())
+        x = F.grid_sample(x, grid)
+
+        return x
 
     def getCNN(self):
 
@@ -38,12 +73,9 @@ class RARE(nn.Module):
         ps = [1, 1, 1, 1, 1, 1, 0]
         ss = [1, 1, 1, 1, 1, 1, 1]
 
-
-
-
         cnn = nn.Sequential()
 
-        def convRelu(i, batchNormalization=False,leakyRelu=False):
+        def convRelu(i, batchNormalization=False, leakyRelu=False):
             nIn = nc if i == 0 else nm[i - 1]
             nOut = nm[i]
             cnn.add_module('conv{0}'.format(i),
@@ -98,9 +130,9 @@ class RARE(nn.Module):
         return rnn
 
     # image, length, text, text_rev, test
-    def forward(self, input,text_length,text,text_rev,test=False):
+    def forward(self, input, text_length, text, text_rev, test=False):
 
-        input,_ = self.stn(input)
+        input = self.stn(input)
         result = self.cnn(input)
         # (bs,512,1,5)
 
@@ -115,6 +147,7 @@ class RARE(nn.Module):
         # result = self.attention(result,text,text_length, test)
         result = self.attention(result, text_length, text, test)
         return result
+
 
 class AttentionCell(nn.Module):
     def __init__(self, input_size, hidden_size, num_embeddings=128, CUDA=True):
@@ -246,6 +279,7 @@ class Attention(nn.Module):
 
             return probs_res
 
+
 class AttentionCell_my(nn.Module):
     '''
     Define a special RNN.
@@ -253,19 +287,19 @@ class AttentionCell_my(nn.Module):
 
     # self.attention_cell(hidden,feature,cur_embedding)
     # self.attention_cell = AttentionCell(input_size,num_embedding,hidden_size)
-    def __init__(self,input_size,num_embeddings,hidden_size):
+    def __init__(self, input_size, num_embeddings, hidden_size):
         nn.Module.__init__(self)
 
-        self.h2h = nn.Linear(hidden_size,hidden_size)
-        self.c2h = nn.Linear(input_size,hidden_size,bias=False)
-        self.score = nn.Linear(hidden_size,1,bias=False)
-        self.rnn = nn.GRUCell(input_size+num_embeddings, hidden_size)
+        self.h2h = nn.Linear(hidden_size, hidden_size)
+        self.c2h = nn.Linear(input_size, hidden_size, bias=False)
+        self.score = nn.Linear(hidden_size, 1, bias=False)
+        self.rnn = nn.GRUCell(input_size + num_embeddings, hidden_size)
 
         self.input_size = input_size
         self.num_embeddings = num_embeddings
         self.hidden_size = hidden_size
 
-    def forward(self,hidden,feature,embedding):
+    def forward(self, hidden, feature, embedding):
         '''
         hidden: B * H
         feature: T * B * C
@@ -277,21 +311,22 @@ class AttentionCell_my(nn.Module):
         C = feature.size(2)
         H = self.hidden_size
 
-        feature_proj = self.c2h(feature.view(-1,H))  # T*B,H
-        prev_hidden_proj = self.h2h(hidden).view(1,B,self.hidden_size).expand(T,B,self.hidden_size)\
-            .contiguous().view(-1,H)   # T*B,H
+        feature_proj = self.c2h(feature.view(-1, H))  # T*B,H
+        prev_hidden_proj = self.h2h(hidden).view(1, B, self.hidden_size).expand(T, B, self.hidden_size) \
+            .contiguous().view(-1, H)  # T*B,H
         # emition = self.score(F.tanh(feature_proj + prev_hidden_proj).view(-1, H)).view(T,B) # T*B
         emition = self.score(F.tanh(feature_proj + prev_hidden_proj).view(-1, H)).view(T, B)
-        alpha = F.softmax(emition,0)  # T*B
+        alpha = F.softmax(emition, 0)  # T*B
         # context = (feature * alpha.expand(T*B,C).contiguous().view(T,B,C)).sum(0).squeeze(0).view(B,C)
         context = (feature * alpha.view(T, B, 1).expand(T, B, C)).sum(0).squeeze(0)  # nB * nC
-        context = torch.cat([context,embedding],1)
-        cur_hidden = self.rnn(context,hidden)
+        context = torch.cat([context, embedding], 1)
+        cur_hidden = self.rnn(context, hidden)
         return cur_hidden, alpha
+
 
 class Attention_my(nn.Module):
 
-    def __init__(self,n_class,hidden_size,num_embedding,input_size):
+    def __init__(self, n_class, hidden_size, num_embedding, input_size):
         nn.Module.__init__(self)
 
         self.n_class = n_class
@@ -299,21 +334,21 @@ class Attention_my(nn.Module):
         self.input_size = input_size
         self.num_embedding = num_embedding
         # input_size,num_embeddings,hidden_size
-        self.attention_cell = AttentionCell(input_size,num_embedding,hidden_size)
+        self.attention_cell = AttentionCell(input_size, num_embedding, hidden_size)
         '''why +1?'''
-        self.char_embeddings = Parameter(torch.randn(n_class+1,self.num_embedding))
+        self.char_embeddings = Parameter(torch.randn(n_class + 1, self.num_embedding))
         '''You need a generator to transform a embedded vector into character'''
-        self.generator = nn.Linear(hidden_size,n_class)
+        self.generator = nn.Linear(hidden_size, n_class)
 
-    def forward(self,feature,text,text_length,test):
+    def forward(self, feature, text, text_length, test):
 
         T = feature.size(0)
         B = feature.size(1)
         C = feature.size(2)
 
         '''Define some assertions'''
-        assert(self.input_size==C)
-        assert(B==text_length.numel())
+        assert (self.input_size == C)
+        assert (B == text_length.numel())
 
         '''最大迭代次数'''
         num_step = text_length.max()
@@ -321,34 +356,34 @@ class Attention_my(nn.Module):
         hidden_size = self.hidden_size
 
         '''初试化隐藏状态'''
-        hidden = Variable(torch.zeros(B,self.hidden_size))
+        hidden = Variable(torch.zeros(B, self.hidden_size))
 
         if not test:
             '''训练状态'''
 
             '''建立一个target区域'''
-            target = torch.zeros(B,num_step+1).long().cuda()
+            target = torch.zeros(B, num_step + 1).long().cuda()
             stard_id = 0
             for i in range(B):
-                target[i][1:1+text_length[i]] = text[stard_id:stard_id+text_length[i]] +1
+                target[i][1:1 + text_length[i]] = text[stard_id:stard_id + text_length[i]] + 1
                 stard_id += text_length[i]
-            target = Variable(target.transpose(0,1).contiguous())
+            target = Variable(target.transpose(0, 1).contiguous())
 
-            hidden = Variable(torch.zeros(B,hidden_size).type_as(feature))
-            output_hiddens = Variable(torch.zeros(num_step,B,hidden_size).type_as(feature))
+            hidden = Variable(torch.zeros(B, hidden_size).type_as(feature))
+            output_hiddens = Variable(torch.zeros(num_step, B, hidden_size).type_as(feature))
 
             '''第一个step是什么？'''
             for i in range(num_step):
-                cur_embedding = self.char_embeddings.index_select(0,target[i])
-                hidden, alpha = self.attention_cell(hidden,feature,cur_embedding)
+                cur_embedding = self.char_embeddings.index_select(0, target[i])
+                hidden, alpha = self.attention_cell(hidden, feature, cur_embedding)
                 output_hiddens[i] = hidden
 
-            new_hidden = Variable(torch.zeros(num_label,hidden_size).type_as(feature))
+            new_hidden = Variable(torch.zeros(num_label, hidden_size).type_as(feature))
             b = 0
             start = 0
 
             for length in text_length:
-                new_hidden[start: start+length] = output_hiddens[0:length,b,:]
+                new_hidden[start: start + length] = output_hiddens[0:length, b, :]
                 b += 1
                 start = start + length
 
@@ -392,13 +427,14 @@ class Attention_my(nn.Module):
 
             return probs_res
 
+
 class BLSTM(nn.Module):
     '''双向循环神经网络'''
 
     def __init__(self, nIn, nHidden, nOut):
         nn.Module.__init__(self)
 
-        self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True,dropout=0.3)
+        self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True, dropout=0.3)
         self.linear = nn.Linear(nHidden * 2, nOut)
 
     def forward(self, input):

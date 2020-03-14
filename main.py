@@ -11,7 +11,7 @@ from engine.trainer_collection.CRNN import CRNN_Trainer
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
 
-newTrainer = GRCNN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
+newTrainer = RARE_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
                            val_loader=test_loader).train()
 
 

@@ -11,7 +11,7 @@ from data.recognition import LMDB
 from data.recognition import CUSTOM
 from data.sampler import getSampler
 from data.collate_fn import getCollate
-from data.transforms import getTransforms, getTransforms_by_assignment
+from data.transforms import getTransforms, getTranforms_by_assignment
 
 from data.detection.total_text import TotalText
 # from data.detection  importICDAR

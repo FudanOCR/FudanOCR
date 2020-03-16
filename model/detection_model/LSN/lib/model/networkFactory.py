@@ -555,6 +555,8 @@ class ResNet50(nn.Module):
         for stride in strides:
             # circle classify
             stride_circle_cls = None
+            # print("circle_cls:",circle_cls)
+            # print("conv:", conv)
             stride_circle_cls = circle_cls[stride](conv[stride])
             n,c,h,w = stride_circle_cls.size()
             stride_circle_cls = stride_circle_cls.view(n,2,int(c/2),h,w)

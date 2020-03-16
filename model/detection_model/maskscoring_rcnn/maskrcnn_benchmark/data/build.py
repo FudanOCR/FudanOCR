@@ -16,7 +16,7 @@ from .transforms import build_transforms
 
 def build_dataset(dataset_list, transforms, dataset_catalog, is_train=True):
     """
-    Args:
+    Arguments:
         dataset_list (list[str]): Contains the names of the datasets, i.e.,
             coco_2014_trian, coco_2014_val, etc
         transforms (callable): transforms to apply to each (image, target) sample
@@ -34,7 +34,7 @@ def build_dataset(dataset_list, transforms, dataset_catalog, is_train=True):
         args = data["args"]
         # for COCODataset, we want to remove images without annotations
         # during training
-        if data["factory"] == "COCODataset":
+        if data["factory"] == "COCODataset" or data["factory"] == "ArTDataset" or data["factory"] == "LSVTDataset":
             args["remove_images_without_annotations"] = is_train
         args["transforms"] = transforms
         # make dataset from factory
@@ -144,7 +144,7 @@ def make_data_loader(cfg, is_train=True, is_distributed=False, start_iter=0):
     )
     DatasetCatalog = paths_catalog.DatasetCatalog
     dataset_list = cfg.DATASETS.TRAIN if is_train else cfg.DATASETS.TEST
-
+    print("==========")
     transforms = build_transforms(cfg, is_train)
     datasets = build_dataset(dataset_list, transforms, DatasetCatalog, is_train)
 

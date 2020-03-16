@@ -11,7 +11,7 @@ import cv2
 # import config
 import sys
 sys.path.insert(0,'./')
-from lib.datasets.proposal_generate import ProposalGenerate
+from model.detection_model.LSN.lib.datasets.proposal_generate import ProposalGenerate
 import math
 from imgaug import augmenters as iaa
 from PIL import Image, ImageEnhance, ImageOps, ImageFile

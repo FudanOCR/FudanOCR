@@ -194,21 +194,26 @@ def make_anchor_generator(config):
 def generate_anchors(
     stride=16, sizes=(32, 64, 128, 256, 512), aspect_ratios=(0.5, 1, 2)
 ):
-    """
-    Generates a matrix of anchor boxes in (x1, y1, x2, y2) format. Anchors
+    """Generates a matrix of anchor boxes in (x1, y1, x2, y2) format. Anchors
     are centered on stride / 2, have (approximate) sqrt areas of the specified
     sizes, and aspect ratios as given.
     """
-    return _generate_anchors(
-        stride,
-        np.array(sizes, dtype=np.float) / stride,
-        np.array(aspect_ratios, dtype=np.float),
-    )
+    if len(np.array(sizes).shape) == 1:
+        return _generate_anchors(
+            stride,
+            np.array(sizes, dtype=np.float) / stride,
+            np.array(aspect_ratios, dtype=np.float),
+        )
+    else:
+        return _generate_anchors(
+            stride,
+            np.array(sizes[0], dtype=np.float) / stride,
+            np.array(aspect_ratios, dtype=np.float),
+        )
 
 
 def _generate_anchors(base_size, scales, aspect_ratios):
-    """
-    Generate anchor (reference) windows by enumerating aspect ratios X
+    """Generate anchor (reference) windows by enumerating aspect ratios X
     scales wrt a reference (0, 0, base_size - 1, base_size - 1) window.
     """
     anchor = np.array([1, 1, base_size, base_size], dtype=np.float) - 1
@@ -220,9 +225,7 @@ def _generate_anchors(base_size, scales, aspect_ratios):
 
 
 def _whctrs(anchor):
-    """
-    Return width, height, x center, and y center for an anchor (window).
-    """
+    """Return width, height, x center, and y center for an anchor (window)."""
     w = anchor[2] - anchor[0] + 1
     h = anchor[3] - anchor[1] + 1
     x_ctr = anchor[0] + 0.5 * (w - 1)
@@ -231,8 +234,7 @@ def _whctrs(anchor):
 
 
 def _mkanchors(ws, hs, x_ctr, y_ctr):
-    """
-    Given a vector of widths (ws) and heights (hs) around a center
+    """Given a vector of widths (ws) and heights (hs) around a center
     (x_ctr, y_ctr), output a set of anchors (windows).
     """
     ws = ws[:, np.newaxis]
@@ -249,9 +251,7 @@ def _mkanchors(ws, hs, x_ctr, y_ctr):
 
 
 def _ratio_enum(anchor, ratios):
-    """
-    Enumerate a set of anchors for each aspect ratio wrt an anchor.
-    """
+    """Enumerate a set of anchors for each aspect ratio wrt an anchor."""
     w, h, x_ctr, y_ctr = _whctrs(anchor)
     size = w * h
     size_ratios = size / ratios
@@ -262,9 +262,7 @@ def _ratio_enum(anchor, ratios):
 
 
 def _scale_enum(anchor, scales):
-    """
-    Enumerate a set of anchors for each scale wrt an anchor.
-    """
+    """Enumerate a set of anchors for each scale wrt an anchor."""
     w, h, x_ctr, y_ctr = _whctrs(anchor)
     ws = w * scales
     hs = h * scales

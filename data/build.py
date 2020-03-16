@@ -16,6 +16,8 @@ from data.transforms import getTransforms, getTransforms_by_assignment
 
 from data.detection import dataset_pixellink
 from data.detection.total_text import TotalText
+from data.detection.LSN_syntext import SynthtextDataset
+
 # from data.detection  importICDAR
 # from data.detection import CTW1500
 from model.detection_model.AdvancedEAST.utils.data_utils import custom_dset, collate_fn
@@ -130,6 +132,11 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
                 )
                 return  testset
 
+        elif 'LSN_syntext' in name:
+            dataset = SynthtextDataset(cfg)
+            assert dataset
+            return dataset
+
 
 
     raise RuntimeError("Dataset not available: {}".format(name))
@@ -191,20 +198,32 @@ def get_dataloader(cfg, name, dataset, split):
             return dataloader
 
         elif 'total_text' in name:
-           if split == 'train':
-               train_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MOEDL.BATCH_SIZE, shuffle=True,
+            if split == 'train':
+                train_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True,
+                                               num_workers=int(cfg.BASE.WORKERS))
+                return train_loader
+            #total_text doesn't need val_data
+            if split == 'val':
+                val_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=False,
+                                               num_workers=int(cfg.BASE.WORKERS))
+                return val_loader
+
+        elif 'LSN_syntext' in name:
+            if split == 'train':
+                train_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=False,
                                               num_workers=int(cfg.BASE.WORKERS))
-               return train_loader
-           #total_text doesn't need val_data
-           if split == 'val':
-               val_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MOEDL.BATCH_SIZE, shuffle=False,
-                                              num_workers=int(cfg.BASE.WORKERS))
-               return val_loader
-           '''
-           if split == 'test':
-               test_loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=cfg.int(cfg.BASE.WORKERS))
-               return  test_loader
+
+                return train_loader
+            if split == 'val':
+                val_loader = torch.utils.data.DataLoader(dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=False,
+                                                        num_workers=int(cfg.BASE.WORKERS))
+                return val_loader
+
             '''
+            if split == 'test':
+                test_loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=cfg.int(cfg.BASE.WORKERS))
+                return  test_loader
+             '''
 
 
     raise RuntimeError("Dataset not available: {}".format(name))

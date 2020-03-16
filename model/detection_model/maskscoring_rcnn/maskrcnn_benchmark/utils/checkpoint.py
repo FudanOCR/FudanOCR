@@ -63,9 +63,9 @@ class Checkpointer(object):
         if "optimizer" in checkpoint and self.optimizer:
             self.logger.info("Loading optimizer from {}".format(f))
             self.optimizer.load_state_dict(checkpoint.pop("optimizer"))
-        if "scheduler" in checkpoint and self.scheduler:
-            self.logger.info("Loading scheduler from {}".format(f))
-            self.scheduler.load_state_dict(checkpoint.pop("scheduler"))
+#         if "scheduler" in checkpoint and self.scheduler:
+#             self.logger.info("Loading scheduler from {}".format(f))
+#             self.scheduler.load_state_dict(checkpoint.pop("scheduler"))
 
         # return any further checkpoint data
         return checkpoint
@@ -126,6 +126,7 @@ class DetectronCheckpointer(Checkpointer):
         if f.startswith("http"):
             # if the file is a url path, download it and cache it
             cached_f = cache_url(f, model_dir=self.cfg.MODEL.PRETRAINED_MODELS)
+            print(self.cfg.MODEL.PRETRAINED_MODELS)
             self.logger.info("url {} cached in {}".format(f, cached_f))
             f = cached_f
         # convert Caffe2 checkpoint from pkl

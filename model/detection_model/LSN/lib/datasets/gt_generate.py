@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import math
 # from lib.datasets.generate_anchors import generate_anchors
-from lib.datasets.proposal_generate import ProposalGenerate
+from model.detection_model.LSN.lib.datasets.proposal_generate import ProposalGenerate
 import pickle
 
 DEBUG = False

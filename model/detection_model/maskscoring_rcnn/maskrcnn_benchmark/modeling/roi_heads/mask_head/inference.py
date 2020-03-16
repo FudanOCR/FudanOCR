@@ -3,8 +3,11 @@ import numpy as np
 import torch
 from torch import nn
 import torch.nn.functional as F
+from skimage.measure import find_contours
+import cv2
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
+from maskrcnn_benchmark.structures.bounding_box import RBoxList
+from maskrcnn_benchmark.engine.extra_utils import rotate_pts
 
 
 # TODO check if want to return a single BoxList or a composite
@@ -26,7 +29,7 @@ class MaskPostProcessor(nn.Module):
 
     def forward(self, x, boxes):
         """
-        Args:
+        Arguments:
             x (Tensor): the mask logits
             boxes (list[BoxList]): bounding boxes that are used as
                 reference, one for ech image
@@ -52,7 +55,7 @@ class MaskPostProcessor(nn.Module):
 
         results = []
         for prob, box in zip(mask_prob, boxes):
-            bbox = BoxList(box.bbox, box.size, mode="xyxy")
+            bbox = RBoxList(box.bbox, box.size, mode="xywha")
             for field in box.fields():
                 bbox.add_field(field, box.get_field(field))
             bbox.add_field("mask", prob)
@@ -89,20 +92,11 @@ class MaskPostProcessorCOCOFormat(MaskPostProcessor):
 # but are kept here for the moment while we need them
 # temporarily gor paste_mask_in_image
 def expand_boxes(boxes, scale):
-    w_half = (boxes[:, 2] - boxes[:, 0]) * .5
-    h_half = (boxes[:, 3] - boxes[:, 1]) * .5
-    x_c = (boxes[:, 2] + boxes[:, 0]) * .5
-    y_c = (boxes[:, 3] + boxes[:, 1]) * .5
+    # boxes: tensor[[x, y, w, h, a]]
+    boxes[:, 2] *= scale
+    boxes[:, 3] *= scale
 
-    w_half *= scale
-    h_half *= scale
-
-    boxes_exp = torch.zeros_like(boxes)
-    boxes_exp[:, 0] = x_c - w_half
-    boxes_exp[:, 2] = x_c + w_half
-    boxes_exp[:, 1] = y_c - h_half
-    boxes_exp[:, 3] = y_c + h_half
-    return boxes_exp
+    return boxes
 
 
 def expand_masks(mask, padding):
@@ -121,11 +115,11 @@ def paste_mask_in_image(mask, box, im_h, im_w, thresh=0.5, padding=1):
     box = expand_boxes(box[None], scale)[0]
     box = box.to(dtype=torch.int32)
 
-    TO_REMOVE = 1
-    w = box[2] - box[0] + TO_REMOVE
-    h = box[3] - box[1] + TO_REMOVE
-    w = max(w, 1)
-    h = max(h, 1)
+    cx = box[0].numpy()
+    cy = box[1].numpy()
+    w = max(box[2].numpy(), 1)
+    h = max(box[3].numpy(), 1)
+    angle = box[4].numpy()
 
     # Set shape to [batchxCxHxW]
     mask = mask.expand((1, 1, -1, -1))
@@ -142,16 +136,44 @@ def paste_mask_in_image(mask, box, im_h, im_w, thresh=0.5, padding=1):
         # allow it to return an unmodified mask
         mask = (mask * 255).to(torch.uint8)
 
-    im_mask = torch.zeros((im_h, im_w), dtype=torch.uint8)
-    x_0 = max(box[0], 0)
-    x_1 = min(box[2] + 1, im_w)
-    y_0 = max(box[1], 0)
-    y_1 = min(box[3] + 1, im_h)
+    # # get mask pts
+    # pts = np.transpose(np.nonzero(mask.numpy()))
+    # if len(pts) == 0:
+    #     pass
+    # pts = np.fliplr(pts).astype(np.int32)
+    #
+    # # rotate pts
+    # rotated_pts = pts.copy()
+    # rotated_pts[:, 0] += cx - int(w/2)
+    # rotated_pts[:, 1] += cy - int(h/2)
+    # rotated_pts = rotate_pts(rotated_pts.tolist(), (cx, cy), angle)
+    #
+    # im_mask = torch.zeros((im_h, im_w), dtype=torch.uint8)
+    #
+    # for (pt_x, pt_y), (rpt_x, rpt_y) in zip(pts, rotated_pts):
+    #     if 0 <= rpt_x < im_w and 0 <= rpt_y < im_h:
+    #         im_mask[rpt_y, rpt_x] = mask[pt_y, pt_x]
+    #
+    # return im_mask
 
-    im_mask[y_0:y_1, x_0:x_1] = mask[
-        (y_0 - box[1]) : (y_1 - box[1]), (x_0 - box[0]) : (x_1 - box[0])
-    ]
-    return im_mask
+    # get mask contour
+    padded_mask = np.zeros((mask.shape[0] + 2, mask.shape[1] + 2), dtype=np.uint8)
+    padded_mask[1:-1, 1:-1] = mask
+    contours = find_contours(padded_mask, thresh)
+    im_mask = np.zeros((im_h, im_w), dtype=np.uint8)
+    if len(contours) > 0:
+        poly = np.fliplr(contours[0]).astype(np.int32)
+
+        # rotate poly
+        rotated_poly = poly.copy()
+        rotated_poly[:, 0] += int(cx - w/2)
+        rotated_poly[:, 1] += int(cy - h/2)
+        rotated_poly = rotate_pts(rotated_poly.tolist(), (cx, cy), angle)
+
+        # get rotated mask
+        cv2.fillPoly(im_mask, [rotated_poly], 1)
+
+    return torch.from_numpy(im_mask)
 
 
 class Masker(object):
@@ -165,7 +187,6 @@ class Masker(object):
         self.padding = padding
 
     def forward_single_image(self, masks, boxes):
-        boxes = boxes.convert("xyxy")
         im_w, im_h = boxes.size
         res = [
             paste_mask_in_image(mask[0], box, im_h, im_w, self.threshold, self.padding)
@@ -178,7 +199,7 @@ class Masker(object):
         return res
 
     def __call__(self, masks, boxes):
-        if isinstance(boxes, BoxList):
+        if isinstance(boxes, RBoxList):
             boxes = [boxes]
 
         # Make some sanity check

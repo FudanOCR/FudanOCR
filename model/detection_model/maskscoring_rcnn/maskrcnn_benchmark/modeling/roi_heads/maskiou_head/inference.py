@@ -6,7 +6,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
+from maskrcnn_benchmark.structures.bounding_box import RBoxList
 
 
 # TODO get the predicted maskiou and mask score.
@@ -25,7 +25,7 @@ class MaskIoUPostProcessor(nn.Module):
         maskious = [maskious]
         results = []
         for maskiou, box in zip(maskious, boxes):
-            bbox = BoxList(box.bbox, box.size, mode="xyxy")
+            bbox = RBoxList(box.bbox, box.size, mode="xywha")
             for field in box.fields():
                 bbox.add_field(field, box.get_field(field))
             bbox_scores = bbox.get_field("scores")

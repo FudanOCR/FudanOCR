@@ -2,12 +2,12 @@
 # Wriiten by zhaojin.huang, 2018-12.
 
 import torch
-from torch.nn import functional as F
+# from torch.nn import functional as F
 
-from maskrcnn_benchmark.layers import l2_loss
-from maskrcnn_benchmark.modeling.matcher import Matcher
-from maskrcnn_benchmark.structures.boxlist_ops import boxlist_iou
-from maskrcnn_benchmark.modeling.utils import cat
+from maskrcnn_benchmark.layers.l2_loss import l2_loss
+# from maskrcnn_benchmark.modeling.matcher import Matcher
+# from maskrcnn_benchmark.structures.boxlist_ops import boxlist_iou
+# from maskrcnn_benchmark.modeling.utils import cat
 
 
 class MaskIoULossComputation(object):

@@ -3,6 +3,7 @@ import logging
 import pickle
 from collections import OrderedDict
 
+import numpy as np
 import torch
 
 from maskrcnn_benchmark.utils.model_serialization import load_state_dict
@@ -109,7 +110,9 @@ def _rename_weights_for_resnet(weights, stage_names):
             continue
         # if 'fc1000' in k:
         #     continue
-        w = torch.from_numpy(v)
+        if type(v)==np.ndarray:
+            w = torch.from_numpy(v)
+        #v = np.array(v)
         # if "bn" in k:
         #     w = w.view(1, -1, 1, 1)
         logger.info("C2 name: {: <{}} mapped name: {}".format(k, max_c2_key_size, key_map[k]))

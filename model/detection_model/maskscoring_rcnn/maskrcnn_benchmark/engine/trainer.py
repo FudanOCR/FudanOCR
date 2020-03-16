@@ -5,6 +5,7 @@ import time
 
 import torch
 from torch.distributed import deprecated as dist
+import torchvision.utils as vutils
 
 from maskrcnn_benchmark.utils.comm import get_world_size
 from maskrcnn_benchmark.utils.metric_logger import MetricLogger
@@ -41,8 +42,10 @@ def do_train(
     optimizer,
     scheduler,
     checkpointer,
+    summary_writer,
     device,
     checkpoint_period,
+    summary_period,
     arguments,
 ):
     logger = logging.getLogger("maskrcnn_benchmark.trainer")
@@ -55,7 +58,6 @@ def do_train(
     end = time.time()
     for iteration, (images, targets, _) in enumerate(data_loader, start_iter):
         data_time = time.time() - end
-        iteration = iteration + 1
         arguments["iteration"] = iteration
 
         scheduler.step()
@@ -102,6 +104,20 @@ def do_train(
             )
         if iteration % checkpoint_period == 0:
             checkpointer.save("model_{:07d}".format(iteration), **arguments)
+
+        if iteration % summary_period == 0:
+            summary_writer.add_image('input_image', vutils.make_grid(images.tensors[:, [2, 1, 0]], normalize=True), iteration)
+            summary_writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], iteration)
+            summary_writer.add_scalar('model/loss_rpn_box_reg', loss_dict_reduced['loss_rpn_box_reg'].item(), iteration)
+            summary_writer.add_scalar('model/loss_mask', loss_dict_reduced['loss_mask'].item(), iteration)
+            summary_writer.add_scalar('model/loss_box_reg', loss_dict_reduced['loss_box_reg'].item(), iteration)
+            summary_writer.add_scalar('model/loss_classifier', loss_dict_reduced['loss_classifier'].item(), iteration)
+            if 'loss_maskiou' in loss_dict_reduced:
+                summary_writer.add_scalar('model/loss_maskiou', loss_dict_reduced['loss_maskiou'].item(), iteration)
+            summary_writer.add_scalar('model/loss_objectness', loss_dict_reduced['loss_objectness'].item(), iteration)
+            summary_writer.add_scalar('model/loss', losses_reduced.item(), iteration)
+
+        iteration = iteration + 1
 
     checkpointer.save("model_{:07d}".format(iteration), **arguments)
     total_training_time = time.time() - start_training_time

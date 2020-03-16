@@ -350,7 +350,7 @@ class Trainer(object):
             while iteration < len(self.train_loader):
 
                 '''检查该迭代周期是否需要保存或验证'''
-                self.checkSaveOrVal(epoch, iteration)
+                # self.checkSaveOrVal(epoch, iteration)
 
                 data = train_iter.next()
 

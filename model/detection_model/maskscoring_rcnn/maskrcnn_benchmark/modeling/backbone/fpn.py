@@ -2,7 +2,7 @@
 import torch
 import torch.nn.functional as F
 from torch import nn
-
+from .TCM import tcm
 
 class FPN(nn.Module):
     """
@@ -13,7 +13,7 @@ class FPN(nn.Module):
 
     def __init__(self, in_channels_list, out_channels, top_blocks=None):
         """
-        Args:
+        Arguments:
             in_channels_list (list[int]): number of channels for each feature map that
                 will be fed
             out_channels (int): number of channels of the FPN representation
@@ -28,8 +28,9 @@ class FPN(nn.Module):
             inner_block = "fpn_inner{}".format(idx)
             layer_block = "fpn_layer{}".format(idx)
             inner_block_module = nn.Conv2d(in_channels, out_channels, 1)
+#             layer_block_module = tcm(out_channels)
             layer_block_module = nn.Conv2d(out_channels, out_channels, 3, 1, 1)
-            for module in [inner_block_module, layer_block_module]:
+            for module in [inner_block_module]:
                 # Caffe2 implementation uses XavierFill, which in fact
                 # corresponds to kaiming_uniform_ in PyTorch
                 nn.init.kaiming_uniform_(module.weight, a=1)
@@ -42,7 +43,7 @@ class FPN(nn.Module):
 
     def forward(self, x):
         """
-        Args:
+        Arguments:
             x (list[Tensor]): feature maps for each feature level.
         Returns:
             results (tuple[Tensor]): feature maps after FPN layers.

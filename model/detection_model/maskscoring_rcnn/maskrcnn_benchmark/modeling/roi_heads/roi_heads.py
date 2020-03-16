@@ -4,6 +4,8 @@ import torch
 from .box_head.box_head import build_roi_box_head
 from .mask_head.mask_head import build_roi_mask_head
 from .maskiou_head.maskiou_head import build_roi_maskiou_head
+from .textsnake_heads.textsnake_head import build_roi_textsnake_head
+
 
 class CombinedROIHeads(torch.nn.ModuleDict):
     """
@@ -16,6 +18,8 @@ class CombinedROIHeads(torch.nn.ModuleDict):
         self.cfg = cfg.clone()
         if cfg.MODEL.MASK_ON and cfg.MODEL.ROI_MASK_HEAD.SHARE_BOX_FEATURE_EXTRACTOR:
             self.mask.feature_extractor = self.box.feature_extractor
+        elif cfg.MODEL.TEXTSNAKE_ON and cfg.MODEL.ROI_TEXTSNAKE_HEAD.SHARE_BOX_FEATURE_EXTRACTOR:
+            self.textsnake.feature_extractor = self.box.feature_extractor
 
     def forward(self, features, proposals, targets=None):
         losses = {}
@@ -39,7 +43,27 @@ class CombinedROIHeads(torch.nn.ModuleDict):
             else:
                 x, detections, loss_mask, roi_feature, selected_mask, labels, maskiou_targets = self.mask(mask_features, detections, targets)
                 losses.update(loss_mask)
-                
+
+                loss_maskiou, detections = self.maskiou(roi_feature, detections, selected_mask, labels, maskiou_targets)
+                losses.update(loss_maskiou)
+        elif self.cfg.MODEL.TEXTSNAKE_ON:
+            mask_features = features
+            # optimization: during training, if we share the feature extractor between
+            # the box and the mask heads, then we can reuse the features already computed
+            if (
+                self.training
+                and self.cfg.MODEL.ROI_TEXTSNAKE_HEAD.SHARE_BOX_FEATURE_EXTRACTOR
+            ):
+                mask_features = x
+            # During training, self.box() will return the unaltered proposals as "detections"
+            # this makes the API consistent during training and testing
+            if not self.cfg.MODEL.MASKIOU_ON:
+                x, detections, loss_mask = self.textsnake(mask_features, detections, targets)
+                losses.update(loss_mask)
+            else:
+                x, detections, loss_mask, roi_feature, selected_mask, labels, maskiou_targets = self.textsnake(mask_features, detections, targets)
+                losses.update(loss_mask)
+
                 loss_maskiou, detections = self.maskiou(roi_feature, detections, selected_mask, labels, maskiou_targets)
                 losses.update(loss_maskiou)
         return x, detections, losses
@@ -53,6 +77,10 @@ def build_roi_heads(cfg):
         roi_heads.append(("box", build_roi_box_head(cfg)))
     if cfg.MODEL.MASK_ON:
         roi_heads.append(("mask", build_roi_mask_head(cfg)))
+        if cfg.MODEL.MASKIOU_ON:
+            roi_heads.append(("maskiou", build_roi_maskiou_head(cfg)))
+    elif cfg.MODEL.TEXTSNAKE_ON:
+        roi_heads.append(("textsnake", build_roi_textsnake_head(cfg)))
         if cfg.MODEL.MASKIOU_ON:
             roi_heads.append(("maskiou", build_roi_maskiou_head(cfg)))
     # combine individual heads in a single module

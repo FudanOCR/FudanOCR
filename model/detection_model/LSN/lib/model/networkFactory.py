@@ -11,7 +11,6 @@ import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
 import logging
-from config.config import config
 logging.basicConfig(level=logging.WARNING,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d]: %(message)s')
 
@@ -437,13 +436,13 @@ class ResNet34(nn.Module):
 
 
 class ResNet50(nn.Module):
-    def __init__(self,modelRoot):
+    def __init__(self,cfg):
         super(ResNet50,self).__init__()
         #Init Model Structure
         # print(vgg16)
         print('resnet50')
         resnet = models.resnet50(pretrained = False)
-        resnet.load_state_dict(torch.load(modelRoot+'/'+'resnet50.pth'))
+        # resnet.load_state_dict(torch.load(cfg.LSN.modelPath))
         modules = list(resnet.children())[:-2]
         
         self.RCNN_base  = nn.Sequential(*modules)
@@ -505,7 +504,7 @@ class ResNet50(nn.Module):
         self._init_weights()
 
 
-    def forward(self,x,all_circle,gt_labels,istraining = True,threshold=0.5,testMaxNum=100):
+    def forward(self,x, all_circle,  gt_labels, istraining = True,threshold=0.5,testMaxNum=100):
         concate_conv = {}
         # print(x.size())
         circle_cls = {8:self.stride8_circle_cls,16:self.stride16_circle_cls,32:self.stride32_circle_cls,64:self.stride64_circle_cls}

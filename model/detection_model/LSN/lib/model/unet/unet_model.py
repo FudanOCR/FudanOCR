@@ -10,8 +10,8 @@ import torch.nn.functional as F
 import logging
 
 # python 3 confusing imports :(
-from lib.model.unet.unet_parts import *
-from ..roi_align.modules.roi_align import RoIAlign
+from model.detection_model.LSN.lib.model.unet.unet_parts import *
+from model.detection_model.LSN.lib.model.roi_align.modules.roi_align import RoIAlign
 
 class UNet(nn.Module):
     def __init__(self, n_channels, n_classes=1):

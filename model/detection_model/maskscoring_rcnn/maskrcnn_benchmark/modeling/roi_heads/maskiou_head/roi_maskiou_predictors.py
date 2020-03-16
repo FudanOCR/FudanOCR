@@ -2,10 +2,10 @@
 # Wriiten by zhaojin.huang, 2018-12.
 
 from torch import nn
-from torch.nn import functional as F
+# from torch.nn import functional as F
 
-from maskrcnn_benchmark.layers import Conv2d
-from maskrcnn_benchmark.layers import ConvTranspose2d
+# from maskrcnn_benchmark.layers import Conv2d
+# from maskrcnn_benchmark.layers import ConvTranspose2d
 
 
 class MaskIoUPredictor(nn.Module):

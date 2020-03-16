@@ -4,9 +4,9 @@ import numpy as np
 import math
 import pickle
 from scipy import interpolate  
-from lib.datasets.generate_anchors import generate_anchors
-from lib.model.utils.cython_bbox import bbox_overlaps
-from lib.datasets.bbox_transform import bbox_transform,bbox_transform_inv
+from model.detection_model.LSN.lib.datasets.generate_anchors import generate_anchors
+from model.detection_model.LSN.lib.model.utils.cython_bbox import bbox_overlaps
+from model.detection_model.LSN.lib.datasets.bbox_transform import bbox_transform,bbox_transform_inv
 import numpy.random as npr
 import time
 import warnings

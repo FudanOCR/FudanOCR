@@ -21,8 +21,7 @@ from utils.average import averager
 from utils.Pascal_VOC import eval_func
 from utils.AverageMeter import AverageMeter
 from utils.downloadCallback import callbackfunc
-from utils.imageVisualize import wrong_gt_predict
-from utils.imageVisualize import saveByOrder
+from utils.imageVisualize import visualize
 
 
 
@@ -223,7 +222,7 @@ class Trainer(object):
 
 
 
-            for pred, target in zip(preds, targets):
+            for image, pred, target in zip(data[0],preds, targets):
                 # print(pred,target)
                 if pred.lower() == target.lower():
                     n_correct += 1
@@ -235,7 +234,7 @@ class Trainer(object):
                 # wrong_gt_predict(target, pred, cnt, self.opt)
 
                 if self.opt.FUNCTION.VAL_ONLY:
-                    saveByOrder(data[0], target, pred,self.opt)
+                    visualize(image, target, pred,cnt,self.opt)
                 # wrong_gt_predict(target, pred, cnt, self.opt)
 
                 '''利用logger工具将结果记录于文件夹中'''
@@ -263,6 +262,9 @@ class Trainer(object):
         print('levenshtein distance: %f' % (distance / n_total))
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
         self.setModelState('train')
+
+        '''结束可视化工作'''
+        visualize(opt=self.opt,finish=True)
 
         return accuracy
 

@@ -28,13 +28,20 @@ def saveByOrder_beifen(image,opt):
 
     # print("Finish!")
 
-def saveByOrder(image,target, pred,opt):
+def visualize(img='',target='', pred='',cnt='',opt='',finish=False):
 
     address = './Visualization'
     if opt.BASE.EXPERIMENT_NAME != '':
         address = address + '_' + opt.BASE.EXPERIMENT_NAME
 
     if opt.VISUALIZE.RECOGNITION_VISUALIZE != True or opt.FUNCTION.VAL_ONLY != True:
+        return
+
+    if finish:
+        f = open(os.path.join(address , 'file.txt'),'w+',encoding='utf8')
+        for file in os.listdir(address):
+            f.write(file+'\n')
+        f.close()
         return
 
     # print("Start Visualize")
@@ -44,11 +51,11 @@ def saveByOrder(image,target, pred,opt):
     except:
         pass
 
-    global cnt
-    for img in image:
-        img = img.permute(1,2,0)
-        cv2.imwrite(os.path.join(address+"_wrong/{0}_{1}_{2}.jpg".format(str(cnt),target, pred+ '.jpg'), (img.numpy() + 1) * 128))
-        cnt += 1
+    # global cnt
+
+    img = img.permute(1,2,0)
+    print("可视化路径：", address+"/{0}_{1}_{2}.jpg".format(str(cnt),target, pred))
+    cv2.imwrite(address+"/{0}_{1}_{2}.jpg".format(str(cnt),target, pred), (img.numpy() + 1) * 128)
 
     # print("Finish!")
 

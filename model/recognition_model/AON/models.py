@@ -13,8 +13,26 @@ def flip(x, dim):
                                 dtype=torch.long, device=x.device)
     return x[tuple(indices)]
 
-
 class BLSTM(nn.Module):
+    '''双向循环神经网络'''
+
+    def __init__(self, nIn, nHidden, nOut):
+        nn.Module.__init__(self)
+
+        self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True, dropout=0.3)
+        self.linear = nn.Linear(nHidden * 2, nOut)
+
+    def forward(self, input):
+        '''The size of input must be [T,B,C]'''
+        T, B, C = input.size()
+        result, _ = self.rnn(input)
+        result = result.view(T * B, -1)
+        result = self.linear(result)
+        result = result.view(T, B, -1)
+        return result
+
+
+class BLSTM2(nn.Module):
     '''双向循环神经网络'''
 
     def __init__(self, nIn, nHidden):
@@ -63,14 +81,17 @@ class ClueNet(nn.Module):
         )
         self.linear1 = nn.Linear(64, 23)
         self.linear2 = nn.Linear(512, 4)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
         batch_size = x.size(0)
         x = self.cluenet(x)
         x = x.view(-1, 64)
         x = self.linear1(x)
+        x = self.relu(x)
         x = x.view(-1, 512)
         x = self.linear2(x)
+        x = self.relu(x)
         x = x.view(-1,4, 23)
         x = F.softmax(x, 1)
         return x
@@ -289,6 +310,14 @@ class AON(nn.Module):
         self.multidirectionnet = MultiDirectionNet()
         self.fg = FG()
         self.decoder = Decoder(self.opt)
+
+        print("Initializing cnn net weights...")
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                init.kaiming_normal_(m.weight.data)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
 
     def forward(self, image, text_length, text,text_rev,test=False):
         '''BCNN part'''

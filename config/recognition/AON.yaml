@@ -3,10 +3,10 @@ BASE:
   MODEL: 'AON'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '0,'
+  GPU_ID: '3,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'AON_800w_IC13'
+  EXPERIMENT_NAME:  'AON_800w_IC13_调整bn和relu位置'
 
 DATASETS:
   DATASET: 'DatasetName*'

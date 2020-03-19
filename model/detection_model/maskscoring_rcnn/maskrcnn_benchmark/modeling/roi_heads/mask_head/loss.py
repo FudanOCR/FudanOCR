@@ -5,8 +5,10 @@ import pycocotools.mask as mask_util
 
 from maskrcnn_benchmark.layers import smooth_l1_loss
 from maskrcnn_benchmark.modeling.matcher import Matcher
-from maskrcnn_benchmark.structures.boxlist_ops import boxlist_iou
+from maskrcnn_benchmark.structures.rboxlist_ops import boxlist_iou
 from maskrcnn_benchmark.modeling.utils import cat
+from maskrcnn_benchmark.engine.extra_utils import xywha_to_xyxy, rotate_pts
+from maskrcnn_benchmark.structures.segmentation_mask import Polygons
 import numpy as np
 
 def project_masks_on_boxes(segmentation_masks, proposals, discretization_size, maskiou_on):
@@ -17,7 +19,7 @@ def project_masks_on_boxes(segmentation_masks, proposals, discretization_size, m
     boxes. This prepares the masks for them to be fed to the
     loss computation as the targets. If use maskiou head, we will compute the maskiou target here.
 
-    Args:
+    Arguments:
         segmentation_masks: an instance of SegmentationMask
         proposals: an instance of BoxList
     """
@@ -25,7 +27,10 @@ def project_masks_on_boxes(segmentation_masks, proposals, discretization_size, m
     mask_ratios = []
     M = discretization_size
     device = proposals.bbox.device
-    proposals = proposals.convert("xyxy")
+    im_width, im_height = proposals.size
+
+    # proposals = proposals.convert("xyxy")
+
     assert segmentation_masks.size == proposals.size, "{}, {}".format(
         segmentation_masks, proposals
     )
@@ -33,33 +38,61 @@ def project_masks_on_boxes(segmentation_masks, proposals, discretization_size, m
     # masks is not efficient GPU-wise (possibly several small tensors for
     # representing a single instance mask)
     proposals = proposals.bbox.to(torch.device("cpu"))
+
     for segmentation_mask, proposal in zip(segmentation_masks, proposals):
+        # # debug
+        # print(segmentation_mask.polygons)
+        # print(proposal)
+        # from maskrcnn_benchmark.engine.extra_utils import xywha_to_xyxy
+        # import cv2
+        # cv_img = cv2.imread('/workspace/mnt/group/ocr/qiutairu/dataset/LSVT_full_train/demo_images/gt_102.jpg')
+        # for proposal in proposals:
+        #     xc, yc, w, h, a = proposal.numpy()
+        #     pts = xywha_to_xyxy((xc, yc, w, h, a))
+        #     cv2.polylines(cv_img, [pts], True, (0, 255, 0), 2)
+        #
+        # for mask in segmentation_masks:
+        #     pts = mask.polygons[0].numpy().astype(np.int32).reshape(-1, 2)
+        #     cv2.polylines(cv_img, [pts], True, (0, 0, 255), 1)
+        #
+        # cv2.imwrite('debug_mask.jpg', cv_img)
+
+        # rotate_bbox -> horizon_bbox (as angle = 0)
+        xc, yc, w, h, angle = proposal.numpy()
+        x_min = int(xc - w/2)
+        y_min = int(yc - h/2)
+        x_max = int(xc + w/2)
+        y_max = int(yc + h/2)
+        # rotate_mask -> horizon_mask (rotate every point in degree of -angle)
+        new_contour = rotate_pts(segmentation_mask.polygons[0].numpy().astype(np.int32).reshape(-1, 2).tolist(),
+                                 (xc, yc), -angle)
+        horizon_mask = Polygons([torch.from_numpy(new_contour.reshape(-1))],
+                                size=segmentation_mask.size, mode=segmentation_mask.mode)
         # crop the masks, resize them to the desired resolution and
         # then convert them to the tensor representation,
         # instead of the list representation that was used
-        cropped_mask = segmentation_mask.crop(proposal)
+        cropped_mask = horizon_mask.crop([x_min, y_min, x_max, y_max])
         scaled_mask = cropped_mask.resize((M, M))
         mask = scaled_mask.convert(mode="mask")
         masks.append(mask)
         if maskiou_on:
-            
-            x1 = int(proposal[0])
-            y1 = int(proposal[1])
-            x2 = int(proposal[2]) + 1
-            y2 = int(proposal[3]) + 1
-            for poly_ in segmentation_mask.polygons:
+            x1 = x_min
+            y1 = y_min
+            x2 = x_max + 1
+            y2 = y_max + 1
+            for poly_ in horizon_mask.polygons:
                 poly = np.array(poly_, dtype=np.float32)
                 x1 = np.minimum(x1, poly[0::2].min())
                 x2 = np.maximum(x2, poly[0::2].max())
                 y1 = np.minimum(y1, poly[1::2].min())
                 y2 = np.maximum(y2, poly[1::2].max())
-            img_h = segmentation_mask.size[1]
-            img_w = segmentation_mask.size[0]
+            img_h = horizon_mask.size[1]
+            img_w = horizon_mask.size[0]
             x1 = np.maximum(x1, 0)
             x2 = np.minimum(x2, img_w-1)
             y1 = np.maximum(y1, 0)
             y2 = np.minimum(y2, img_h-1)
-            segmentation_mask_for_maskratio =  segmentation_mask.crop([x1, y1, x2, y2])
+            segmentation_mask_for_maskratio = horizon_mask.crop([x1, y1, x2, y2])
             ''' 
             #type 1
             gt_img_mask = segmentation_mask_for_maskratio.convert(mode='mask')    
@@ -71,10 +104,9 @@ def project_masks_on_boxes(segmentation_masks, proposals, discretization_size, m
             #type 2
             rle_for_fullarea = mask_util.frPyObjects([p.numpy() for p in segmentation_mask_for_maskratio.polygons], y2-y1, x2-x1)
             full_area = torch.tensor(mask_util.area(rle_for_fullarea).sum().astype(float))
-            rle_for_box_area = mask_util.frPyObjects([p.numpy() for p in cropped_mask.polygons], proposal[3]-proposal[1], proposal[2]-proposal[0])
+            rle_for_box_area = mask_util.frPyObjects([p.numpy() for p in cropped_mask.polygons], y_max-y_min, x_max-x_min)
             box_area = torch.tensor(mask_util.area(rle_for_box_area).sum().astype(float))
             mask_ratio = box_area / full_area
-            
             mask_ratios.append(mask_ratio)
     if maskiou_on:
         mask_ratios = torch.stack(mask_ratios, dim=0).to(device, dtype=torch.float32)
@@ -87,7 +119,7 @@ def project_masks_on_boxes(segmentation_masks, proposals, discretization_size, m
 class MaskRCNNLossComputation(object):
     def __init__(self, proposal_matcher, discretization_size, maskiou_on):
         """
-        Args:
+        Arguments:
             proposal_matcher (Matcher)
             discretization_size (int)
         """
@@ -145,12 +177,12 @@ class MaskRCNNLossComputation(object):
 
     def __call__(self, proposals, mask_logits, targets):
         """
-        Args:
+        Arguments:
             proposals (list[BoxList])
             mask_logits (Tensor)
             targets (list[BoxList])
 
-        Returns:
+        Return:
             mask_loss (Tensor): scalar tensor containing the loss
             If we use maskiou head, we will return extra feature for maskiou head.
         """
@@ -179,7 +211,7 @@ class MaskRCNNLossComputation(object):
             value_eps = 1e-10 * torch.ones(mask_targets.shape[0], device=labels.device)
             mask_ratios = torch.max(mask_ratios, value_eps)
             pred_masks = mask_logits[positive_inds, labels_pos]
-            pred_masks[:] = pred_masks > 0
+            pred_masks[:] = pred_masks > 0.5
             mask_targets_full_area = mask_targets.sum(dim=[1,2]) / mask_ratios
             mask_ovr = pred_masks * mask_targets
             mask_ovr_area = mask_ovr.sum(dim=[1,2])

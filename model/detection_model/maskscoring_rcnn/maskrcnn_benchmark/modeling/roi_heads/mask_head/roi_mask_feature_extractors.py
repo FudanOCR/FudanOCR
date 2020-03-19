@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from ..box_head.roi_box_feature_extractors import ResNet50Conv5ROIFeatureExtractor
-from maskrcnn_benchmark.modeling.poolers import Pooler
+from maskrcnn_benchmark.modeling.poolers import PyramidRROIAlign
 from maskrcnn_benchmark.layers import Conv2d
 
 
@@ -14,7 +14,7 @@ class MaskRCNNFPNFeatureExtractor(nn.Module):
 
     def __init__(self, cfg):
         """
-        Args:
+        Arguments:
             num_classes (int): number of output classes
             input_size (int): number of channels of the input once it's flattened
             representation_size (int): size of the intermediate representation
@@ -24,10 +24,14 @@ class MaskRCNNFPNFeatureExtractor(nn.Module):
         resolution = cfg.MODEL.ROI_MASK_HEAD.POOLER_RESOLUTION
         scales = cfg.MODEL.ROI_MASK_HEAD.POOLER_SCALES
         sampling_ratio = cfg.MODEL.ROI_MASK_HEAD.POOLER_SAMPLING_RATIO
-        pooler = Pooler(
+        # pooler = Pooler(
+        #     output_size=(resolution, resolution),
+        #     scales=scales,
+        #     sampling_ratio=sampling_ratio,
+        # )
+        pooler = PyramidRROIAlign(
             output_size=(resolution, resolution),
             scales=scales,
-            sampling_ratio=sampling_ratio,
         )
         input_size = cfg.MODEL.BACKBONE.OUT_CHANNELS
         self.pooler = pooler

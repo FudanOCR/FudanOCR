@@ -1,0 +1,79 @@
+BASE:
+  MODEL: 'LSN'
+  TYPE: 'D'
+  NUM_GPUS: 1
+  GPU_ID: '3,'
+  WORKERS: 4
+  CUDA: True
+  EXPERIMENT_NAME:  'LSN'
+
+DATASETS:
+  DATASET: 'ICDAR15'
+  TYPE: 'LSN_syntext'
+ADDRESS:
+  ALPHABET: ''
+  TRAIN_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR15/Text_Localization/train/image'
+  TRAIN_GT_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR15/Text_Localization/train/gt'
+  VAL_DATA_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR15/Text_Localization/val/image'
+  VAL_GT_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR15/Text_Localization/val/gt'
+  TEST_DATA_DIR: ''
+  TEST_GT_DIR: ''
+  GT_JSON_DIR: '/home/shf/fudan_ocr_system/datasets/ICDAR15/Text_Localization/val/test_label.json'
+  CHECKPOINTS_DIR: './Checkpoints/'
+  PRETRAIN_MODEL_DIR: ''
+  #'/home/shf/fudan_ocr_system/LSN/pretrainmodel/resnet50.pth'
+  DET_RESULT_DIR: './Output/'
+  CACHE_DIR: ''
+  LOGGER_DIR: './Logger/'
+
+IMAGE:
+  IMG_H: 32
+  IMG_W: 100
+  IMG_CHANNEL: 1
+
+FUNCTION:
+  VAL_ONLY: False
+  FINETUNE: False
+
+MODEL:
+  EPOCH: 100000
+  BATCH_SIZE: 1
+  LR: 0.0001
+  OPTIMIZER: 'Adam'
+  LOSS: 'CrossEntropyLoss'
+  DYNAMIC_LR: False
+
+THRESHOLD:
+  MAXSIZE: 100
+  MINSIZE: 1
+  TEXT_SCALE: 75
+  IOU_THRESHOLD: 0.5
+
+FREQ:
+  SAVE_FREQ: 3000
+  SHOW_FREQ: 100
+  VAL_FREQ: 1000
+
+VISUALIZE:
+  #the tag to indentify log file, starts with 'Logger/'
+  TAG: 'Logger/runs/exp-1'
+
+targetH: 32
+targetW: 100
+BidirDecoder: True
+inputDataType: 'torch.cuda.FloatTensor'
+maxBatch: 256
+
+LSN:
+  net: 'resnet50'
+  data: 'icdar' #synthtext
+  filename: 'config'
+
+  bbox: '/home/shf/fudan_ocr_system/LSN/lib/model/utils/bbox.pyx'
+  modelPath: '/home/shf/fudan_ocr_system/LSN/pretrainmodel/resnet50.pth'
+
+  strides: [8,16,32,64]
+  steps: [1000]
+  decayRate: 0.1
+  snapshot: 5
+  resize_type: 'normal'

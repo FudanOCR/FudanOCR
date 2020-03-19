@@ -24,6 +24,7 @@ _C.MODEL = CN()
 _C.MODEL.RPN_ONLY = False
 _C.MODEL.MASK_ON = False
 _C.MODEL.MASKIOU_ON = False
+_C.MODEL.TEXTSNAKE_ON = False
 _C.MODEL.DEVICE = "cuda"
 _C.MODEL.META_ARCHITECTURE = "GeneralizedRCNN"
 _C.MODEL.MASKIOU_LOSS_WEIGHT = 1.0
@@ -38,19 +39,21 @@ _C.MODEL.PRETRAINED_MODELS = "pretrained_models"
 # -----------------------------------------------------------------------------
 _C.INPUT = CN()
 # Size of the smallest side of the image during training
-_C.INPUT.MIN_SIZE_TRAIN = 800  # (800,)
+_C.INPUT.MIN_SIZE_TRAIN = 800
 # Maximum size of the side of the image during training
-_C.INPUT.MAX_SIZE_TRAIN = 1333
+_C.INPUT.MAX_SIZE_TRAIN = 1600
 # Size of the smallest side of the image during testing
-_C.INPUT.MIN_SIZE_TEST = 800
+_C.INPUT.MIN_SIZE_TEST = 1000
 # Maximum size of the side of the image during testing
-_C.INPUT.MAX_SIZE_TEST = 1333
-# Values to be used for image normalization
-_C.INPUT.PIXEL_MEAN = [102.9801, 115.9465, 122.7717]
-# Values to be used for image normalization
-_C.INPUT.PIXEL_STD = [1., 1., 1.]
+_C.INPUT.MAX_SIZE_TEST = 1600
+# Values to be used for image normalization (bgr)
+_C.INPUT.PIXEL_MEAN = [120.7496, 113.4816, 106.4845]
+# Values to be used for image normalization (bgr)
+_C.INPUT.PIXEL_STD = [0.2436, 0.2375, 0.2376]
 # Convert image to BGR format (for Caffe2 models), in range 0-255
 _C.INPUT.TO_BGR255 = True
+# ROTATION_RANGE:(range, shift) -> negtive value for right shift, the opposite is left
+_C.INPUT.ROTATION_RANGE = (360, 0)
 
 
 # -----------------------------------------------------------------------------
@@ -93,6 +96,26 @@ _C.MODEL.BACKBONE.OUT_CHANNELS = 256 * 4
 
 
 # ---------------------------------------------------------------------------- #
+# FPN options
+# ---------------------------------------------------------------------------- #
+_C.MODEL.FPN = CN()
+_C.MODEL.FPN.USE_GN = False
+_C.MODEL.FPN.USE_RELU = False
+
+
+# ---------------------------------------------------------------------------- #
+# Group Norm options
+# ---------------------------------------------------------------------------- #
+_C.MODEL.GROUP_NORM = CN()
+# Number of dimensions per group in GroupNorm (-1 if using NUM_GROUPS)
+_C.MODEL.GROUP_NORM.DIM_PER_GP = -1
+# Number of groups in GroupNorm (-1 if using DIM_PER_GP)
+_C.MODEL.GROUP_NORM.NUM_GROUPS = 32
+# GroupNorm's small constant in the denominator
+_C.MODEL.GROUP_NORM.EPSILON = 1e-5
+
+
+# ---------------------------------------------------------------------------- #
 # RPN options
 # ---------------------------------------------------------------------------- #
 _C.MODEL.RPN = CN()
@@ -101,9 +124,9 @@ _C.MODEL.RPN.USE_FPN = False
 _C.MODEL.RPN.ANCHOR_SIZES = (32, 64, 128, 256, 512)
 # Stride of the feature map that RPN is attached.
 # For FPN, number of strides should match number of scales
-_C.MODEL.RPN.ANCHOR_STRIDE = (4, 8, 16, 32, 64)
+_C.MODEL.RPN.ANCHOR_STRIDE = (2,)
 # RPN anchor aspect ratios
-_C.MODEL.RPN.ASPECT_RATIOS = (0.5, 1.0, 2.0)
+_C.MODEL.RPN.ASPECT_RATIOS = (0.2, 0.5, 1.0, 2.0, 5.0)
 # Remove RPN anchors that go outside the image by RPN_STRADDLE_THRESH pixels
 # Set to -1 or a large value, e.g. 100000, to disable pruning anchors
 _C.MODEL.RPN.STRADDLE_THRESH = 0
@@ -140,6 +163,19 @@ _C.MODEL.RPN.RPN_HEAD = "SingleConvRPNHead"
 
 
 # ---------------------------------------------------------------------------- #
+# RRPN options
+# ---------------------------------------------------------------------------- #
+_C.MODEL.RRPN = CN()
+_C.MODEL.RRPN.ANCHOR_SIZES = (32, 64, 128, 256, 512)
+_C.MODEL.RRPN.ASPECT_RATIOS = (0.2, 0.5, 1.0, 2.0, 5.0)
+_C.MODEL.RRPN.ANCHOR_STRIDE = (4, 8, 16, 32, 64)
+_C.MODEL.RRPN.ANCHOR_ANGLE = (-30.0, 0.0, 30.0, 60.0, 90.0, 120.0,)
+_C.MODEL.RRPN.STRADDLE_THRESH = -1
+_C.MODEL.RRPN.GT_BOX_MARGIN = 1.4
+_C.MODEL.EDGE_PUNISHED = False
+
+
+# ---------------------------------------------------------------------------- #
 # ROI HEADS options
 # ---------------------------------------------------------------------------- #
 _C.MODEL.ROI_HEADS = CN()
@@ -152,6 +188,8 @@ _C.MODEL.ROI_HEADS.BG_IOU_THRESHOLD = 0.5
 # Default weights on (dx, dy, dw, dh) for normalizing bbox regression targets
 # These are empirically chosen to approximately lead to unit variance targets
 _C.MODEL.ROI_HEADS.BBOX_REG_WEIGHTS = (10., 10., 5., 5.)
+_C.MODEL.ROI_HEADS.RBBOX_REG_WEIGHTS = (10., 10., 5., 5., 1.)   # rrpn(x, y, w, h, a)
+
 # RoI minibatch size *per image* (number of regions of interest [ROIs])
 # Total number of RoIs per training minibatch =
 #   TRAIN.BATCH_SIZE_PER_IM * TRAIN.IMS_PER_BATCH * NUM_GPUS
@@ -180,9 +218,15 @@ _C.MODEL.ROI_BOX_HEAD.PREDICTOR = "FastRCNNPredictor"
 _C.MODEL.ROI_BOX_HEAD.POOLER_RESOLUTION = 14
 _C.MODEL.ROI_BOX_HEAD.POOLER_SAMPLING_RATIO = 0
 _C.MODEL.ROI_BOX_HEAD.POOLER_SCALES = (1.0 / 16,)
-_C.MODEL.ROI_BOX_HEAD.NUM_CLASSES = 81
+_C.MODEL.ROI_BOX_HEAD.NUM_CLASSES = 2
 # Hidden layer dimension when using an MLP for the RoI box head
 _C.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM = 1024
+# Group Norm (rrpn)
+_C.MODEL.ROI_BOX_HEAD.USE_GN = False
+# Dilation  (rrpn)
+_C.MODEL.ROI_BOX_HEAD.DILATION = 1
+_C.MODEL.ROI_BOX_HEAD.CONV_HEAD_DIM = 256
+_C.MODEL.ROI_BOX_HEAD.NUM_STACKED_CONVS = 4
 
 
 _C.MODEL.ROI_MASK_HEAD = CN()
@@ -198,6 +242,24 @@ _C.MODEL.ROI_MASK_HEAD.SHARE_BOX_FEATURE_EXTRACTOR = True
 # Whether or not resize and translate masks to the input image.
 _C.MODEL.ROI_MASK_HEAD.POSTPROCESS_MASKS = False
 _C.MODEL.ROI_MASK_HEAD.POSTPROCESS_MASKS_THRESHOLD = 0.5
+# Dilation
+_C.MODEL.ROI_MASK_HEAD.DILATION = 1
+# GN
+_C.MODEL.ROI_MASK_HEAD.USE_GN = False
+
+_C.MODEL.ROI_TEXTSNAKE_HEAD = CN()
+_C.MODEL.ROI_TEXTSNAKE_HEAD.FEATURE_EXTRACTOR = "ResNet50Conv5ROIFeatureExtractor"
+_C.MODEL.ROI_TEXTSNAKE_HEAD.PREDICTOR = "MaskRCNNC4Predictor"
+_C.MODEL.ROI_TEXTSNAKE_HEAD.POOLER_RESOLUTION = 14
+_C.MODEL.ROI_TEXTSNAKE_HEAD.POOLER_SAMPLING_RATIO = 0
+_C.MODEL.ROI_TEXTSNAKE_HEAD.POOLER_SCALES = (1.0 / 16,)
+_C.MODEL.ROI_TEXTSNAKE_HEAD.MLP_HEAD_DIM = 1024
+_C.MODEL.ROI_TEXTSNAKE_HEAD.CONV_LAYERS = (256, 256, 256, 256)
+_C.MODEL.ROI_TEXTSNAKE_HEAD.RESOLUTION = 14
+_C.MODEL.ROI_TEXTSNAKE_HEAD.SHARE_BOX_FEATURE_EXTRACTOR = True
+# Whether or not resize and translate masks to the input image.
+_C.MODEL.ROI_TEXTSNAKE_HEAD.POSTPROCESS_MASKS = False
+_C.MODEL.ROI_TEXTSNAKE_HEAD.POSTPROCESS_MASKS_THRESHOLD = 0.5
 
 # ---------------------------------------------------------------------------- #
 # ResNe[X]t options (ResNets = {ResNet, ResNeXt}
@@ -249,11 +311,12 @@ _C.SOLVER.WARMUP_ITERS = 500
 _C.SOLVER.WARMUP_METHOD = "linear"
 
 _C.SOLVER.CHECKPOINT_PERIOD = 10000
+_C.SOLVER.SUMMARY_PERIOD = 100
 
 # Number of images per batch
 # This is global, so if we have 8 GPUs and IMS_PER_BATCH = 16, each GPU will
 # see 2 images per batch
-_C.SOLVER.IMS_PER_BATCH = 16
+_C.SOLVER.IMS_PER_BATCH = 2
 
 # ---------------------------------------------------------------------------- #
 # Specific test options
@@ -264,12 +327,15 @@ _C.TEST.EXPECTED_RESULTS_SIGMA_TOL = 4
 # Number of images per batch
 # This is global, so if we have 8 GPUs and IMS_PER_BATCH = 16, each GPU will
 # see 2 images per batch
-_C.TEST.IMS_PER_BATCH = 8
+_C.TEST.IMS_PER_BATCH = 1
+_C.TEST.VIZ = True
 
 
 # ---------------------------------------------------------------------------- #
 # Misc options
 # ---------------------------------------------------------------------------- #
-_C.OUTPUT_DIR = "models/"
+_C.OUTPUT_DIR = "save/models_0321/"
+_C.VIS_DIR = "vis/models_0321_demo/"
+_C.SUMMARY_DIR = "summary/models_0321/"
 
 _C.PATHS_CATALOG = os.path.join(os.path.dirname(__file__), "paths_catalog.py")

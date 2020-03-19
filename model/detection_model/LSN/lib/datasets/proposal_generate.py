@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.autograd import Variable
-from lib.datasets.generate_anchors import generate_anchors
+from model.detection_model.LSN.lib.datasets.generate_anchors import generate_anchors
 import time
 import cv2
 import warnings

@@ -36,6 +36,7 @@ class MaskIoUFeatureExtractor(nn.Module):
 
     def forward(self, x, mask):
         mask_pool = F.max_pool2d(mask, kernel_size=2, stride=2)
+#         print(x.shape,mask_pool.shape)
         x = torch.cat((x, mask_pool), 1)
         x = F.relu(self.maskiou_fcn1(x))
         x = F.relu(self.maskiou_fcn2(x))

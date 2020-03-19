@@ -4,7 +4,7 @@
 import torch
 from torch import nn
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
+# from maskrcnn_benchmark.structures.bounding_box import BoxList
 from .roi_maskiou_feature_extractors import make_roi_maskiou_feature_extractor
 from .roi_maskiou_predictors import make_roi_maskiou_predictor
 from .inference import make_roi_maskiou_post_processor
@@ -22,7 +22,7 @@ class ROIMaskIoUHead(torch.nn.Module):
 
     def forward(self, features, proposals, selected_mask, labels, maskiou_targets=None):
         """
-        Args:
+        Arguments:
             features (list[Tensor]): feature-maps from possibly several levels
             proposals (list[BoxList]): proposal boxes
             selected_mask (list[Tensor]): targeted mask

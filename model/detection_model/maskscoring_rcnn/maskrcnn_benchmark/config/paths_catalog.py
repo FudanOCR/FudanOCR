@@ -1,35 +1,81 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
-"""
-Centralized catalog of paths.
-"""
+"""Centralized catalog of paths."""
 
 import os
 
 
 class DatasetCatalog(object):
-    DATA_DIR = "datasets"
+    DATA_DIR = "/home/shf/fudan_ocr_system/datasets/"
     DATASETS = {
-        "coco_2017_train": (
-            "coco/train2017",
-            "coco/annotations/instances_train2017.json",
+        "ArT_train": (
+            "ICDAR19/train_images",
+            "ICDAR19/train_labels.json",
         ),
-        "coco_2017_val": ("coco/val2017", "coco/annotations/instances_val2017.json"),
+        "ArT_test": (
+            "ICDAR19/test_images",
+            "ICDAR19/train_labels.json",
+        ),
+        "ArT_demo": (
+            "ICDAR19/test_images",
+            "ICDAR19/train_labels.json",
+        ),
+        # "ArT_totaltext": (
+        #     "totaltext/images",
+        #     "totaltext/new_train_labels.json"
+        # ),
+        "LSVT_train": (
+            "LSVT_full_train/train_images",
+            "LSVT_full_train/new_train_labels.json",
+        ),
+        "LSVT_train_copy": (
+            "LSVT_full_train/train_images",
+            "LSVT_full_train/new_train_labels.json",
+        ),
+        "LSVT_test": (
+            "LSVT_full_train/test_images",
+            "LSVT_full_train/new_train_labels.json",
+        ),
+        "LSVT_demo": (
+            "LSVT_full_train/demo_images",
+            "LSVT_full_train/new_train_labels.json",
+        ),
+        "LSVT_weak_0": (
+            "LSVT_weak/images_0",
+            "LSVT_weak/new_train_weak_labels_0.json",
+        ),
+        "LSVT_weak_1": (
+            "LSVT_weak/images_1",
+            "LSVT_weak/new_train_weak_labels_1.json",
+        ),
+        "LSVT_weak_3": (
+            "LSVT_weak/images_3",
+            "LSVT_weak/new_train_weak_labels_3.json",
+        ),
+        "LSVT_weak_4": (
+            "LSVT_weak/images_4",
+            "LSVT_weak/new_train_weak_labels_4.json",
+        ),
+        "LSVT_weak_5": (
+            "LSVT_weak/images_5",
+            "LSVT_weak/new_train_weak_labels_5.json",
+        ),
+        "LSVT_weak_6": (
+            "LSVT_weak/images_6",
+            "LSVT_weak/new_train_weak_labels_6.json",
+        ),
+        "LSVT_weak_7": (
+            "LSVT_weak/images_7",
+            "LSVT_weak/new_train_weak_labels_7.json",
+        ),
+        "LSVT_weak_8": (
+            "LSVT_weak/images_8",
+            "LSVT_weak/new_train_weak_labels_8.json",
+        ),
+        "LSVT_weak_9": (
+            "LSVT_weak/images_9",
+            "LSVT_weak/new_train_weak_labels.json",
+        ),
     }
-    # DATASETS = {
-    #     "coco_2014_train": (
-    #         "coco/train2014",
-    #         "coco/annotations/instances_train2014.json",
-    #     ),
-    #     "coco_2014_val": ("coco/val2014", "coco/annotations/instances_val2014.json"),
-    #     "coco_2014_minival": (
-    #         "coco/val2014",
-    #         "coco/annotations/instances_minival2014.json",
-    #     ),
-    #     "coco_2014_valminusminival": (
-    #         "coco/val2014",
-    #         "coco/annotations/instances_valminusminival2014.json",
-    #     ),
-    # }
 
     @staticmethod
     def get(name):
@@ -44,13 +90,37 @@ class DatasetCatalog(object):
                 factory="COCODataset",
                 args=args,
             )
+        elif "ArT" in name:
+            data_dir = DatasetCatalog.DATA_DIR
+            attrs = DatasetCatalog.DATASETS[name]
+            args = dict(
+                root=os.path.join(data_dir, attrs[0]),
+                ann_file=os.path.join(data_dir, attrs[1]),
+            )
+            return dict(
+                factory="ArTDataset",
+                args=args,
+            )
+        elif "LSVT" in name:
+            data_dir = DatasetCatalog.DATA_DIR
+            attrs = DatasetCatalog.DATASETS[name]
+            args = dict(
+                root=os.path.join(data_dir, attrs[0]),
+                ann_file=os.path.join(data_dir, attrs[1]),
+            )
+            return dict(
+                factory="LSVTDataset",
+                args=args,
+            )
+
+
         raise RuntimeError("Dataset not available: {}".format(name))
 
 
 class ModelCatalog(object):
-    S3_C2_DETECTRON_URL = "https://s3-us-west-2.amazonaws.com/detectron"
+    S3_C2_DETECTRON_URL = "http://pgms79tvn.bkt.clouddn.com"
     C2_IMAGENET_MODELS = {
-        "MSRA/R-50": "ImageNetPretrained/MSRA/R-50.pkl",
+        "MSRA/R-50": "R-50.pkl",
         "MSRA/R-101": "ImageNetPretrained/MSRA/R-101.pkl",
         "FAIR/20171220/X-101-32x8d": "ImageNetPretrained/20171220/X-101-32x8d.pkl",
     }

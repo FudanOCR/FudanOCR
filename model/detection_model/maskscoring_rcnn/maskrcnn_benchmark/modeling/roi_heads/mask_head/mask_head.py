@@ -2,7 +2,7 @@
 import torch
 from torch import nn
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
+from maskrcnn_benchmark.structures.bounding_box import RBoxList
 
 from .roi_mask_feature_extractors import make_roi_mask_feature_extractor
 from .roi_mask_predictors import make_roi_mask_predictor
@@ -15,11 +15,11 @@ def keep_only_positive_boxes(boxes):
     Given a set of BoxList containing the `labels` field,
     return a set of BoxList for which `labels > 0`.
 
-    Args:
+    Arguments:
         boxes (list of BoxList)
     """
     assert isinstance(boxes, (list, tuple))
-    assert isinstance(boxes[0], BoxList)
+    assert isinstance(boxes[0], RBoxList)
     assert boxes[0].has_field("labels")
     positive_boxes = []
     positive_inds = []
@@ -33,6 +33,20 @@ def keep_only_positive_boxes(boxes):
     return positive_boxes, positive_inds
 
 
+def shrink_proposals(boxes, cfg):
+    assert isinstance(boxes, (list, tuple))
+    assert isinstance(boxes[0], RBoxList)
+    new_boxes = []
+    for boxes_per_image in boxes:
+        proposals = boxes_per_image.bbox
+        im_info = boxes_per_image.size
+        proposals[:, 2:4] /= cfg.MODEL.RRPN.GT_BOX_MARGIN
+        new_boxes_per_image = RBoxList(proposals, im_info, mode="xywha")
+        new_boxes_per_image._copy_extra_fields(boxes_per_image)
+        new_boxes.append(new_boxes_per_image)
+    return new_boxes
+
+
 class ROIMaskHead(torch.nn.Module):
     def __init__(self, cfg):
         super(ROIMaskHead, self).__init__()
@@ -44,7 +58,7 @@ class ROIMaskHead(torch.nn.Module):
 
     def forward(self, features, proposals, targets=None):
         """
-        Args:
+        Arguments:
             features (list[Tensor]): feature-maps from possibly several levels
             proposals (list[BoxList]): proposal boxes
             targets (list[BoxList], optional): the ground-truth targets.
@@ -64,8 +78,9 @@ class ROIMaskHead(torch.nn.Module):
         """
         if self.training:
             # during training, only focus on positive boxes
-            all_proposals = proposals
+            all_proposals = proposals.copy()
             proposals, positive_inds = keep_only_positive_boxes(proposals)
+        # proposals = shrink_proposals(proposals, self.cfg)
         if self.training and self.cfg.MODEL.ROI_MASK_HEAD.SHARE_BOX_FEATURE_EXTRACTOR:
             x = features
             x = x[torch.cat(positive_inds, dim=0)]
@@ -88,7 +103,6 @@ class ROIMaskHead(torch.nn.Module):
             loss_mask = self.loss_evaluator(proposals, mask_logits, targets)
             return x, all_proposals, dict(loss_mask=loss_mask)
             
-
 
 def build_roi_mask_head(cfg):
     return ROIMaskHead(cfg)

@@ -20,5 +20,8 @@ def getModel(model_name):
     elif model_name == 'PixelLink':
         from model.detection_model.PixelLink.net import Net
         return Net
+    elif model_name == 'LSN':
+        from model.detection_model.LSN.lib.model.networkFactory import ResNet50
+        return ResNet50
     else:
         return None

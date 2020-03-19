@@ -9,7 +9,7 @@ from maskrcnn_benchmark.utils.env import setup_environment  # noqa F401 isort:sk
 
 import argparse
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2'
+
 import torch
 from maskrcnn_benchmark.config import cfg
 from maskrcnn_benchmark.data import make_data_loader
@@ -110,7 +110,7 @@ def main():
     parser = argparse.ArgumentParser(description="PyTorch Object Detection Training")
     parser.add_argument(
         "--config-file",
-        default="configs/e2e_ms_rcnn_R_50_FPN_1x.yaml",
+        default="",
         metavar="FILE",
         help="path to config file",
         type=str,
@@ -132,8 +132,6 @@ def main():
     args = parser.parse_args()
 
     num_gpus = int(os.environ["WORLD_SIZE"]) if "WORLD_SIZE" in os.environ else 1
-    # num_gpus = 2
-    print('num_gpus = ', num_gpus)
     args.distributed = num_gpus > 1
 
     if args.distributed:

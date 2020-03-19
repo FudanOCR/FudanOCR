@@ -53,8 +53,8 @@ resourceDict = {
         size='250M',
         description='R/D Dataset'
     ),
-    'Syn9000k': Resource(
-        name='Syn9000k',
+    'Syn800w': Resource(
+        name='Syn800w',
         path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_9000000.tar.gz',
         size='9.9G',
         description='R Dataset'
@@ -101,16 +101,23 @@ resourceDict = {
         size='451K',
         description='R Dataset'
     ),
+    'tomcat': Resource(
+        name='tomcat',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/apache-tomcat-9.0.33.zip',
+        size='15.1M',
+        description='Web Server'
+    ),
+
 }
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--all', action='store_true', help='List all available resources')
+# parser.add_argument('--all', action='store_true', help='List all available resources')
 parser.add_argument('--name', type=str, help='Resource name', default='null')
 parser.add_argument('--path', type=str, help='The path where you want to download the resource to', default='.')
 opt = parser.parse_args()
 # print(opt)
 
-if opt.all:
+if True:
     '''用户输入指令 python download.py --all '''
 
     tb = pt.PrettyTable()

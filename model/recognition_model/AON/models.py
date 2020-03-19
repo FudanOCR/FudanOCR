@@ -13,6 +13,7 @@ def flip(x, dim):
                                 dtype=torch.long, device=x.device)
     return x[tuple(indices)]
 
+
 class BLSTM(nn.Module):
     '''双向循环神经网络'''
 
@@ -85,15 +86,22 @@ class ClueNet(nn.Module):
 
     def forward(self, x):
         batch_size = x.size(0)
-        x = self.cluenet(x)
-        x = x.view(-1, 64)
-        x = self.linear1(x)
+        x = self.cluenet(x)  # B * 512 * 8 * 8
+
+        x = x.view(-1, 64)  # (B * 512 , 64)
+        x = self.linear1(x)  # (B * 512 , 23)
         x = self.relu(x)
-        x = x.view(-1, 512)
-        x = self.linear2(x)
+
+        # x = x.view(-1, 512)
+        x = x.view(batch_size, 512, 23)  # (B , 512 , 23)
+        x = x.permute(2, 1)  # (B , 23 , 512)
+        x = x.view(batch_size * 23, 512)  # (B * 23 , 512)
+
+        x = self.linear2(x)  # (B * 23 , 4)
         x = self.relu(x)
-        x = x.view(-1,4, 23)
-        x = F.softmax(x, 1)
+        x = x.view(-1, 23, 4)  # (B , 23 , 4)
+        x = F.softmax(x, 2)
+        x = x.permute(0, 2, 1)  # (B , 4 , 23)
         return x
 
 
@@ -122,8 +130,9 @@ class MultiDirectionNet(nn.Module):
         B, C, H, W = x.size()
         assert H == 1, "The height must be 1"
         x = x.squeeze(2)
-        x = x.view(W, B, C)
-        x = self.blstm(x)
+        x = x.permute(2, 0, 1)  # (W,B,C)
+        # x = x.view(W, B, C)
+        x = self.blstm(x)  # (W,B,H)
         return x
 
 
@@ -132,22 +141,31 @@ class FG(nn.Module):
         nn.Module.__init__(self)
 
     def forward(self, feat1, feat2, feat3, feat4, clue):
-
+        '''
+        clue (B , 4 , 23) -> (32, 4, 23)
+        feat (W, B, H) -> (23, 32, 512)
+        '''
         batch_size = clue.size(0)
 
-        clue = clue.view(4,batch_size,23)
-        c1, c2, c3, c4 = clue
+        # clue = clue.view(4, batch_size, 23)
+        clue = clue.permute(1, 0, 2)  # (4 , B , 23)
+        c1, c2, c3, c4 = clue  # （B，23） each
         # print("c1:", c1.size())
-        c1 = c1.view(batch_size,23).expand(512,batch_size,23).contiguous().view(23,batch_size,512)
-        c2 = c2.view(batch_size,23).expand(512,batch_size,23).contiguous().view(23,batch_size,512)
-        c3 = c3.view(batch_size,23).expand(512,batch_size,23).contiguous().view(23,batch_size,512)
-        c4 = c4.view(batch_size,23).expand(512,batch_size,23).contiguous().view(23,batch_size,512)
+        # (B , 23) -> (512, B, 23) -> (23, B, 512)
+        # c1 = c1.view(batch_size, 23).expand(512, batch_size, 23).contiguous().view(23, batch_size, 512)
+        # c2 = c2.view(batch_size, 23).expand(512, batch_size, 23).contiguous().view(23, batch_size, 512)
+        # c3 = c3.view(batch_size, 23).expand(512, batch_size, 23).contiguous().view(23, batch_size, 512)
+        # c4 = c4.view(batch_size, 23).expand(512, batch_size, 23).contiguous().view(23, batch_size, 512)
+        c1 = c1.view(batch_size, 23).expand(512, batch_size, 23).contiguous().permute(2,1,0).contiguous()
+        c2 = c2.view(batch_size, 23).expand(512, batch_size, 23).contiguous().permute(2,1,0).contiguous()
+        c3 = c3.view(batch_size, 23).expand(512, batch_size, 23).contiguous().permute(2,1,0).contiguous()
+        c4 = c4.view(batch_size, 23).expand(512, batch_size, 23).contiguous().permute(2,1,0).contiguous()
 
         # print("c1:", c1.size())
         # print("feats1:", feat1.size())
 
         combine = F.tanh(c1 * feat1 + c2 * feat2 + c3 * feat3 + c4 * feat4)
-        combine = combine.view(23,batch_size,512)
+        # combine = combine.view(23, batch_size, 512)
         return combine
 
 
@@ -282,19 +300,17 @@ class Attention(nn.Module):
             return probs_res
 
 
-
 class Decoder(nn.Module):
-    def __init__(self,opt):
+    def __init__(self, opt):
         nn.Module.__init__(self)
 
         from alphabet.alphabet import Alphabet
         self.n_class = len(Alphabet(opt.ADDRESS.ALPHABET))
 
-        self.blstm = BLSTM(512,256)
+        self.blstm = BLSTM(512, 256)
         self.attention = Attention(input_size=512, hidden_size=256, num_classes=self.n_class, num_embeddings=128)
 
-    def forward(self, x,text_length, text, test):
-
+    def forward(self, x, text_length, text, test):
         x = self.blstm(x)
         x = self.attention(x, text_length, text, test)
         return x
@@ -319,7 +335,7 @@ class AON(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-    def forward(self, image, text_length, text,text_rev,test=False):
+    def forward(self, image, text_length, text, text_rev, test=False):
         '''BCNN part'''
         x_left_right = self.bcnn(image)
         x_top_down = x_left_right.permute(0, 1, 3, 2)
@@ -336,8 +352,6 @@ class AON(nn.Module):
         # print(combine_feats.size(),'尺寸')
 
         '''Decoder part'''
-        output = self.decoder(combine_feats,text_length, text, test)
-
-
+        output = self.decoder(combine_feats, text_length, text, test)
 
         return output

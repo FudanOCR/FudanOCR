@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FudanOCR ToolBox</title>
+    <style type="text/css">
+        ul li {
+            margin: 2em;
+            float: left;
+        }
+
+        ul, li {
+            list-style: none;
+        }
+    </style>
+    <link rel="icon" type="image/x-icon" href="http://127.0.0.1:16666/magnifier.png"/>
+</head>
+<body>
+
+<div style="width:50px;height:50px;top:30px;position:fixed;">
+    <button onclick="total()">total</button>
+</div>
+
+<div style="width:50px;height:50px;top:80px;position:fixed;">
+    <button onclick="right()">right</button>
+</div>
+
+<div style="width:50px;height:50px;top:130px;position:fixed;">
+    <button onclick="wrong()">wrong</button>
+</div>
+
+<ul id='matter'>
+
+
+</ul>
+
+<p>
+    <img id="imgtest" src="">
+</p>
+
+<script type="text/javascript">
+
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) {
+                return pair[1];
+            }
+        }
+        return (false);
+    }
+    // var folder_name = 'Image_Visualization_IC03_visualize_wrong'
+    // var folder_name2 = 'Visualization_RARE_stn_test'
+    var folder_name = getQueryVariable("folder")
+
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState === 4) {
+            if (request.status === 200) {
+                var return_event_day = request.responseText;
+                console.log("返回：", request.responseText)
+                var lis = request.responseText.split('\n')
+
+                matter = document.getElementById('matter').innerHTML;
+                for (i = 0; i < lis.length - 1; i++) {
+                    var imgAdd = lis[i]
+                    var split = imgAdd.split('.jpg')[0].split('_')
+                    var predict = split[2]
+                    var target = split[1]
+                    var state = 'right'
+                    try {
+                        if (predict.toLowerCase() == target.toLowerCase()) {
+                            state = 'right'
+                        } else {
+                            state = 'wrong'
+                        }
+                    } catch {
+                        state = 'wrong'
+                    }
+
+                    console.log("Output: ", imgAdd)
+                    try {
+                        //  document.getElementById('imgtest').src = 'http://127.0.0.1:16666/Image_Visualization_IC03_visualize_wrong/'+imgAdd
+
+                        if (state == 'right') {
+                            matter += "<li class='" + state + "'><img src='http://127.0.0.1:16666/" + folder_name + "/" + imgAdd + "'> \
+                <p style='color:green'>" + '预测: ' + predict + "</p> \
+                <p style='color:green'>" + '标签: ' + target + "</p> \
+                </li>"
+                        } else {
+                            matter += "<li class='" + state + "'><img src='http://127.0.0.1:16666/" + folder_name + "/" + imgAdd + "'> \
+                <p style='color:palevioletred'>" + '预测: ' + predict + "</p> \
+                <p style='color:palevioletred'>" + '标签: ' + target + "</p> \
+                </li>"
+                        }
+                    } catch {
+                    }
+                }
+                document.getElementById('matter').innerHTML = matter
+            }
+        } else {
+        }
+    }
+
+    request.open("GET", folder_name + "/file.txt")
+    request.send()
+
+    function right() {
+        var rights = document.getElementsByClassName('right')
+
+        var len = rights.length;
+        for (i = 0; i < len; i++) {
+
+            rights[i].style.display = "";//隐藏
+        }
+
+        var wrongs = document.getElementsByClassName('wrong')
+
+        var len = wrongs.length;
+        for (i = 0; i < len; i++) {
+
+            wrongs[i].style.display = "none";//隐藏
+        }
+    }
+
+    function wrong() {
+
+        var rights = document.getElementsByClassName('right')
+
+        var len = rights.length;
+        for (i = 0; i < len; i++) {
+
+            rights[i].style.display = "none";//隐藏
+        }
+
+        var wrongs = document.getElementsByClassName('wrong')
+
+        var len = wrongs.length;
+        for (i = 0; i < len; i++) {
+
+            wrongs[i].style.display = "";//隐藏
+        }
+    }
+
+    function total() {
+        var rights = document.getElementsByClassName('right')
+
+        var len = rights.length;
+        for (i = 0; i < len; i++) {
+
+            rights[i].style.display = "";//隐藏
+        }
+
+        var wrongs = document.getElementsByClassName('wrong')
+
+        var len = wrongs.length;
+        for (i = 0; i < len; i++) {
+
+            wrongs[i].style.display = "";//隐藏
+        }
+    }
+</script>
+</body>
+</html>

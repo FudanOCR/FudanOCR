@@ -20,9 +20,9 @@ class CRNN_Trainer(Trainer):
         cpu_images, cpu_gt = data
         v_images = Variable(cpu_images.cuda())
         '''可以加上保存image的功能，并且就执行一次'''
-        from utils.imageVisualize import saveByOrder
-        if test == True:
-            saveByOrder(cpu_images,self.opt)
+        # from utils.imageVisualize import saveByOrder
+        # if test == True:
+        #     saveByOrder(cpu_images,self.opt)
 
 
         return (v_images,)

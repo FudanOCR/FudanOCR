@@ -6,7 +6,7 @@ BASE:
   GPU_ID: '0,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'RARE_stn'
+  EXPERIMENT_NAME:  'RARE_stn_test'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -18,7 +18,8 @@ ADDRESS:
   ALPHABET: '/home/cjy/FudanOCR/alphabet/words/ic15_words.txt'
 #  TRAIN_DATA_DIR: '/home/cjy/mnt/ramdisk/max/90kDICT32px/'
 #  TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
-  TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb'
+  TRAIN_DATA_DIR: '/home/cjy/ic13_test_lmdb'
+  # TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb'
   TRAIN_GT_DIR: ''
 
   TEST_DATA_DIR: ''
@@ -32,7 +33,7 @@ ADDRESS:
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
   CHECKPOINTS_DIR: './Syn800w_IC13_Checkpoints/'
-  PRETRAIN_MODEL_DIR: ''
+  PRETRAIN_MODEL_DIR: '/home/cjy/0.8319_108000.pth'
   LOGGER_DIR: './Logger/'
 
 IMAGE:
@@ -41,7 +42,7 @@ IMAGE:
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: False
+  VAL_ONLY: True
   FINETUNE: False
 
 VISUALIZE:

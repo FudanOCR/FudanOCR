@@ -39,7 +39,7 @@ def getTransforms(cfg ):
 
     return transform
 
-def getTransforms_by_assignment(cfg ):
+def getTranforms_by_assignment(cfg ):
     transforms = None
     if cfg.DATASETS.TRANSFORM == 'Normalize' :
         transforms = Normalize(

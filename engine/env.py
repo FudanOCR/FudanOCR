@@ -106,6 +106,9 @@ class Env(object):
         2.指定了并不一定要存在，如果不存在即由程序创建：例如checkpoint
         '''
 
+        if self.opt.FUNCTION.VAL_ONLY:
+            return
+
         def folderExist(key,value):
             '''
             对于必须存在的路径的检查

@@ -22,6 +22,7 @@ from utils.Pascal_VOC import eval_func
 from utils.AverageMeter import AverageMeter
 from utils.downloadCallback import callbackfunc
 from utils.imageVisualize import wrong_gt_predict
+from utils.imageVisualize import saveByOrder
 
 
 
@@ -220,12 +221,22 @@ class Trainer(object):
             loss_avg.add(cost)
 
 
+
+
             for pred, target in zip(preds, targets):
                 # print(pred,target)
                 if pred.lower() == target.lower():
                     n_correct += 1
-                else:
-                    wrong_gt_predict(target,pred,cnt,self.opt)
+                # else:
+                #     wrong_gt_predict(target,pred,cnt,self.opt)
+                '''可视化操作'''
+                # if self.opt.FUNCTION.VAL_ONLY:
+                #     saveByOrder(data[0], self.opt)
+                # wrong_gt_predict(target, pred, cnt, self.opt)
+
+                if self.opt.FUNCTION.VAL_ONLY:
+                    saveByOrder(data[0], target, pred,self.opt)
+                # wrong_gt_predict(target, pred, cnt, self.opt)
 
                 '''利用logger工具将结果记录于文件夹中'''
                 file_summary(self.opt.ADDRESS.LOGGER_DIR,str(self.val_times) +'_'+self.opt.BASE.MODEL+ "_result" +".txt","预测 %s      目标 %s\n" % (pred, target))

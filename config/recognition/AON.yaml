@@ -6,7 +6,7 @@ BASE:
   GPU_ID: '0,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'RARE_stn_adam_1.0'
+  EXPERIMENT_NAME:  'AON_800w_IC13'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -24,7 +24,7 @@ ADDRESS:
 
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic03_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
   VAL_GT_DIR: ''
 #  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
 #  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
@@ -32,12 +32,12 @@ ADDRESS:
 #  VAL_DATA_DIR: "/home/cjy/Word_recognition/ch4_test_word_images_gt"
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
-  CHECKPOINTS_DIR: './Syn800w_IC13_Checkpoints/'
+  CHECKPOINTS_DIR: './Checkpoint/'
   PRETRAIN_MODEL_DIR: ''
   LOGGER_DIR: './Logger/'
 
 IMAGE:
-  IMG_H: 32
+  IMG_H: 100
   IMG_W: 100
   IMG_CHANNEL: 1
 
@@ -52,10 +52,10 @@ VISUALIZE:
 
 MODEL:
   EPOCH: 100000
-  BATCH_SIZE: 64
+  BATCH_SIZE: 32
   LR: 1.0
   DYNAMIC_LR: False
-  OPTIMIZER: 'Adam'
+  OPTIMIZER: 'Adadelta'
   LOSS: 'CrossEntropyLoss'
 
 THRESHOLD:

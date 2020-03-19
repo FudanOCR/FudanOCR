@@ -85,7 +85,7 @@ class Trainer(object):
         '''
         if self.opt.BASE.TYPE == 'R':
             self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
-            if self.opt.BASE.MODEL == 'MORAN' or self.opt.BASE.MODEL == 'RARE':
+            if self.opt.BASE.MODEL == 'MORAN' or self.opt.BASE.MODEL == 'RARE' or self.opt.BASE.MODEL == 'AON':
                 from utils.strLabelConverterForAttention import strLabelConverterForAttention
                 self.converter = strLabelConverterForAttention(self.alphabet.str)
             elif self.opt.BASE.MODEL == 'GRCNN' or self.opt.BASE.MODEL == 'CRNN':

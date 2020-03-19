@@ -9,18 +9,19 @@ from data.build import build_dataloader
 # from engine.trainer_collection.CRNN import CRNN_Trainer
 # from engine.trainer_collection.PixelLink import PixelLink_Trainer
 # from engine.trainer_collection.LSN import LSN_Trainer
+from engine.trainer_collection.AON import AON_Trainer
+
 
 
 env = Env()
-# train_loader, test_loader = build_dataloader(env.opt)
-#
-# newTrainer = RARE_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
-#                            val_loader=test_loader).train()
+train_loader, test_loader = build_dataloader(env.opt)
+newTrainer = AON_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
+                           val_loader=test_loader).train()
 
-import torch
-AON = env.model
-aon = AON(env.opt)
-input = torch.Tensor(1,1,100,100)
-# input = Variable(input)
-output = aon(input)
-print("Size: ",output.size())  # 1, 512, 1, 5
+# import torch
+# AON = env.model
+# aon = AON(env.opt)
+# input = torch.Tensor(1,1,100,100)
+# # input = Variable(input)
+# output = aon(input)
+# print("Size: ",output.size())  # 1, 512, 1, 5

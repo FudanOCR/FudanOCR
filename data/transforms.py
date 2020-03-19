@@ -32,6 +32,9 @@ def getTransforms(cfg ):
     elif cfg.BASE.MODEL == 'RARE':
         transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
+    elif cfg.BASE.MODEL == 'AON':
+        transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+
     elif cfg.BASE.MODEL == 'maskrcnn':
         transform = Normalize(
             mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD, to_bgr255=to_bgr255

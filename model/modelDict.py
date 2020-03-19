@@ -14,6 +14,9 @@ def getModel(model_name):
     elif model_name == 'CRNN':
         from model.recognition_model.CRNN.models import CRNN
         return CRNN
+    elif model_name == 'AON':
+        from model.recognition_model.AON.models import AON
+        return AON
     elif model_name == 'RARE':
         from model.recognition_model.RARE.models import RARE
         return RARE

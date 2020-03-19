@@ -1,6 +1,6 @@
-# python main.py --config_file ./config/recognition/RARE.yaml
+# python main.py --config_file ./config/recognition/AON.yaml
 BASE:
-  MODEL: 'RARE'
+  MODEL: 'AON'
   TYPE: 'R'
   NUM_GPUS: 1
   GPU_ID: '0,'

@@ -45,3 +45,4 @@ visualize_stn()
 
 plt.ioff()
 plt.show()
+plt.savefig('testblueline.jpg')

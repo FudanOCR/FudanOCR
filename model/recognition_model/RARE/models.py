@@ -132,7 +132,45 @@ class RARE(nn.Module):
     # image, length, text, text_rev, test
     def forward(self, input, text_length, text, text_rev, test=False):
 
+        '''增加STN的可视化部分'''
+
+        input_tensor = input.cpu().data
         input = self.stn(input)
+        transformed_input_tensor = input.cpu().data
+
+        '''*************************************'''
+        # stn可视化
+        # import matplotlib.pyplot as plt
+        # import torchvision
+        # import numpy as np
+        #
+        # def convert_image_np(inp):
+        #     """Convert a Tensor to numpy image."""
+        #     inp = inp.numpy().transpose((1, 2, 0))
+        #     mean = np.array([0.485, 0.456, 0.406])
+        #     std = np.array([0.229, 0.224, 0.225])
+        #     inp = std * inp + mean
+        #     inp = np.clip(inp, 0, 1)
+        #     return inp
+        #
+        # for i in range(input_tensor.size(0)):
+        #
+        #     in_grid = convert_image_np(
+        #         torchvision.utils.make_grid(input_tensor[i]))
+        #
+        #     out_grid = convert_image_np(
+        #         torchvision.utils.make_grid(transformed_input_tensor[i]))
+        #
+        #     # Plot the results side-by-side
+        #     f, axarr = plt.subplots(1, 2)
+        #     axarr[0].imshow(in_grid)
+        #     axarr[0].set_title('Dataset Images')
+        #
+        #     axarr[1].imshow(out_grid)
+        #     axarr[1].set_title('Transformed Images')
+        #     plt.savefig('./stn/{0}.jpg'.format(i))
+        '''*************************************'''
+
         result = self.cnn(input)
         # (bs,512,1,5)
 

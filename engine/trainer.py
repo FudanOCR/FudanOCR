@@ -209,7 +209,11 @@ class Trainer(object):
 
         cnt = 0
         for i in range(len(val_loader)):
-            data = val_iter.next()
+            try:
+                data = val_iter.next()
+            except:
+                continue
+
 
             pretreatmentData = self.pretreatment(data, True)
 

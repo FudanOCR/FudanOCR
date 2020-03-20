@@ -63,7 +63,7 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
 
         if 'lmdb' == name.lower():
             dataset = LMDB.lmdbDataset(root=data_dir,
-                                       transform=getTransforms(cfg),
+                                       transform=getTransforms(cfg,split),
                                        reverse=cfg.BidirDecoder, alphabet=alphabet.str)
             assert dataset
             return dataset

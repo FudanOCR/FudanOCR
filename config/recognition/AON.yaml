@@ -3,10 +3,10 @@ BASE:
   MODEL: 'AON'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '3,'
+  GPU_ID: '2,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'AON_800w_IC13_调整bn和relu位置'
+  EXPERIMENT_NAME:  'AON_800w_IC13_test'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -24,7 +24,7 @@ ADDRESS:
 
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/ic15_test_lmdb'
   VAL_GT_DIR: ''
 #  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
 #  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
@@ -33,7 +33,7 @@ ADDRESS:
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
   CHECKPOINTS_DIR: './Checkpoint/'
-  PRETRAIN_MODEL_DIR: ''
+  PRETRAIN_MODEL_DIR: '/home/cjy/0.7406_152000.pth'
   LOGGER_DIR: './Logger/'
 
 IMAGE:
@@ -42,7 +42,7 @@ IMAGE:
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: False
+  VAL_ONLY: True
   FINETUNE: False
 
 VISUALIZE:

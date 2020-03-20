@@ -14,7 +14,7 @@ def flip(x, dim):
     return x[tuple(indices)]
 
 
-class BLSTM(nn.Module):
+class BLSTM_haveOut(nn.Module):
     '''双向循环神经网络'''
 
     def __init__(self, nIn, nHidden, nOut):
@@ -33,7 +33,7 @@ class BLSTM(nn.Module):
         return result
 
 
-class BLSTM2(nn.Module):
+class BLSTM(nn.Module):
     '''双向循环神经网络'''
 
     def __init__(self, nIn, nHidden):
@@ -65,6 +65,15 @@ class BCNN(nn.Module):
             nn.Conv2d(256, 256, 3, 1, 1), nn.BatchNorm2d(256), nn.ReLU(),
         )
 
+        # self.bcnn = nn.Sequential(
+        #     nn.Conv2d(1, 64, 3, 1, 1),nn.ReLU(), nn.BatchNorm2d(64),
+        #     nn.MaxPool2d((2, 2), (2, 2)),
+        #     nn.Conv2d(64, 128, 3, 1, 1), nn.ReLU(),nn.BatchNorm2d(128),
+        #     nn.MaxPool2d((2, 2), (2, 2), (1, 1)),
+        #     nn.Conv2d(128, 256, 3, 1, 1), nn.ReLU(),nn.BatchNorm2d(256),
+        #     nn.Conv2d(256, 256, 3, 1, 1), nn.ReLU(),nn.BatchNorm2d(256),
+        # )
+
     def forward(self, x):
         x = self.bcnn(x)
         return x
@@ -80,6 +89,15 @@ class ClueNet(nn.Module):
             nn.Conv2d(512, 512, 3, 1, 1), nn.BatchNorm2d(512), nn.ReLU(),
             nn.MaxPool2d((2, 2), (2, 2), (1, 1)),
         )
+
+        # self.cluenet = nn.Sequential(
+        #     nn.Conv2d(256, 512, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(512),
+        #     nn.MaxPool2d((2, 2), (2, 2), (1, 1)),
+        #     nn.Conv2d(512, 512, 3, 1, 1), nn.ReLU(),nn.BatchNorm2d(512),
+        #     nn.MaxPool2d((2, 2), (2, 2), (1, 1)),
+        # )
+
+
         self.linear1 = nn.Linear(64, 23)
         self.linear2 = nn.Linear(512, 4)
         self.relu = nn.ReLU()
@@ -94,14 +112,14 @@ class ClueNet(nn.Module):
 
         # x = x.view(-1, 512)
         x = x.view(batch_size, 512, 23)  # (B , 512 , 23)
-        x = x.permute(2, 1)  # (B , 23 , 512)
+        x = x.permute(0, 2, 1).contiguous()  # (B , 23 , 512)
         x = x.view(batch_size * 23, 512)  # (B * 23 , 512)
 
         x = self.linear2(x)  # (B * 23 , 4)
         x = self.relu(x)
         x = x.view(-1, 23, 4)  # (B , 23 , 4)
         x = F.softmax(x, 2)
-        x = x.permute(0, 2, 1)  # (B , 4 , 23)
+        x = x.permute(0, 2, 1).contiguous()  # (B , 4 , 23)
         return x
 
 
@@ -123,6 +141,19 @@ class MultiDirectionNet(nn.Module):
             nn.Conv2d(512, 512, 3, 1, 1), nn.BatchNorm2d(512), nn.ReLU(),
             nn.MaxPool2d((2, 2), (2, 1)),
         )
+
+        # self.multi = nn.Sequential(
+        #     nn.Conv2d(256, 512, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(512),
+        #     nn.MaxPool2d((2, 2), (2, 1), (1, 0)),
+        #     nn.Conv2d(512, 512, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(512),
+        #     nn.MaxPool2d((2, 2), (2, 1), (0, 1)),
+        #     nn.Conv2d(512, 512, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(512),
+        #     nn.MaxPool2d((2, 2), (2, 1)),
+        #     nn.Conv2d(512, 512, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(512),
+        #     nn.MaxPool2d((2, 2), (2, 1)),
+        #     nn.Conv2d(512, 512, 3, 1, 1), nn.ReLU(), nn.BatchNorm2d(512),
+        #     nn.MaxPool2d((2, 2), (2, 1)),
+        # )
 
     def forward(self, x):
         x = self.multi(x)

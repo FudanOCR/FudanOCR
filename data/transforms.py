@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 import PIL
 
 
-def getTransforms(cfg ):
+def getTransforms(cfg,split="train" ):
     transform = None
 
     if cfg.BASE.MODEL == 'MORAN':
@@ -33,7 +33,12 @@ def getTransforms(cfg ):
         transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
     elif cfg.BASE.MODEL == 'AON':
-        transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+        if split == 'test':
+            transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+        elif split == 'train ':
+            '''Rotate to a random angle'''
+            transform = resizeNormalizeAndGrayAndRandomRotate((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+
 
     elif cfg.BASE.MODEL == 'maskrcnn':
         transform = Normalize(
@@ -165,6 +170,50 @@ class resizeNormalize(object):
         img.sub_(0.5).div_(0.5)
         return img
 
+class resizeNormalizeAndGrayAndRandomRotate(object):
+    '''
+    将图片进行放缩，并标准化，转化为灰度图
+    '''
+
+    def __init__(self, size, interpolation=Image.BILINEAR):
+        '''
+
+        :param tuple size 需要将原图变换至目标尺寸
+        :param interpolation 插值方法
+        '''
+        self.size = size
+        self.interpolation = interpolation
+        self.toTensor = transforms.ToTensor()
+
+    def __call__(self, img):
+        '''
+        传入一张图片，将图片放缩后并进行标准化，像素放缩到[-1,1]的位置
+
+        :param Image img 图片
+        '''
+        # print('value of size is', self.size)
+        if isinstance(img, PIL.Image.Image):
+            img = np.array(img)
+            # img = img.resize(self.size, self.interpolation)
+            # img = img.convert('L')
+
+        '''Rotate'''
+        h, w = img.shape[:2]
+        center = (w // 2, h // 2)
+
+        import random
+        angel = random.randint(0, 360)
+
+        M = cv2.getRotationMatrix2D(center, angel, 1.0)
+        img = cv2.warpAffine(img, M, (w, h))
+
+
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.resize(img, self.size)
+        # img = img.resize(self.size, self.interpolation)
+        img = self.toTensor(img)
+        img.sub_(0.5).div_(0.5)
+        return img
 
 class resizeNormalizeAndGray(object):
     '''

@@ -33,9 +33,9 @@ def getTransforms(cfg,split="train" ):
         transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
     elif cfg.BASE.MODEL == 'AON':
-        if split == 'test':
+        if split == 'val':
             transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
-        elif split == 'train ':
+        elif split == 'train':
             '''Rotate to a random angle'''
             transform = resizeNormalizeAndGrayAndRandomRotate((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
@@ -198,6 +198,7 @@ class resizeNormalizeAndGrayAndRandomRotate(object):
             # img = img.convert('L')
 
         '''Rotate'''
+        # print(img.shape)
         h, w = img.shape[:2]
         center = (w // 2, h // 2)
 
@@ -206,9 +207,10 @@ class resizeNormalizeAndGrayAndRandomRotate(object):
 
         M = cv2.getRotationMatrix2D(center, angel, 1.0)
         img = cv2.warpAffine(img, M, (w, h))
+        # print("旋转之后",img.shape)
 
-
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        if len(img.shape) == 3:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         img = cv2.resize(img, self.size)
         # img = img.resize(self.size, self.interpolation)
         img = self.toTensor(img)

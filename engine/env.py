@@ -10,10 +10,10 @@ import torch
 import random
 import torch.backends.cudnn as cudnn
 import argparse
+import pynvml
 from config.yaml_reader import read_config_file
 from model.modelDict import getModel
-# from config.config import get_cfg_defaults
-# from yacs.config import CfgNode as CN
+
 
 class Env(object):
 
@@ -97,6 +97,29 @@ class Env(object):
         num_gpu = self.opt.BASE.NUM_GPUS
         gpu_list = [str(i) for i in self.opt.BASE.GPU_ID]
         os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(gpu_list[:num_gpu])
+
+        '''检测gpu使用情况'''
+        import pynvml
+        pynvml.nvmlInit()
+        # 这里的1是GPU id
+        handle = pynvml.nvmlDeviceGetHandleByIndex(int(gpu_list[0]))
+        meminfo = pynvml.nvmlDeviceGetMemoryInfo(handle)
+        total = meminfo.total  # 第二块显卡总的显存大小
+        used = meminfo.used  # 这里是字节bytes，所以要想得到以兆M为单位就需要除以1024**2
+
+        ratio = used / total
+        if ratio > 0.5:
+            flag = True
+            while flag == True:
+                ans = input("More than 50% resource has been occupied on GPU{0}, are you sure to continue?(y/n)".format(str(gpu_list[0])))
+                if ans == 'n':
+                    exit(0)
+                elif ans== 'y':
+                    flag = False
+
+
+
+
 
     def checkAddressExist(self):
         '''

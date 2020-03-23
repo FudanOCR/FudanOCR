@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 
 from component.stn import SpatialTransformer
+from component.convnet.resnet import getResNet18
 
 
 class RARE(nn.Module):
@@ -18,7 +19,9 @@ class RARE(nn.Module):
         self.opt = opt
 
         # self.stn = SpatialTransformer(self.opt)
-        self.cnn = self.getCNN()
+        # self.cnn = self.getCNN()
+        self.cnn = getResNet18()
+
         self.rnn = self.getEncoder()
         # n_class,hidden_size,num_embedding,input_size
         # self.attention = Attention(self.n_class,256, 128,256)
@@ -134,9 +137,9 @@ class RARE(nn.Module):
 
         '''增加STN的可视化部分'''
 
-        input_tensor = input.cpu().data
-        input = self.stn(input)
-        transformed_input_tensor = input.cpu().data
+        # input_tensor = input.cpu().data
+        # input = self.stn(input)
+        # transformed_input_tensor = input.cpu().data
 
         '''*************************************'''
         # stn可视化

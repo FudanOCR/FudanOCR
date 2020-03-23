@@ -369,7 +369,9 @@ class AON(nn.Module):
     def forward(self, image, text_length, text, text_rev, test=False):
         '''BCNN part'''
         x_left_right = self.bcnn(image)
-        x_top_down = x_left_right.permute(0, 1, 3, 2)
+        # 翻转图片
+        x_top_down = x_left_right.permute(0, 1, 3, 2).contiguous()
+        x_top_down = flip(x_top_down,3)
 
         '''AON part'''
         feats_left_right = self.multidirectionnet(x_left_right)

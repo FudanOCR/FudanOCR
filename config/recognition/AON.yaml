@@ -3,7 +3,7 @@ BASE:
   MODEL: 'AON'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '2,'
+  GPU_ID: '0,'
   WORKERS: 2
   CUDA: True
   EXPERIMENT_NAME:  'AON_800w_IC03_训练数据集旋转90倍数度_解决图片翻转bug_可视化'
@@ -33,7 +33,7 @@ ADDRESS:
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
   CHECKPOINTS_DIR: './Checkpoint/'
-  PRETRAIN_MODEL_DIR: '/home/cjy/0.8036_134000.pth'
+  PRETRAIN_MODEL_DIR: '/home/cjy/0.8036_134000.pth/AON_syn800w_IC13_0.8036.pth'
   LOGGER_DIR: './Logger/'
 
 IMAGE:

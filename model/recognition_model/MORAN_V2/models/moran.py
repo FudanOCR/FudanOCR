@@ -51,7 +51,7 @@ class MORAN(nn.Module):
             cv2.imwrite('./nx.jpg',nx)
             '''
             preds = self.ASRN(x_rectified, length, text, text_rev, test)
-            return preds
+            return {'result':preds}
 
 
 class newMORAN(nn.Module):
@@ -113,4 +113,4 @@ class newMORAN(nn.Module):
             cv2.imwrite('./nx.jpg',nx)
             '''
             preds = self.ASRN(x_rectified, length, text, text_rev, test)
-            return preds
+            return {'result':preds}

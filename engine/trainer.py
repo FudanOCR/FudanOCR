@@ -210,12 +210,13 @@ class Trainer(object):
 
             pretreatmentData = self.pretreatment(data, True)
 
-            result = self.model(*pretreatmentData)
-            if len(result) == 1:
-                modelResult = self.model(*pretreatmentData)
-                alphas = modelResult.size(0) * [None]
-            else:
-                modelResult, alphas = self.model(*pretreatmentData)
+            modelResult = self.model(*pretreatmentData)['result']
+
+            try:
+                alphas = self.model(*pretreatmentData)['alphas']
+            except:
+                alphas = None
+
 
             cost, preds, targets = self.posttreatment(modelResult, pretreatmentData, originData=data, test=True)
 
@@ -234,7 +235,10 @@ class Trainer(object):
                 # wrong_gt_predict(target, pred, cnt, self.opt)
 
                 if self.opt.FUNCTION.VAL_ONLY:
-                    visualize(image, target, pred, cnt, self.opt,alpha=alphas[index])
+                    if alphas != None:
+                        visualize(image, target, pred, cnt, self.opt,alpha=alphas[index])
+                    else:
+                        visualize(image, target, pred, cnt, self.opt)
                 # wrong_gt_predict(target, pred, cnt, self.opt)
 
                 '''利用logger工具将结果记录于文件夹中'''
@@ -378,7 +382,7 @@ class Trainer(object):
 
                 pretreatmentData = self.pretreatment(data, False)
 
-                modelResult = self.model(*pretreatmentData)
+                modelResult = self.model(*pretreatmentData)['result']
 
                 cost = self.posttreatment(modelResult, pretreatmentData, data)
 

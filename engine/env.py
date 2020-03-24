@@ -77,7 +77,6 @@ class Env(object):
 
         return opt
 
-
     # def read_config_file(self,config_file):
     #     # 用yaml重构配置文件
     #     f = open(config_file)
@@ -111,15 +110,12 @@ class Env(object):
         if ratio > 0.5:
             flag = True
             while flag == True:
-                ans = input("More than 50% resource has been occupied on GPU{0}, are you sure to continue?(y/n)".format(str(gpu_list[0])))
+                ans = input("More than 50% resource has been occupied on GPU{0}, are you sure to continue?(y/n)".format(
+                    str(gpu_list[0])))
                 if ans == 'n':
                     exit(0)
-                elif ans== 'y':
+                elif ans == 'y':
                     flag = False
-
-
-
-
 
     def checkAddressExist(self):
         '''
@@ -132,7 +128,7 @@ class Env(object):
         if self.opt.FUNCTION.VAL_ONLY:
             return
 
-        def folderExist(key,value):
+        def folderExist(key, value):
             '''
             对于必须存在的路径的检查
             如果是空value，则不需要考虑
@@ -170,7 +166,7 @@ class Env(object):
                     if os.path.exists(root):
                         print('Path always exists: ', root)
                     else:
-                        print('Make folder: ' , root)
+                        print('Make folder: ', root)
                         os.makedirs(root)
 
         model_type = self.opt.BASE.TYPE
@@ -187,12 +183,15 @@ class Env(object):
         folderExist('opt.ADDRESS.VAL_DATA_DIR', self.opt.ADDRESS.VAL_DATA_DIR)
         folderExist('opt.ADDRESS.VAL_GT_DIR', self.opt.ADDRESS.VAL_GT_DIR)
 
-
-
-
-        createFolder(self.opt.ADDRESS.CHECKPOINTS_DIR,removeOrigin=True)
+        createFolder(self.opt.ADDRESS.CHECKPOINTS_DIR, removeOrigin=True)
         # createFolder(self.opt.ADDRESS.CACHE_DIR)
         '''保证每次训练时使用的文件夹都是新的'''
-        createFolder(self.opt.ADDRESS.LOGGER_DIR,removeOrigin=True)
+        createFolder(self.opt.ADDRESS.LOGGER_DIR, removeOrigin=True)
 
-
+        '''重新创建可视化文件夹'''
+        address = './Visualization'
+        if self.opt.BASE.EXPERIMENT_NAME != '':
+            address = address + '_' + self.opt.BASE.EXPERIMENT_NAME
+        if os.path.exists(address):
+            shutil.rmtree(address)
+        os.mkdir(address)

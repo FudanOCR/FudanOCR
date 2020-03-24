@@ -84,7 +84,7 @@ class newCRANN(nn.Module):
 
         output = data_parallel(self.rnn, c_feat, self.ngpu, dim=1)
 
-        return output
+        return {'result':output}
 
 def data_parallel(model, input, ngpu, dim=0):
     if isinstance(input.data, torch.cuda.FloatTensor) and ngpu > 1:

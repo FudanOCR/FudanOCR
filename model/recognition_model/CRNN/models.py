@@ -104,7 +104,7 @@ class CRNN(nn.Module):
         conv = conv.permute(2, 0, 1) # w, b, c  -> (seq_len, batch_size, input_size)
 
         rnn_result = self.rnn(conv)
-        return rnn_result
+        return  {'result':rnn_result}
 
 
 

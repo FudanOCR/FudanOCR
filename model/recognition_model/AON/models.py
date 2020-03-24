@@ -387,4 +387,4 @@ class AON(nn.Module):
         '''Decoder part'''
         output = self.decoder(combine_feats, text_length, text, test)
 
-        return output
+        return {'result':output}

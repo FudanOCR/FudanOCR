@@ -289,7 +289,9 @@ class Attention(nn.Module):
                 b = b + 1
 
             probs = self.generator(new_hiddens)
-            return probs
+            return {
+                'result': probs,
+            }
 
         else:
 
@@ -334,7 +336,10 @@ class Attention(nn.Module):
                 b = b + 1
 
             # print("注意力因子的尺寸为", alphas )
-            return probs_res,alphas
+            return {
+                'result': probs_res,
+                'alphas': alpha
+            }
 
 
 class AttentionCell_my(nn.Module):

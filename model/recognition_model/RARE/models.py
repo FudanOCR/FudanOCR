@@ -4,6 +4,7 @@ import torch.nn.init as init
 from torch.autograd import Variable
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
+import numpy as np
 
 from component.stn import SpatialTransformer
 from component.convnet.resnet import getResNet18
@@ -19,8 +20,8 @@ class RARE(nn.Module):
         self.opt = opt
 
         # self.stn = SpatialTransformer(self.opt)
-        # self.cnn = self.getCNN()
-        self.cnn = getResNet18()
+        self.cnn = self.getCNN()
+        # self.cnn = getResNet18()
 
         self.rnn = self.getEncoder()
         # n_class,hidden_size,num_embedding,input_size
@@ -138,7 +139,7 @@ class RARE(nn.Module):
         '''增加STN的可视化部分'''
 
         # input_tensor = input.cpu().data
-        # input = self.stn(input)
+        input = self.stn(input)
         # transformed_input_tensor = input.cpu().data
 
         '''*************************************'''
@@ -299,9 +300,23 @@ class Attention(nn.Module):
                 targets_temp = targets_temp.cuda()
                 probs = probs.cuda()
 
+            '''返回注意力因子，做成一个字典的形式返回'''
+            alphas = {}
+            for i in range(nB):
+                alphas[i] = []
+
             for i in range(num_steps):
+                # print("num_steps",num_steps)
                 cur_embeddings = self.char_embeddings.index_select(0, targets_temp)
                 hidden, alpha = self.attention_cell(hidden, feats, cur_embeddings, test)
+                # print("注意力向量维度:",alpha.size())  # (26,64)
+
+                for b in range(nB):
+                    alphas[b].append(alpha.transpose(1,0).contiguous().cpu().numpy()[b])
+
+                # alphas = np.append(alphas,alpha.cpu().numpy())
+                # alphas.append(alpha.cpu().numpy())
+
                 hidden2class = self.generator(hidden)
                 probs[i * nB:(i + 1) * nB] = hidden2class
                 _, targets_temp = hidden2class.max(1)
@@ -318,7 +333,8 @@ class Attention(nn.Module):
                 start = start + length
                 b = b + 1
 
-            return probs_res
+            # print("注意力因子的尺寸为", alphas )
+            return probs_res,alphas
 
 
 class AttentionCell_my(nn.Module):
@@ -442,9 +458,12 @@ class Attention_my(nn.Module):
                 targets_temp = targets_temp.cuda()
                 probs = probs.cuda()
 
+            # alphas = []
+
             for i in range(num_step):
                 cur_embeddings = self.char_embeddings.index_select(0, targets_temp)
                 hidden, alpha = self.attention_cell(hidden, feature, cur_embeddings)
+                # alphas.append(alpha)
                 hidden2class = self.generator(hidden)
                 probs[i * B:(i + 1) * B] = hidden2class
                 '''Is max differential?'''
@@ -467,6 +486,7 @@ class Attention_my(nn.Module):
                 b = b + 1
 
             return probs_res
+        # return probs_res
 
 
 class BLSTM(nn.Module):

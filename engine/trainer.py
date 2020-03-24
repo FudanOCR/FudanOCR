@@ -24,7 +24,6 @@ from utils.downloadCallback import callbackfunc
 from utils.imageVisualize import visualize
 
 
-
 class Trainer(object):
 
     def __init__(self, modelObject, opt='', train_loader='', val_loader=''):
@@ -68,8 +67,6 @@ class Trainer(object):
         if self.opt.FUNCTION.FINETUNE == True:
             assert self.finetune(), "opt.FUNCTION.FINETUNE == True. You need to overload the function finetune() to adjust the model or the optimizer."
 
-
-
     def initModel(self, modelObject):
         '''
         根据配置文件初始化模型
@@ -94,7 +91,6 @@ class Trainer(object):
             self.highestAcc = 0
 
             self.val_times = 0
-
 
     def loadParam(self):
         '''
@@ -132,11 +128,9 @@ class Trainer(object):
             model_name = self.opt.BASE.MODEL
             print('Load pretrained model from : ', pretrain_model[model_name])
 
-
-
             request.urlretrieve(pretrain_model[model_name], os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR,
-                                                                                pretrain_model[model_name].split('/')[
-                                                                                    -1]),callbackfunc)
+                                                                         pretrain_model[model_name].split('/')[
+                                                                             -1]), callbackfunc)
             print("Finish loading!")
 
             address = os.path.join(self.opt.ADDRESS.PRETRAIN_MODEL_DIR, pretrain_model[model_name].split('/')[-1])
@@ -214,19 +208,21 @@ class Trainer(object):
             except:
                 continue
 
-
             pretreatmentData = self.pretreatment(data, True)
 
-            modelResult = self.model(*pretreatmentData)
+            result = self.model(*pretreatmentData)
+            if len(result) == 1:
+                modelResult = self.model(*pretreatmentData)
+                alphas = modelResult.size(0) * [None]
+            else:
+                modelResult, alphas = self.model(*pretreatmentData)
 
             cost, preds, targets = self.posttreatment(modelResult, pretreatmentData, originData=data, test=True)
 
             loss_avg.add(cost)
 
-
-
-
-            for image, pred, target in zip(data[0],preds, targets):
+            index = 0
+            for image, pred, target in zip(data[0], preds, targets):
                 # print(pred,target)
                 if pred.lower() == target.lower():
                     n_correct += 1
@@ -238,26 +234,33 @@ class Trainer(object):
                 # wrong_gt_predict(target, pred, cnt, self.opt)
 
                 if self.opt.FUNCTION.VAL_ONLY:
-                    visualize(image, target, pred,cnt,self.opt)
+                    visualize(image, target, pred, cnt, self.opt,alpha=alphas[index])
                 # wrong_gt_predict(target, pred, cnt, self.opt)
 
                 '''利用logger工具将结果记录于文件夹中'''
-                file_summary(self.opt.ADDRESS.LOGGER_DIR,str(self.val_times) +'_'+self.opt.BASE.MODEL+ "_result" +".txt","预测 %s      目标 %s\n" % (pred, target))
+                file_summary(self.opt.ADDRESS.LOGGER_DIR,
+                             str(self.val_times) + '_' + self.opt.BASE.MODEL + "_result" + ".txt",
+                             "预测 %s      目标 %s\n" % (pred, target))
 
                 '''添加功能：对正确文本和错误文本进行分类'''
                 if pred.lower() == target.lower():
-                    file_summary(self.opt.ADDRESS.LOGGER_DIR,str(self.val_times) +'_'+self.opt.BASE.MODEL+ "_right"+".txt","预测 %s      目标 %s\n" % (pred, target))
+                    file_summary(self.opt.ADDRESS.LOGGER_DIR,
+                                 str(self.val_times) + '_' + self.opt.BASE.MODEL + "_right" + ".txt",
+                                 "预测 %s      目标 %s\n" % (pred, target))
                 else:
-                    file_summary(self.opt.ADDRESS.LOGGER_DIR,str(self.val_times) +'_'+self.opt.BASE.MODEL+ "_wrong"+".txt","预测 %s      目标 %s\n" % (pred, target))
+                    file_summary(self.opt.ADDRESS.LOGGER_DIR,
+                                 str(self.val_times) + '_' + self.opt.BASE.MODEL + "_wrong" + ".txt",
+                                 "预测 %s      目标 %s\n" % (pred, target))
 
                 distance += Levenshtein.distance(pred.lower(), target.lower()) / max(len(pred), len(target))
                 n_total += 1
-
+                index += 1
                 cnt += 1
 
         accuracy = n_correct / float(n_total)
         '''利用logger工具将结果进行可视化'''
-        total_index = epoch*(len(self.train_loader)//self.opt.FREQ.VAL_FREQ+1)+iteration//self.opt.FREQ.VAL_FREQ
+        total_index = epoch * (
+                    len(self.train_loader) // self.opt.FREQ.VAL_FREQ + 1) + iteration // self.opt.FREQ.VAL_FREQ
         self.Logger.scalar_summary('Levenshtein Distance', distance / n_total, total_index)
         self.Logger.scalar_summary('Accuracy', accuracy, total_index)
         self.Logger.scalar_summary('Avg Loss', loss_avg.val(), total_index)
@@ -268,7 +271,7 @@ class Trainer(object):
         self.setModelState('train')
 
         '''结束可视化工作'''
-        visualize(opt=self.opt,finish=True)
+        visualize(opt=self.opt, finish=True)
 
         return accuracy
 
@@ -299,7 +302,8 @@ class Trainer(object):
             eval_func(input_json_path, gt_json_path, self.opt)
 
         # Generate log
-        total_index = epoch*(len(self.train_loader)//self.opt.FREQ.VAL_FREQ+1)+iteration//self.opt.FREQ.VAL_FREQ
+        total_index = epoch * (
+                    len(self.train_loader) // self.opt.FREQ.VAL_FREQ + 1) + iteration // self.opt.FREQ.VAL_FREQ
         self.Logger.scalar_summary('Precision', precision, total_index)
         self.Logger.scalar_summary('Recall', recall, total_index)
         self.Logger.scalar_summary('F_score', f_score, total_index)
@@ -357,7 +361,6 @@ class Trainer(object):
 
         t0 = time.time()
         self.highestAcc = 0
-
 
         for epoch in range(self.opt.MODEL.EPOCH):
 

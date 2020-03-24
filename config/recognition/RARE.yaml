@@ -3,7 +3,7 @@ BASE:
   MODEL: 'RARE'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '2,'
+  GPU_ID: '0,'
   WORKERS: 2
   CUDA: True
   EXPERIMENT_NAME:  'RARE_尝试用resnet抽取特征'
@@ -33,7 +33,7 @@ ADDRESS:
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
   CHECKPOINTS_DIR: './Checkpoints/'
-  PRETRAIN_MODEL_DIR: ''
+  PRETRAIN_MODEL_DIR: '/home/cjy/FudanOCR/RARE/RARE_syn800w_IC13_0.8319_8626e2a.pth'
   LOGGER_DIR: './Logger/'
 
 IMAGE:
@@ -42,7 +42,7 @@ IMAGE:
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: False
+  VAL_ONLY: True
   FINETUNE: False
 
 VISUALIZE:

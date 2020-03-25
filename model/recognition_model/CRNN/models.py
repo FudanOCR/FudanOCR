@@ -97,6 +97,8 @@ class CRNN(nn.Module):
     def forward(self, input):
         conv = self.cnn(input)
 
+        
+
         b, c, h, w = conv.size()
         assert h==1
 

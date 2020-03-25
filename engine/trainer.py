@@ -11,6 +11,7 @@ from tqdm import tqdm
 import numpy as np
 import json
 
+
 from engine.loss import getLoss
 from engine.optimizer import getOptimizer
 from alphabet.alphabet import Alphabet
@@ -47,6 +48,7 @@ class Trainer(object):
 
         '''初始化模型，并且加载预训练模型'''
         self.model = self.initModel(modelObject)
+        print(self.model)
         self.loadParam()
         self.loadTool()
 
@@ -56,6 +58,8 @@ class Trainer(object):
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.Logger = Logger(self.opt.VISUALIZE.TAG)
+
+        self.displayModelFlow()
 
         '''动态调整lr'''
         self.scheduler = None
@@ -72,9 +76,21 @@ class Trainer(object):
         根据配置文件初始化模型
         '''
         if self.opt.BASE.CUDA:
-            return modelObject(self.opt).cuda()
+            model = modelObject(self.opt).cuda()
+            return model
         else:
-            modelObject(self.opt)
+            model = modelObject(self.opt)
+            return model
+
+
+
+    def displayModelFlow(self):
+        '''
+        利用torchsummary可视化网络传输流
+        '''
+        return
+        from torchsummary import summary
+        summary(self.model, (self.opt.IMAGE.IMG_CHANNEL,self.opt.IMAGE.IMG_H,self.opt.IMAGE.IMG_W))
 
     def loadTool(self):
         '''
@@ -216,7 +232,7 @@ class Trainer(object):
                 alphas = self.model(*pretreatmentData)['alphas']
             except:
                 alphas = None
-
+            # print("输出",alphas)
 
             cost, preds, targets = self.posttreatment(modelResult, pretreatmentData, originData=data, test=True)
 

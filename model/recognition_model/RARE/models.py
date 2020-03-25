@@ -338,7 +338,7 @@ class Attention(nn.Module):
             # print("注意力因子的尺寸为", alphas )
             return {
                 'result': probs_res,
-                'alphas': alpha
+                'alphas': alphas
             }
 
 

@@ -58,7 +58,7 @@ def visualize(img='', target='', pred='', cnt='', opt='', finish=False, alpha=No
     img =  cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     if alpha != None:
         for point in attention_center:
-            print("注意力点为",point)
+            # print("注意力点为",point)
             cv2.circle(img, (0+4*point,16), 1, (0, 0, 255), 2)
 
     cv2.imwrite(address + "/{0}_{1}_{2}.jpg".format(str(cnt), target, pred), img = img)

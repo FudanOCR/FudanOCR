@@ -3,10 +3,10 @@ BASE:
   MODEL: 'RARE'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '0,'
+  GPU_ID: '2,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'RARE_注意力机制初始状态改进'
+  EXPERIMENT_NAME:  'RARE_注意力机制初始状态改进_使用cnnfeature进行注意力'
 
 DATASETS:
   DATASET: 'DatasetName*'

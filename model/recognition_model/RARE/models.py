@@ -26,7 +26,7 @@ class RARE(nn.Module):
         self.rnn = self.getEncoder()
         # n_class,hidden_size,num_embedding,input_size
         # self.attention = Attention(self.n_class,256, 128,256)
-        self.attention = Attention(256, 256, self.n_class, 128)
+        self.attention = Attention(512, 256, self.n_class, 128)
 
 
         # Spatial transformer localization-network
@@ -184,6 +184,7 @@ class RARE(nn.Module):
         assert H == 1, 'The height of the input image must be 1.'
         result = result.squeeze(2)
         result = result.permute(2, 0, 1)
+        cnn_result = result.contiguous()
 
         result,init_state = self.rnn(result)
         # init_state 2,64,256
@@ -192,7 +193,7 @@ class RARE(nn.Module):
         # print("size:",init_state.size())
         '''feature, text_length, test sign'''
         # result = self.attention(result,text,text_length, test)
-        result = self.attention(result, text_length, text, init_state, test)
+        result = self.attention(cnn_result, text_length, text, init_state, test)
         # print("返回类型为",type(result))
         return result
 
@@ -209,6 +210,8 @@ class AttentionCell(nn.Module):
         self.num_embeddings = num_embeddings
         # self.fracPickup = fracPickup(CUDA=CUDA)
 
+        # self.char_embeddings = Parameter(torch.randn(num_classes + 1, num_embeddings))
+
     def forward(self, prev_hidden, feats, cur_embeddings, test=False):
         nT = feats.size(0)
         nB = feats.size(1)
@@ -218,6 +221,7 @@ class AttentionCell(nn.Module):
         feats_proj = self.i2h(feats.view(-1, nC))
         prev_hidden_proj = self.h2h(prev_hidden).view(1, nB, hidden_size).expand(nT, nB, hidden_size).contiguous().view(
             -1, hidden_size)
+        # 对注意力机制进行改进
         emition = self.score(F.tanh(feats_proj + prev_hidden_proj).view(-1, hidden_size)).view(nT, nB)
 
         alpha = F.softmax(emition, 0)  # nB * nT
@@ -259,7 +263,7 @@ class Attention(nn.Module):
         nC = feats.size(2)
         hidden_size = self.hidden_size
         input_size = self.input_size
-        assert (input_size == nC)
+        assert (input_size == nC),"input_size={0},nC={1}".format(input_size,nC)
         assert (nB == text_length.numel())
 
         num_steps = text_length.data.max()
@@ -350,157 +354,6 @@ class Attention(nn.Module):
                 'alphas': alphas
             }
 
-
-class AttentionCell_my(nn.Module):
-    '''
-    Define a special RNN.
-    '''
-
-    # self.attention_cell(hidden,feature,cur_embedding)
-    # self.attention_cell = AttentionCell(input_size,num_embedding,hidden_size)
-    def __init__(self, input_size, num_embeddings, hidden_size):
-        nn.Module.__init__(self)
-
-        self.h2h = nn.Linear(hidden_size, hidden_size)
-        self.c2h = nn.Linear(input_size, hidden_size, bias=False)
-        self.score = nn.Linear(hidden_size, 1, bias=False)
-        self.rnn = nn.GRUCell(input_size + num_embeddings, hidden_size)
-
-        self.input_size = input_size
-        self.num_embeddings = num_embeddings
-        self.hidden_size = hidden_size
-
-    def forward(self, hidden, feature, embedding):
-        '''
-        hidden: B * H
-        feature: T * B * C
-        embedding: B * embedding_size
-        '''
-
-        T = feature.size(0)
-        B = feature.size(1)
-        C = feature.size(2)
-        H = self.hidden_size
-
-        feature_proj = self.c2h(feature.view(-1, H))  # T*B,H
-        prev_hidden_proj = self.h2h(hidden).view(1, B, self.hidden_size).expand(T, B, self.hidden_size) \
-            .contiguous().view(-1, H)  # T*B,H
-        # emition = self.score(F.tanh(feature_proj + prev_hidden_proj).view(-1, H)).view(T,B) # T*B
-        emition = self.score(F.tanh(feature_proj + prev_hidden_proj).view(-1, H)).view(T, B)
-        alpha = F.softmax(emition, 0)  # T*B
-        # context = (feature * alpha.expand(T*B,C).contiguous().view(T,B,C)).sum(0).squeeze(0).view(B,C)
-        context = (feature * alpha.view(T, B, 1).expand(T, B, C)).sum(0).squeeze(0)  # nB * nC
-        context = torch.cat([context, embedding], 1)
-        cur_hidden = self.rnn(context, hidden)
-        return cur_hidden, alpha
-
-
-class Attention_my(nn.Module):
-
-    def __init__(self, n_class, hidden_size, num_embedding, input_size):
-        nn.Module.__init__(self)
-
-        self.n_class = n_class
-        self.hidden_size = hidden_size
-        self.input_size = input_size
-        self.num_embedding = num_embedding
-        # input_size,num_embeddings,hidden_size
-        self.attention_cell = AttentionCell(input_size, num_embedding, hidden_size)
-        '''why +1?'''
-        self.char_embeddings = Parameter(torch.randn(n_class + 1, self.num_embedding))
-        '''You need a generator to transform a embedded vector into character'''
-        self.generator = nn.Linear(hidden_size, n_class)
-
-    def forward(self, feature, text, text_length, test):
-
-        T = feature.size(0)
-        B = feature.size(1)
-        C = feature.size(2)
-
-        '''Define some assertions'''
-        assert (self.input_size == C)
-        assert (B == text_length.numel())
-
-        '''最大迭代次数'''
-        num_step = text_length.max()
-        num_label = text_length.sum()
-        hidden_size = self.hidden_size
-
-        '''初试化隐藏状态'''
-        hidden = Variable(torch.zeros(B, self.hidden_size))
-
-        if not test:
-            '''训练状态'''
-
-            '''建立一个target区域'''
-            target = torch.zeros(B, num_step + 1).long().cuda()
-            stard_id = 0
-            for i in range(B):
-                target[i][1:1 + text_length[i]] = text[stard_id:stard_id + text_length[i]] + 1
-                stard_id += text_length[i]
-            target = Variable(target.transpose(0, 1).contiguous())
-
-            hidden = Variable(torch.zeros(B, hidden_size).type_as(feature))
-            output_hiddens = Variable(torch.zeros(num_step, B, hidden_size).type_as(feature))
-
-            '''第一个step是什么？'''
-            for i in range(num_step):
-                cur_embedding = self.char_embeddings.index_select(0, target[i])
-                hidden, alpha = self.attention_cell(hidden, feature, cur_embedding)
-                output_hiddens[i] = hidden
-
-            new_hidden = Variable(torch.zeros(num_label, hidden_size).type_as(feature))
-            b = 0
-            start = 0
-
-            for length in text_length:
-                new_hidden[start: start + length] = output_hiddens[0:length, b, :]
-                b += 1
-                start = start + length
-
-            probs = self.generator(new_hidden)
-            return probs
-
-        else:
-            '''测试状态'''
-
-            hidden = Variable(torch.zeros(B, hidden_size).type_as(feature.data))
-            targets_temp = Variable(torch.zeros(B).long().contiguous())
-            probs = Variable(torch.zeros(B * num_step, self.n_class))
-
-            if self.cuda:
-                targets_temp = targets_temp.cuda()
-                probs = probs.cuda()
-
-            # alphas = []
-
-            for i in range(num_step):
-                cur_embeddings = self.char_embeddings.index_select(0, targets_temp)
-                hidden, alpha = self.attention_cell(hidden, feature, cur_embeddings)
-                # alphas.append(alpha)
-                hidden2class = self.generator(hidden)
-                probs[i * B:(i + 1) * B] = hidden2class
-                '''Is max differential?'''
-                _, targets_temp = hidden2class.max(1)
-                '''why +1?'''
-                targets_temp += 1
-
-            probs = probs.view(num_step, B, self.n_class).permute(1, 0, 2).contiguous()
-            probs = probs.view(-1, self.n_class).contiguous()
-            probs_res = Variable(torch.zeros(num_label, self.n_class).type_as(feature.data))
-            b = 0
-            start = 0
-
-            '''
-            At test procedure, is it possible for us to use length?
-            '''
-            for length in text_length.data:
-                probs_res[start:start + length] = probs[b * num_step:b * num_step + length]
-                start = start + length
-                b = b + 1
-
-            return probs_res
-        # return probs_res
 
 
 class BLSTM(nn.Module):

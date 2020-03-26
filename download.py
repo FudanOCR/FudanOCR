@@ -67,19 +67,19 @@ resourceDict = {
     ),
     'LSVT_TRAIN': Resource(
         name='LSVT_TRAIN',
-        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LVST_TRAIN.zip',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LSVT_TRAIN.zip',
         size='1.0G',
         description='R Dataset'
     ),
     'LSVT_TEST': Resource(
         name='LSVT_TEST',
-        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LVST_TEST.zip',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LSVT_TEST.zip',
         size='115.3M',
         description='R Dataset'
     ),
     'LSVT_LABEL': Resource(
         name='LSVT_LABEL',
-        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LVST_LABEL.zip',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LSVT_LABEL.zip',
         size='2.6M',
         description='R Dataset'
     ),

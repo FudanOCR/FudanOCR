@@ -26,12 +26,10 @@ For details, see the README file under each directory.
 - utils: Utility module. Store some useful functions.
 
 ## Dependence
-Still under construction. If you use the existing model in /model, see 
- /model/document to configure the appropriate environment. 
- 
-If you want to use the framework to implement your own model, 
-we recommend you to use `python 3.6+`, `torch>=1.2.0` and install the other packages in 
-`requirements.txt` :)
+`pip install -r requirements.txt`
+
+python3.6
+
 
 ## Usage
 

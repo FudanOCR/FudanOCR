@@ -6,7 +6,7 @@ BASE:
   GPU_ID: '0,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'RARE_尝试用resnet抽取特征'
+  EXPERIMENT_NAME:  'RARE_注意力机制初始状态改进'
 
 DATASETS:
   DATASET: 'DatasetName*'

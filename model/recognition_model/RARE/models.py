@@ -128,9 +128,10 @@ class RARE(nn.Module):
     def getEncoder(self):
 
         rnn = nn.Sequential(
-            BLSTM(512, 256, 256),
-            BLSTM(256, 256, 256)
+            BLSTM(512, 256, 256,False),
+            BLSTM(256, 256, 256,True)
         )
+        # print("隐藏状态size:",init_state.size())
         return rnn
 
     # image, length, text, text_rev, test
@@ -184,10 +185,14 @@ class RARE(nn.Module):
         result = result.squeeze(2)
         result = result.permute(2, 0, 1)
 
-        result = self.rnn(result)
+        result,init_state = self.rnn(result)
+        # init_state 2,64,256
+        init_state = init_state[0].squeeze(0).contiguous()
+
+        # print("size:",init_state.size())
         '''feature, text_length, test sign'''
         # result = self.attention(result,text,text_length, test)
-        result = self.attention(result, text_length, text, test)
+        result = self.attention(result, text_length, text, init_state, test)
         # print("返回类型为",type(result))
         return result
 
@@ -247,7 +252,7 @@ class Attention(nn.Module):
         self.cuda = CUDA
 
     # targets is nT * nB
-    def forward(self, feats, text_length, text, test=False):
+    def forward(self, feats, text_length, text, init_state, test=False):
 
         nT = feats.size(0)
         nB = feats.size(1)
@@ -273,7 +278,8 @@ class Attention(nn.Module):
             targets = Variable(targets.transpose(0, 1).contiguous())
 
             output_hiddens = Variable(torch.zeros(num_steps, nB, hidden_size).type_as(feats.data))
-            hidden = Variable(torch.zeros(nB, hidden_size).type_as(feats.data))
+            # hidden = Variable(torch.zeros(nB, hidden_size).type_as(feats.data))
+            hidden = init_state
 
             for i in range(num_steps):
                 cur_embeddings = self.char_embeddings.index_select(0, targets[i])
@@ -296,7 +302,9 @@ class Attention(nn.Module):
 
         else:
 
-            hidden = Variable(torch.zeros(nB, hidden_size).type_as(feats.data))
+            # hidden = Variable(torch.zeros(nB, hidden_size).type_as(feats.data))
+            hidden = init_state
+
             targets_temp = Variable(torch.zeros(nB).long().contiguous())
             probs = Variable(torch.zeros(nB * num_steps, self.num_classes))
             if self.cuda:
@@ -498,17 +506,23 @@ class Attention_my(nn.Module):
 class BLSTM(nn.Module):
     '''双向循环神经网络'''
 
-    def __init__(self, nIn, nHidden, nOut):
+    def __init__(self, nIn, nHidden, nOut, return_hidden = False):
         nn.Module.__init__(self)
 
         self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True, dropout=0.3)
         self.linear = nn.Linear(nHidden * 2, nOut)
+        self.return_hidden = return_hidden
 
     def forward(self, input):
         '''The size of input must be [T,B,C]'''
         T, B, C = input.size()
-        result, _ = self.rnn(input)
+        result, (hn, cn) = self.rnn(input)
         result = result.view(T * B, -1)
         result = self.linear(result)
         result = result.view(T, B, -1)
-        return result
+        if self.return_hidden == True:
+            # print(hn.size())
+            # 2, 64, 256
+            return result, hn
+        else:
+            return result

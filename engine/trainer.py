@@ -232,7 +232,7 @@ class Trainer(object):
                 alphas = self.model(*pretreatmentData)['alphas']
             except:
                 alphas = None
-            # print("输出",alphas)
+            # print("输出",type(modelResult))
 
             cost, preds, targets = self.posttreatment(modelResult, pretreatmentData, originData=data, test=True)
 
@@ -399,6 +399,7 @@ class Trainer(object):
                 pretreatmentData = self.pretreatment(data, False)
 
                 modelResult = self.model(*pretreatmentData)['result']
+                # print("402行类型为",type(modelResult))
 
                 cost = self.posttreatment(modelResult, pretreatmentData, data)
 

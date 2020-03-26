@@ -56,7 +56,8 @@ class RARE_Trainer(Trainer):
 
         if test == False:
             image, length, text, text_rev, test = pretreatmentData
-            preds = self.model(image, length, text, text_rev)
+            # preds = self.model(image, length, text, text_rev)
+            preds = modelResult
             cost = self.criterion(preds, text)
             return cost
         else:

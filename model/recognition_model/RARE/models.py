@@ -188,6 +188,7 @@ class RARE(nn.Module):
         '''feature, text_length, test sign'''
         # result = self.attention(result,text,text_length, test)
         result = self.attention(result, text_length, text, test)
+        # print("返回类型为",type(result))
         return result
 
 

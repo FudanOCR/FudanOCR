@@ -15,7 +15,7 @@ from engine.trainer_collection.AON import AON_Trainer
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = CRNN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
+newTrainer = RARE_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
                            val_loader=test_loader).train()
 
 # import torch

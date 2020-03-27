@@ -178,7 +178,7 @@ class Encoder(nn.Module):
         x = torch.max(x, 2)[0]
         x = x.permute(2, 0, 1).contiguous()  # 40*64*512
         x, hn = self.rnn(x)
-        print("Encoder里,hn的size为", hn.size())
+        # print("Encoder里,hn的size为", hn.size())
         return x, hn
 
 

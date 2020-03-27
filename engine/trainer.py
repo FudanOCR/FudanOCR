@@ -98,7 +98,7 @@ class Trainer(object):
         '''
         if self.opt.BASE.TYPE == 'R':
             self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
-            if self.opt.BASE.MODEL == 'MORAN' or self.opt.BASE.MODEL == 'RARE' or self.opt.BASE.MODEL == 'AON':
+            if self.opt.BASE.MODEL == 'MORAN' or self.opt.BASE.MODEL == 'RARE' or self.opt.BASE.MODEL == 'AON' or self.opt.BASE.MODEL == 'SAR':
                 from utils.strLabelConverterForAttention import strLabelConverterForAttention
                 self.converter = strLabelConverterForAttention(self.alphabet.str)
             elif self.opt.BASE.MODEL == 'GRCNN' or self.opt.BASE.MODEL == 'CRNN':
@@ -219,9 +219,11 @@ class Trainer(object):
 
         cnt = 0
         for i in range(len(val_loader)):
+
             try:
                 data = val_iter.next()
             except:
+                print("数据读取错误")
                 continue
 
             pretreatmentData = self.pretreatment(data, True)
@@ -240,7 +242,7 @@ class Trainer(object):
 
             index = 0
             for image, pred, target in zip(data[0], preds, targets):
-                # print(pred,target)
+
                 if pred.lower() == target.lower():
                     n_correct += 1
                 # else:

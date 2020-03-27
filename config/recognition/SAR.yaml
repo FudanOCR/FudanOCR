@@ -1,0 +1,71 @@
+# python main.py --config_file ./config/recognition/SAR.yaml
+BASE:
+  MODEL: 'SAR'
+  TYPE: 'R'
+  NUM_GPUS: 1
+  GPU_ID: '3,'
+  WORKERS: 2
+  CUDA: True
+  EXPERIMENT_NAME:  'SAR_DEBUG版本'
+
+DATASETS:
+  DATASET: 'DatasetName*'
+  TYPE: 'lmdb'
+  SAMPLER: ''
+  COLLATE_FN: ''
+
+ADDRESS:
+  ALPHABET: '/home/cjy/FudanOCR/alphabet/words/ic15_words.txt'
+#  TRAIN_DATA_DIR: '/home/cjy/mnt/ramdisk/max/90kDICT32px/'
+#  TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
+  # TRAIN_DATA_DIR: '/home/cjy/ic03_test_lmdb'
+  TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb'
+  TRAIN_GT_DIR: ''
+
+  TEST_DATA_DIR: ''
+  TEST_GT_DIR: ''
+  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
+  VAL_GT_DIR: ''
+#  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
+#  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
+
+#  VAL_DATA_DIR: "/home/cjy/Word_recognition/ch4_test_word_images_gt"
+#  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
+
+  CHECKPOINTS_DIR: './Checkpoints/'
+  PRETRAIN_MODEL_DIR: ''
+  LOGGER_DIR: './Logger/'
+
+IMAGE:
+  IMG_H: 48
+  IMG_W: 160
+  IMG_CHANNEL: 1
+
+FUNCTION:
+  VAL_ONLY: False
+  FINETUNE: False
+
+VISUALIZE:
+  #the tag to indentify log file, starts with 'Logger/'
+  TAG: 'Logger/runs/exp'
+  RECOGNITION_VISUALIZE: True
+
+MODEL:
+  EPOCH: 100000
+  BATCH_SIZE: 64
+  LR: 1.0
+  DYNAMIC_LR: False
+  OPTIMIZER: 'Adadelta'
+  LOSS: 'CrossEntropyLoss'
+
+THRESHOLD:
+  MAXSIZE: 100
+  MINSIZE: 1
+  TEXT_SCALE: 75
+
+FREQ:
+  SAVE_FREQ: 4000
+  SHOW_FREQ: 100
+  VAL_FREQ: 1000
+
+BidirDecoder: False

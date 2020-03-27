@@ -20,6 +20,9 @@ def getModel(model_name):
     elif model_name == 'RARE':
         from model.recognition_model.RARE.models import RARE
         return RARE
+    elif model_name == 'SAR':
+        from model.recognition_model.SAR.models import SAR
+        return SAR
     elif model_name == 'PixelLink':
         from model.detection_model.PixelLink.net import Net
         return Net

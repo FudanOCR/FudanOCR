@@ -3,10 +3,10 @@ BASE:
   MODEL: 'SAR'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '3,'
-  WORKERS: 2
+  GPU_ID: '0,'
+  WORKERS: 0
   CUDA: True
-  EXPERIMENT_NAME:  'SAR_DEBUG版本'
+  EXPERIMENT_NAME:  'SAR_DEBUG版本_查看模型参数'
 
 DATASETS:
   DATASET: 'DatasetName*'

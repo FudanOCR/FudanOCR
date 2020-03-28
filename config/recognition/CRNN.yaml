@@ -3,7 +3,7 @@ BASE:
   MODEL: 'CRNN'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '3,'
+  GPU_ID: '0,'
   WORKERS: 0
   CUDA: True
   EXPERIMENT_NAME:  'IC03_visualize'

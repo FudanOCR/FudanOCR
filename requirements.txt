@@ -93,3 +93,4 @@ Werkzeug==0.16.0
 wrapt==1.11.2
 yacs==0.1.6
 pynvml
+prettytable

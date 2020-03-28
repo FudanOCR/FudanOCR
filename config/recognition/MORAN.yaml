@@ -6,7 +6,7 @@ BASE:
   GPU_ID: '1,'
   WORKERS: 4
   CUDA: True
-  EXPERIMENT_NAME:  'MORAN_noBidecoder'
+  EXPERIMENT_NAME:  'MORAN_mjq2'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -20,10 +20,10 @@ ADDRESS:
   TRAIN_GT_DIR: ''
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/mjq/mjqlmdb'
   VAL_GT_DIR: ''
   CHECKPOINTS_DIR: './IC13_Checkpoints/'
-  PRETRAIN_MODEL_DIR: ''
+  PRETRAIN_MODEL_DIR: './MORAN'
   LOGGER_DIR: './IC13_Logger/'
 
 IMAGE:
@@ -32,7 +32,7 @@ IMAGE:
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: False
+  VAL_ONLY: True
   FINETUNE: False
 
 MODEL:

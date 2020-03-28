@@ -6,7 +6,7 @@ BASE:
   GPU_ID: '0,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'AON_800w_IC03_训练数据集旋转90倍数度_解决图片翻转bug_可视化'
+  EXPERIMENT_NAME:  'AON_mjq'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -24,7 +24,7 @@ ADDRESS:
 
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic03_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/mjq/mjqlmdb'
   VAL_GT_DIR: ''
 #  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
 #  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'

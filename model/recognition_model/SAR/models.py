@@ -9,7 +9,7 @@ import numpy as np
 
 class BasicBlock(nn.Module):
     '''
-    构成ResNet的残差快
+    构成ResNet的残差块
     '''
 
     def __init__(self, inplanes, planes, downsample):
@@ -19,7 +19,6 @@ class BasicBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
-
         self.downsample = downsample
 
     def forward(self, x):
@@ -42,9 +41,9 @@ class BasicBlock(nn.Module):
 
 
 class ResNet(nn.Module):
+    '''特征抽取网络'''
 
     def __init__(self, num_in, block, layers):
-        self.inplanes = 64
         super(ResNet, self).__init__()
 
         self.conv1 = nn.Conv2d(num_in, 64, kernel_size=3, stride=1, padding=1)
@@ -74,9 +73,9 @@ class ResNet(nn.Module):
         self.layer3_relu = nn.ReLU(inplace=True)
 
         self.layer4 = self._make_layer(block, 512, 512, layers[3])
-        self.layer4_conv2 = nn.Conv2d(512, 512, 3, 1, 1)
-        self.layer4_conv2_bn = nn.BatchNorm2d(512)
-        self.layer4_conv2_relu = nn.ReLU(inplace=True)
+        self.layer4_conv = nn.Conv2d(512, 512, 3, 1, 1)
+        self.layer4_conv_bn = nn.BatchNorm2d(512)
+        self.layer4_conv_relu = nn.ReLU(inplace=True)
 
         # Official init from torch repo
         print("Initializing ResNet18 weights...")
@@ -131,9 +130,9 @@ class ResNet(nn.Module):
         x = self.layer3_relu(x)
 
         x = self.layer4(x)
-        x = self.layer4_conv2(x)
-        x = self.layer4_conv2_bn(x)
-        x = self.layer4_conv2_relu(x)
+        x = self.layer4_conv(x)
+        x = self.layer4_conv_bn(x)
+        x = self.layer4_conv_relu(x)
 
         return x
 
@@ -142,11 +141,8 @@ class BidirectionalLSTM(nn.Module):
 
     def __init__(self, nIn, nHidden, nOut, returnhn=False):
         super(BidirectionalLSTM, self).__init__()
-
-        # self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True, dropout=0.3)
-        self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True)
+        self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True, dropout=0.3)
         self.embedding = nn.Linear(nHidden * 2, nOut)
-
         self.returnfn = returnhn
 
     def forward(self, input):
@@ -160,7 +156,7 @@ class BidirectionalLSTM(nn.Module):
         if self.returnfn == False:
             return output
         else:
-            # hn 2,64,512
+            # hn (2,64,512) -> (64,512)
             hn = hn[0]  # 64, 512
             return output, hn
 
@@ -198,7 +194,6 @@ class AttentionCell(nn.Module):
         self.relu = nn.ReLU()
 
     def forward(self, prev_hidden, conv_feats, conv_feats_origin, cur_embeddings, test=False):
-
         prev_hidden_temp = prev_hidden
         if len(prev_hidden.size()) == 2:
             prev_hidden = prev_hidden.unsqueeze(0).contiguous()  # 1 64 512
@@ -234,7 +229,8 @@ class AttentionCell(nn.Module):
         # print("!", alpha.size())  # 240,64
         # print("!", prev_hidden.size())
 
-        context = (conv_feats_origin.view(self.H * self.W, nB,-1) * alpha.view(self.H * self.W, nB, 1).expand(self.H * self.W, nB, nC)).sum(
+        context = (conv_feats_origin.view(self.H * self.W, nB, -1) * alpha.view(self.H * self.W, nB, 1).expand(
+            self.H * self.W, nB, nC)).sum(
             0).squeeze(0)  # nB * nC
         # print("!", context.size())
         context = torch.cat([context, cur_embeddings], 1)
@@ -377,7 +373,6 @@ class SAR(nn.Module):
     def forward(self, input, text_length, text, text_rev, test=False):
         conv_feats = self.cnn(input)
         encoder_feats, hn = self.encoder(conv_feats)
-        # def forward(self, feats, text_length, text, init_state, test=False):
         x = self.decoder(conv_feats, hn, text_length, text, test)
         return x
 

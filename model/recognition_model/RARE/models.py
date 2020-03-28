@@ -4,10 +4,8 @@ import torch.nn.init as init
 from torch.autograd import Variable
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
-import numpy as np
 
 from component.stn import SpatialTransformer
-from component.convnet.resnet import getResNet18
 
 
 class RARE(nn.Module):
@@ -21,12 +19,10 @@ class RARE(nn.Module):
 
         # self.stn = SpatialTransformer(self.opt)
         self.cnn = self.getCNN()
-        # self.cnn = getResNet18()
-
         self.rnn = self.getEncoder()
         # n_class,hidden_size,num_embedding,input_size
         # self.attention = Attention(self.n_class,256, 128,256)
-        self.attention = Attention(512, 256, self.n_class, 128)
+        self.attention = Attention(256, 256, self.n_class, 128)
 
 
         # Spatial transformer localization-network
@@ -128,54 +124,15 @@ class RARE(nn.Module):
     def getEncoder(self):
 
         rnn = nn.Sequential(
-            BLSTM(512, 256, 256,False),
-            BLSTM(256, 256, 256,True)
+            BLSTM(512, 256, 256),
+            BLSTM(256, 256, 256)
         )
-        # print("隐藏状态size:",init_state.size())
         return rnn
 
     # image, length, text, text_rev, test
     def forward(self, input, text_length, text, text_rev, test=False):
 
-        '''增加STN的可视化部分'''
-
-        # input_tensor = input.cpu().data
         input = self.stn(input)
-        # transformed_input_tensor = input.cpu().data
-
-        '''*************************************'''
-        # stn可视化
-        # import matplotlib.pyplot as plt
-        # import torchvision
-        # import numpy as np
-        #
-        # def convert_image_np(inp):
-        #     """Convert a Tensor to numpy image."""
-        #     inp = inp.numpy().transpose((1, 2, 0))
-        #     mean = np.array([0.485, 0.456, 0.406])
-        #     std = np.array([0.229, 0.224, 0.225])
-        #     inp = std * inp + mean
-        #     inp = np.clip(inp, 0, 1)
-        #     return inp
-        #
-        # for i in range(input_tensor.size(0)):
-        #
-        #     in_grid = convert_image_np(
-        #         torchvision.utils.make_grid(input_tensor[i]))
-        #
-        #     out_grid = convert_image_np(
-        #         torchvision.utils.make_grid(transformed_input_tensor[i]))
-        #
-        #     # Plot the results side-by-side
-        #     f, axarr = plt.subplots(1, 2)
-        #     axarr[0].imshow(in_grid)
-        #     axarr[0].set_title('Dataset Images')
-        #
-        #     axarr[1].imshow(out_grid)
-        #     axarr[1].set_title('Transformed Images')
-        #     plt.savefig('./stn/{0}.jpg'.format(i))
-        '''*************************************'''
-
         result = self.cnn(input)
         # (bs,512,1,5)
 
@@ -184,17 +141,11 @@ class RARE(nn.Module):
         assert H == 1, 'The height of the input image must be 1.'
         result = result.squeeze(2)
         result = result.permute(2, 0, 1)
-        cnn_result = result.contiguous()
 
-        result,init_state = self.rnn(result)
-        # init_state 2,64,256
-        init_state = init_state[0].squeeze(0).contiguous()
-
-        # print("size:",init_state.size())
+        result = self.rnn(result)
         '''feature, text_length, test sign'''
         # result = self.attention(result,text,text_length, test)
-        result = self.attention(cnn_result, text_length, text, init_state, test)
-        # print("返回类型为",type(result))
+        result = self.attention(result, text_length, text, test)
         return result
 
 
@@ -210,8 +161,6 @@ class AttentionCell(nn.Module):
         self.num_embeddings = num_embeddings
         # self.fracPickup = fracPickup(CUDA=CUDA)
 
-        # self.char_embeddings = Parameter(torch.randn(num_classes + 1, num_embeddings))
-
     def forward(self, prev_hidden, feats, cur_embeddings, test=False):
         nT = feats.size(0)
         nB = feats.size(1)
@@ -221,7 +170,6 @@ class AttentionCell(nn.Module):
         feats_proj = self.i2h(feats.view(-1, nC))
         prev_hidden_proj = self.h2h(prev_hidden).view(1, nB, hidden_size).expand(nT, nB, hidden_size).contiguous().view(
             -1, hidden_size)
-        # 对注意力机制进行改进
         emition = self.score(F.tanh(feats_proj + prev_hidden_proj).view(-1, hidden_size)).view(nT, nB)
 
         alpha = F.softmax(emition, 0)  # nB * nT
@@ -256,14 +204,14 @@ class Attention(nn.Module):
         self.cuda = CUDA
 
     # targets is nT * nB
-    def forward(self, feats, text_length, text, init_state, test=False):
+    def forward(self, feats, text_length, text, test=False):
 
         nT = feats.size(0)
         nB = feats.size(1)
         nC = feats.size(2)
         hidden_size = self.hidden_size
         input_size = self.input_size
-        assert (input_size == nC),"input_size={0},nC={1}".format(input_size,nC)
+        assert (input_size == nC)
         assert (nB == text_length.numel())
 
         num_steps = text_length.data.max()
@@ -282,8 +230,7 @@ class Attention(nn.Module):
             targets = Variable(targets.transpose(0, 1).contiguous())
 
             output_hiddens = Variable(torch.zeros(num_steps, nB, hidden_size).type_as(feats.data))
-            # hidden = Variable(torch.zeros(nB, hidden_size).type_as(feats.data))
-            hidden = init_state
+            hidden = Variable(torch.zeros(nB, hidden_size).type_as(feats.data))
 
             for i in range(num_steps):
                 cur_embeddings = self.char_embeddings.index_select(0, targets[i])
@@ -301,37 +248,21 @@ class Attention(nn.Module):
 
             probs = self.generator(new_hiddens)
             return {
-                'result': probs,
+                'result': probs
             }
 
         else:
 
-            # hidden = Variable(torch.zeros(nB, hidden_size).type_as(feats.data))
-            hidden = init_state
-
+            hidden = Variable(torch.zeros(nB, hidden_size).type_as(feats.data))
             targets_temp = Variable(torch.zeros(nB).long().contiguous())
             probs = Variable(torch.zeros(nB * num_steps, self.num_classes))
             if self.cuda:
                 targets_temp = targets_temp.cuda()
                 probs = probs.cuda()
 
-            '''返回注意力因子，做成一个字典的形式返回'''
-            alphas = {}
-            for i in range(nB):
-                alphas[i] = []
-
             for i in range(num_steps):
-                # print("num_steps",num_steps)
                 cur_embeddings = self.char_embeddings.index_select(0, targets_temp)
                 hidden, alpha = self.attention_cell(hidden, feats, cur_embeddings, test)
-                # print("注意力向量维度:",alpha.size())  # (26,64)
-
-                for b in range(nB):
-                    alphas[b].append(alpha.transpose(1,0).contiguous().cpu().numpy()[b])
-
-                # alphas = np.append(alphas,alpha.cpu().numpy())
-                # alphas.append(alpha.cpu().numpy())
-
                 hidden2class = self.generator(hidden)
                 probs[i * nB:(i + 1) * nB] = hidden2class
                 _, targets_temp = hidden2class.max(1)
@@ -348,34 +279,29 @@ class Attention(nn.Module):
                 start = start + length
                 b = b + 1
 
-            # print("注意力因子的尺寸为", alphas )
             return {
-                'result': probs_res,
-                'alphas': alphas
+                'result': probs_res
             }
+
+
+
 
 
 
 class BLSTM(nn.Module):
     '''双向循环神经网络'''
 
-    def __init__(self, nIn, nHidden, nOut, return_hidden = False):
+    def __init__(self, nIn, nHidden, nOut):
         nn.Module.__init__(self)
 
         self.rnn = nn.LSTM(nIn, nHidden, bidirectional=True, dropout=0.3)
         self.linear = nn.Linear(nHidden * 2, nOut)
-        self.return_hidden = return_hidden
 
     def forward(self, input):
         '''The size of input must be [T,B,C]'''
         T, B, C = input.size()
-        result, (hn, cn) = self.rnn(input)
+        result, _ = self.rnn(input)
         result = result.view(T * B, -1)
         result = self.linear(result)
         result = result.view(T, B, -1)
-        if self.return_hidden == True:
-            # print(hn.size())
-            # 2, 64, 256
-            return result, hn
-        else:
-            return result
+        return result

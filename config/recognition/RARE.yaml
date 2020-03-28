@@ -3,10 +3,10 @@ BASE:
   MODEL: 'RARE'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '2,'
+  GPU_ID: '0,'
   WORKERS: 2
   CUDA: True
-  EXPERIMENT_NAME:  'RARE_注意力机制初始状态改进_使用cnnfeature进行注意力'
+  EXPERIMENT_NAME:  'RARE_跑mjq比赛'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -24,7 +24,9 @@ ADDRESS:
 
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/mjq/mjqlmdb'
+  # VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
+
   VAL_GT_DIR: ''
 #  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
 #  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
@@ -33,7 +35,7 @@ ADDRESS:
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
   CHECKPOINTS_DIR: './Checkpoints/'
-  PRETRAIN_MODEL_DIR: ''
+  PRETRAIN_MODEL_DIR: './RARE'
   LOGGER_DIR: './Logger/'
 
 IMAGE:
@@ -42,7 +44,7 @@ IMAGE:
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: False
+  VAL_ONLY: True
   FINETUNE: False
 
 VISUALIZE:

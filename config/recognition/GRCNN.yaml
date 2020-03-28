@@ -3,7 +3,7 @@ BASE:
   MODEL: 'GRCNN'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '1,'
+  GPU_ID: '0,'
   WORKERS: 0
   CUDA: True
   EXPERIMENT_NAME:  'GRCNN'
@@ -22,10 +22,12 @@ ADDRESS:
   TRAIN_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
-  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
+#  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
+#  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
+  VAL_DATA_DIR: '/home/cjy/mjq/image'
+  VAL_GT_DIR: '/home/cjy/mjq/result2.txt'
   CHECKPOINTS_DIR: './GRCNN_LSVT_Checkpoints_usetransform/'
-  PRETRAIN_MODEL_DIR: ''
+  PRETRAIN_MODEL_DIR: '/home/cjy/FudanOCR/GRCNN/GRCNN_syn800w_IC13_0.7525_usetransform.pth'
   LOGGER_DIR: './GRCNN_Logger_usetransform/'
 
 IMAGE:
@@ -34,7 +36,7 @@ IMAGE:
   IMG_CHANNEL: 3
 
 FUNCTION:
-  VAL_ONLY: False
+  VAL_ONLY: True
   FINETUNE: False
 
 VISUALIZE:

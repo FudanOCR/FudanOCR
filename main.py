@@ -16,6 +16,6 @@ from engine.trainer_collection.AON import AON_Trainer
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = SAR_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
+newTrainer = MORAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
                            val_loader=test_loader).train()
 

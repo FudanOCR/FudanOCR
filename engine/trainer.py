@@ -447,20 +447,36 @@ class Trainer(object):
         self.Logger.close_summary()
 
     def checkSaveOrVal(self, epoch, iteration):
-        '''验证'''
-        if iteration % self.opt.FREQ.VAL_FREQ == 0:
-            self.setModelState('test')
-            acc_tmp = self.validate(epoch, iteration)
-            '''记录训练结果最大值的模型文件'''
-            if acc_tmp > self.highestAcc:
-                self.highestAcc = acc_tmp
-                torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-                    self.opt.ADDRESS.CHECKPOINTS_DIR, str(self.highestAcc)[:6], iteration))
+        if self.opt.BASE.TYPE == 'D':
+            if epoch % self.opt.FREQ.VAL_FREQ == 0:
+                self.setModelState('test')
+                acc_tmp = self.validate(epoch, iteration)
+                '''记录训练结果最大值的模型文件'''
+                if acc_tmp > self.highestAcc:
+                    self.highestAcc = acc_tmp
+                    torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
+                        self.opt.ADDRESS.CHECKPOINTS_DIR, str(self.highestAcc)[:6], iteration))
 
-        '''保存'''
-        if iteration % self.opt.FREQ.SAVE_FREQ == 0:
-            torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
-                self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, iteration))
+            '''保存'''
+            if epoch % self.opt.FREQ.SAVE_FREQ == 0:
+                torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
+                    self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, iteration))
+
+        elif self.opt.BASE.TYPE == 'R':
+            '''验证'''
+            if iteration % self.opt.FREQ.VAL_FREQ == 0:
+                self.setModelState('test')
+                acc_tmp = self.validate(epoch, iteration)
+                '''记录训练结果最大值的模型文件'''
+                if acc_tmp > self.highestAcc:
+                    self.highestAcc = acc_tmp
+                    torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
+                        self.opt.ADDRESS.CHECKPOINTS_DIR, str(self.highestAcc)[:6], iteration))
+
+            '''保存'''
+            if iteration % self.opt.FREQ.SAVE_FREQ == 0:
+                torch.save(self.model.state_dict(), '{0}/{1}_{2}.pth'.format(
+                    self.opt.ADDRESS.CHECKPOINTS_DIR, self.opt.MODEL.EPOCH, iteration))
 
         '''恢复训练状态'''
         self.setModelState('train')

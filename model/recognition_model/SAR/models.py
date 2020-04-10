@@ -73,9 +73,9 @@ class ResNet(nn.Module):
         self.layer3_relu = nn.ReLU(inplace=True)
 
         self.layer4 = self._make_layer(block, 512, 512, layers[3])
-        self.layer4_conv = nn.Conv2d(512, 512, 3, 1, 1)
-        self.layer4_conv_bn = nn.BatchNorm2d(512)
-        self.layer4_conv_relu = nn.ReLU(inplace=True)
+        self.layer4_conv2 = nn.Conv2d(512, 512, 3, 1, 1)
+        self.layer4_conv2_bn = nn.BatchNorm2d(512)
+        self.layer4_conv2_relu = nn.ReLU(inplace=True)
 
         # Official init from torch repo
         print("Initializing ResNet18 weights...")
@@ -130,9 +130,9 @@ class ResNet(nn.Module):
         x = self.layer3_relu(x)
 
         x = self.layer4(x)
-        x = self.layer4_conv(x)
-        x = self.layer4_conv_bn(x)
-        x = self.layer4_conv_relu(x)
+        x = self.layer4_conv2(x)
+        x = self.layer4_conv2_bn(x)
+        x = self.layer4_conv2_relu(x)
 
         return x
 

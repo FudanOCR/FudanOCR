@@ -114,14 +114,13 @@ class Trainer(object):
         '''
         if self.opt.BASE.TYPE == 'R':
             self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
-            if self.opt.BASE.MODEL == 'MORAN' or self.opt.BASE.MODEL == 'RARE' or self.opt.BASE.MODEL == 'AON' or self.opt.BASE.MODEL == 'SAR':
-                from utils.strLabelConverterForAttention import strLabelConverterForAttention
-                self.converter = strLabelConverterForAttention(self.alphabet.str)
-            elif self.opt.BASE.MODEL == 'GRCNN' or self.opt.BASE.MODEL == 'CRNN':
+            if self.opt.BASE.MODEL == 'GRCNN' or self.opt.BASE.MODEL == 'CRNN':
                 from utils.strLabelConverterForCTC import strLabelConverterForCTC
                 self.converter = strLabelConverterForCTC(self.alphabet.str)
+            else:
+                from utils.strLabelConverterForAttention import strLabelConverterForAttention
+                self.converter = strLabelConverterForAttention(self.alphabet.str)
             self.highestAcc = 0
-
             self.val_times = 0
 
     def loadParam(self):

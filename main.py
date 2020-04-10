@@ -11,11 +11,12 @@ from engine.trainer_collection.CRNN import CRNN_Trainer
 # from engine.trainer_collection.PixelLink import PixelLink_Trainer
 # from engine.trainer_collection.LSN import LSN_Trainer
 from engine.trainer_collection.AON import AON_Trainer
+from engine.trainer_collection.DAN import DAN_Trainer
 
 
 
 env = Env()
 train_loader, test_loader = build_dataloader(env.opt)
-newTrainer = MORAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
+newTrainer = DAN_Trainer(modelObject=env.model, opt=env.opt, train_loader=train_loader,
                            val_loader=test_loader).train()
 

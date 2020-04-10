@@ -176,12 +176,12 @@ class Env(object):
         if model_type == 'R':
             folderExist('opt.ADDRESS.ALPHABET', self.opt.ADDRESS.ALPHABET)
 
-        folderExist('opt.ADDRESS.TRAIN_DATA_DIR', self.opt.ADDRESS.TRAIN_DATA_DIR)
-        folderExist('opt.ADDRESS.TRAIN_GT_DIR', self.opt.ADDRESS.TRAIN_GT_DIR)
-        folderExist('opt.ADDRESS.TEST_DATA_DIR', self.opt.ADDRESS.TEST_DATA_DIR)
-        folderExist('opt.ADDRESS.TEST_GT_DIR', self.opt.ADDRESS.TEST_GT_DIR)
-        folderExist('opt.ADDRESS.VAL_DATA_DIR', self.opt.ADDRESS.VAL_DATA_DIR)
-        folderExist('opt.ADDRESS.VAL_GT_DIR', self.opt.ADDRESS.VAL_GT_DIR)
+        # folderExist('opt.ADDRESS.TRAIN_DATA_DIR', self.opt.ADDRESS.TRAIN_DATA_DIR)
+        # folderExist('opt.ADDRESS.TRAIN_GT_DIR', self.opt.ADDRESS.TRAIN_GT_DIR)
+        # folderExist('opt.ADDRESS.TEST_DATA_DIR', self.opt.ADDRESS.TEST_DATA_DIR)
+        # folderExist('opt.ADDRESS.TEST_GT_DIR', self.opt.ADDRESS.TEST_GT_DIR)
+        # folderExist('opt.ADDRESS.VAL_DATA_DIR', self.opt.ADDRESS.VAL_DATA_DIR)
+        # folderExist('opt.ADDRESS.VAL_GT_DIR', self.opt.ADDRESS.VAL_GT_DIR)
 
         createFolder(self.opt.ADDRESS.CHECKPOINTS_DIR, removeOrigin=True)
         # createFolder(self.opt.ADDRESS.CACHE_DIR)

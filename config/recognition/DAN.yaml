@@ -1,12 +1,12 @@
-# python main.py --config_file ./config/recognition/SAR.yaml
+# python main.py --config_file ./config/recognition/DAN.yaml
 BASE:
-  MODEL: 'SAR'
+  MODEL: 'DAN'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '2,'
+  GPU_ID: '1,'
   WORKERS: 0
   CUDA: True
-  EXPERIMENT_NAME:  'SAR_DEBUG版本_查看模型参数'
+  EXPERIMENT_NAME:  'DAN_debug'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -19,12 +19,12 @@ ADDRESS:
 #  TRAIN_DATA_DIR: '/home/cjy/mnt/ramdisk/max/90kDICT32px/'
 #  TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
   # TRAIN_DATA_DIR: '/home/cjy/ic03_test_lmdb'
-  TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb'
+  TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb,/home/cjy/syn90_train_9000000data_lmdb,/home/cjy/syn90_train_9000000data_lmdb'
   TRAIN_GT_DIR: ''
 
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic03_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
   VAL_GT_DIR: ''
 #  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
 #  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
@@ -33,16 +33,16 @@ ADDRESS:
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
   CHECKPOINTS_DIR: './Checkpoints/'
-  PRETRAIN_MODEL_DIR: '/home/cjy/0.8210_118000.pth'
+  PRETRAIN_MODEL_DIR: ''
   LOGGER_DIR: './Logger/'
 
 IMAGE:
-  IMG_H: 48
-  IMG_W: 160
+  IMG_H: 32
+  IMG_W: 128
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: True
+  VAL_ONLY: False
   FINETUNE: False
 
 VISUALIZE:
@@ -52,7 +52,7 @@ VISUALIZE:
 
 MODEL:
   EPOCH: 100000
-  BATCH_SIZE: 64
+  BATCH_SIZE: 32
   LR: 1.0
   DYNAMIC_LR: False
   OPTIMIZER: 'Adadelta'

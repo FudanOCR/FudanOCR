@@ -25,6 +25,7 @@ class strLabelConverterForAttention(object):
         for i, item in enumerate(self.alphabet):
             # NOTE: 0 is reserved for 'blank' required by wrap_ctc
             self.dict[item] = i
+            # print(i)
 
     def scan(self, text):
         # print(text)
@@ -122,11 +123,16 @@ class strLabelConverterForAttention(object):
             assert t.numel() == length, "text with length: {} does not match declared length: {}".format(t.numel(),
                                                                                                          length)
             # print(t)
-            try:
-                return ''.join([self.alphabet[i] for i in t])
-            except:
-                print("ERROR",i)
-                exit(0)
+            # print(self.alphabet)
+            # print(t)
+
+            # for i in t:
+            #     print(i)
+            #     print(self.alphabet[i])
+
+
+            return ''.join([self.alphabet[i] for i in t])
+
         else:
             # batch mode
             assert t.numel() == length.sum(), "texts with length: {} does not match declared length: {}".format(

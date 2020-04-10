@@ -62,9 +62,24 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
         '''
 
         if 'lmdb' == name.lower():
-            dataset = LMDB.lmdbDataset(root=data_dir,
-                                       transform=getTransforms(cfg,split),
-                                       reverse=cfg.BidirDecoder, alphabet=alphabet.str)
+
+            # print('训练集数据为',data_dir)
+            datas = data_dir.split(',')
+            if len(datas) == 1 :
+                data_dir = datas[0]
+                dataset = LMDB.lmdbDataset(root=data_dir,
+                                           transform=getTransforms(cfg,split),
+                                           reverse=cfg.BidirDecoder, alphabet=alphabet.str)
+
+            else:
+                lmdb_datas = []
+                for data in datas:
+                    lmdb_datas.append( LMDB.lmdbDataset(root=data,
+                                               transform=getTransforms(cfg, split),
+                                               reverse=cfg.BidirDecoder, alphabet=alphabet.str))
+
+                dataset = torch.utils.data.ConcatDataset([lmdb_data for lmdb_data in lmdb_datas])
+
             assert dataset
             return dataset
 

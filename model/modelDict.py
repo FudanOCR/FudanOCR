@@ -23,6 +23,9 @@ def getModel(model_name):
     elif model_name == 'SAR':
         from model.recognition_model.SAR.models import SAR
         return SAR
+    elif model_name == 'DAN':
+        from model.recognition_model.DAN.models import DAN
+        return DAN
     elif model_name == 'PixelLink':
         from model.detection_model.PixelLink.net import Net
         return Net

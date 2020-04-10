@@ -67,7 +67,7 @@ resourceDict = {
     ),
     'LSVT_TRAIN': Resource(
         name='LSVT_TRAIN',
-        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LSVT_TRAIN.zip',
+        path='https://fudan-ocr.oss-cn-shanghai.aliyuncs.com/DATASET_LVST_TRAIN.zip',
         size='1.0G',
         description='R Dataset'
     ),

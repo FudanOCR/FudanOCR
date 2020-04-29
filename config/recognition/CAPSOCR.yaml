@@ -1,12 +1,12 @@
-# python main.py --config_file ./config/recognition/DAN.yaml
+# python main.py --config_file ./config/recognition/CAPSOCR.yaml
 BASE:
-  MODEL: 'DAN'
+  MODEL: 'CAPSOCR'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '2,'
+  GPU_ID: '3,'
   WORKERS: 0
   CUDA: True
-  EXPERIMENT_NAME:  'DAN_sk+st_重新跑_修改label总长度_测试'
+  EXPERIMENT_NAME:  'CAPSOCR_初步尝试_查看参数数量'
 
 DATASETS:
   DATASET: 'DatasetName*'
@@ -19,12 +19,12 @@ ADDRESS:
 #  TRAIN_DATA_DIR: '/home/cjy/mnt/ramdisk/max/90kDICT32px/'
 #  TRAIN_GT_DIR: '/home/cjy/image_label_pair.txt'
   # TRAIN_DATA_DIR: '/home/cjy/ic03_test_lmdb'
-  TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb,/home/cjy/体验版/FudanOCR/data/SynthText_lmdb_6511315'
+  TRAIN_DATA_DIR: '/home/cjy/syn90_train_9000000data_lmdb'
   TRAIN_GT_DIR: ''
 
   TEST_DATA_DIR: ''
   TEST_GT_DIR: ''
-  VAL_DATA_DIR: '/home/cjy/ic03_test_lmdb'
+  VAL_DATA_DIR: '/home/cjy/ic13_test_lmdb'
   VAL_GT_DIR: ''
 #  VAL_DATA_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/'
 #  VAL_GT_DIR: '/home/cjy/ICDAR2013/Challenge2_Test_Task3_Images/Challenge2_Test_Task3_GT.txt'
@@ -33,16 +33,16 @@ ADDRESS:
 #  VAL_GT_DIR: "/home/cjy/Word_recognition/Challenge4_Test_Task3_GT.txt" #path for validation dataset
 
   CHECKPOINTS_DIR: './Checkpoints/'
-  PRETRAIN_MODEL_DIR: '/home/cjy/FudanOCR/Checkpoints_DAN_sk+st_重新跑_修改label总长度/0.8520_286000.pth'
+  PRETRAIN_MODEL_DIR: ''
   LOGGER_DIR: './Logger/'
 
 IMAGE:
-  IMG_H: 32
-  IMG_W: 128
+  IMG_H: 100
+  IMG_W: 100
   IMG_CHANNEL: 1
 
 FUNCTION:
-  VAL_ONLY: True
+  VAL_ONLY: False
   FINETUNE: False
 
 VISUALIZE:
@@ -52,7 +52,7 @@ VISUALIZE:
 
 MODEL:
   EPOCH: 100000
-  BATCH_SIZE: 32
+  BATCH_SIZE: 4
   LR: 1.0
   DYNAMIC_LR: False
   OPTIMIZER: 'Adadelta'
@@ -66,6 +66,6 @@ THRESHOLD:
 FREQ:
   SAVE_FREQ: 4000
   SHOW_FREQ: 100
-  VAL_FREQ: 1000
+  VAL_FREQ: 2000
 
 BidirDecoder: False

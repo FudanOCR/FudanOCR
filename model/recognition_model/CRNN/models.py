@@ -3,8 +3,9 @@ import torch.nn as nn
 import torch.nn.init as init
 from torch.autograd import Variable
 
+
 class CRNN(nn.Module):
-    def __init__(self,opt):
+    def __init__(self, opt):
         super(CRNN, self).__init__()
         self.opt = opt
 
@@ -17,7 +18,6 @@ class CRNN(nn.Module):
 
         '''rnn'''
         self.rnn = self.getRNN()
-
 
     def getCNN(self):
 
@@ -34,12 +34,9 @@ class CRNN(nn.Module):
         ps = [1, 1, 1, 1, 1, 1, 0]
         ss = [1, 1, 1, 1, 1, 1, 1]
 
-
-
-
         cnn = nn.Sequential()
 
-        def convRelu(i, batchNormalization=False,leakyRelu=False):
+        def convRelu(i, batchNormalization=False, leakyRelu=False):
             nIn = nc if i == 0 else nm[i - 1]
             nOut = nm[i]
             cnn.add_module('conv{0}'.format(i),
@@ -87,27 +84,23 @@ class CRNN(nn.Module):
 
     def getRNN(self):
         rnn = nn.Sequential(
-            BidirectionalLSTM(512,256,256),
+            BidirectionalLSTM(512, 256, 256),
             BidirectionalLSTM(256, 256, self.n_class),
         )
 
         return rnn
 
-
     def forward(self, input):
         conv = self.cnn(input)
 
-        
-
         b, c, h, w = conv.size()
-        assert h==1
+        assert h == 1
 
-        conv = conv.squeeze(2) # b, c, w
-        conv = conv.permute(2, 0, 1) # w, b, c  -> (seq_len, batch_size, input_size)
+        conv = conv.squeeze(2)  # b, c, w
+        conv = conv.permute(2, 0, 1)  # w, b, c  -> (seq_len, batch_size, input_size)
 
         rnn_result = self.rnn(conv)
-        return  {'result':rnn_result}
-
+        return {'result': rnn_result}
 
 
 class BidirectionalLSTM(nn.Module):

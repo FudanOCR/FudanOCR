@@ -1,12 +1,12 @@
-# python main.py --config_file ./config/recognition/CRNN.yaml
+# python main.py --config_file ./config/recognition/CAPSOCR2.yaml
 BASE:
-  MODEL: 'CRNN'
+  MODEL: 'CAPSOCR2'
   TYPE: 'R'
   NUM_GPUS: 1
-  GPU_ID: '1,'
+  GPU_ID: '2,'
   WORKERS: 0
   CUDA: True
-  EXPERIMENT_NAME:  'CRNN对照实验'
+  EXPERIMENT_NAME:  'CAPSOCR2对照实验'
 
 DATASETS:
   DATASET: 'DatasetName*'

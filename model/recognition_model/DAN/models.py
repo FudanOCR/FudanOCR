@@ -23,7 +23,7 @@ class DAN(nn.Module):
         scales = self.fe.Iwantshapes()
 
         self.cam = CAM(scales=scales,
-        maxT=25,
+        maxT=50,
         depth=8,
         num_channels=64)
 

@@ -39,6 +39,8 @@ class DTD(nn.Module):
 
             lenText = int(text_length.sum())
             nsteps = int(text_length.max())
+            # if nsteps>24:
+            #     nsteps = 24
 
             targets = torch.zeros(nB, nsteps + 1).long()
             if self.cuda:

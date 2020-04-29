@@ -4,9 +4,148 @@ import torch.nn.init as init
 from torch.autograd import Variable
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
+import math
 
 from component.stn import SpatialTransformer
+capsule_dim = 2
 
+class Relu_Caps(nn.Module):
+    def __init__(self, num_C, num_D, theta=0.001, eps=0.0001):
+        super(Relu_Caps, self).__init__()
+        self.num_C = num_C
+        self.num_D = num_D
+        self.theta = theta
+        self.eps = eps
+
+    def forward(self, x):
+        x_caps = x.view(x.shape[0], self.num_C, self.num_D, x.shape[2], x.shape[3])
+        x_length = torch.sqrt(torch.sum(x_caps * x_caps, dim=2))
+        x_length = torch.unsqueeze(x_length, 2)
+
+        x_caps = F.relu(x_length - self.theta) * x_caps / (x_length + self.eps)
+        # x_caps = F.relu(x_length - self.theta) * x_caps
+        # print(x_caps)
+        # print(F.relu(x_length - self.theta).size())
+        # print(F.relu(x_length - self.theta))
+        # if F.relu(x_length - self.theta):
+        #     pass
+        # else:
+        #     x_caps = 0 * x_caps
+
+        x = x_caps.view(x.shape[0], -1, x.shape[2], x.shape[3])
+        return x
+
+class Caps_BN(nn.Module):
+    '''
+    Input variable N*CD*H*W
+    First perform normal BN without learnable affine parameters, then apply a C group convolution to perform per-capsule
+    linear transformation
+    '''
+
+    def __init__(self, num_C, num_D):
+        super(Caps_BN, self).__init__()
+        self.BN = nn.BatchNorm2d(num_C * num_D)
+        self.conv = nn.Conv2d(num_C * num_D, num_C * num_D, 1, groups=num_C)
+
+        # eye = torch.FloatTensor(num_C, num_D, num_D).copy_(torch.eye(num_D)).view(num_C * num_D, num_D,
+        #                                                                                           1, 1)
+        # self.conv.weight.data.copy_(eye)
+        # self.conv.bias.data.zero_()
+
+    def forward(self, x):
+        output = self.BN(x)
+        output = self.conv(output)
+
+        return output
+
+
+class Caps_MaxPool(nn.Module):
+    '''
+    Input variable N*CD*H*W
+    First get the argmax indices of capsule lengths, then tile the indices D time and apply the tiled indices to capsules
+    '''
+
+    def __init__(self, num_C, num_D, kernel_size, stride=None, padding=0, dilation=1):
+        super(Caps_MaxPool, self).__init__()
+        self.num_C = num_C
+        self.num_D = num_D
+        self.maxpool = nn.MaxPool2d(kernel_size, stride=stride, padding=padding, dilation=dilation, return_indices=True)
+
+    def forward(self, x):
+        B = x.shape[0]
+        H, W = x.shape[2:]
+        x_caps = x.view(B, self.num_C, self.num_D, H, W)
+        x_length = torch.sum(x_caps * x_caps, dim=2)
+        x_length_pool, indices = self.maxpool(x_length)
+        H_pool, W_pool = x_length_pool.shape[2:]
+        indices_tile = torch.unsqueeze(indices, 2).expand(-1, -1, self.num_D, -1, -1).contiguous()
+        indices_tile = indices_tile.view(B, self.num_C * self.num_D, -1)
+        x_flatten = x.view(B, self.num_C * self.num_D, -1)
+        output = torch.gather(x_flatten, 2, indices_tile).view(B, self.num_C * self.num_D, H_pool, W_pool)
+
+        return output
+
+
+class Relu_Adpt(nn.Module):
+    def __init__(self, num_C, num_D, eps=0.0001):
+        super(Relu_Adpt, self).__init__()
+        self.num_C = num_C
+        self.num_D = num_D
+        self.eps = eps
+
+        self.theta = Parameter(torch.Tensor(1, self.num_C, 1, 1, 1))
+        self.theta.data.fill_(0.)
+
+    def forward(self, x):
+        x_caps = x.view(x.shape[0], self.num_C, self.num_D, x.shape[2], x.shape[3])
+        x_length = torch.sqrt(torch.sum(x_caps * x_caps, dim=2))
+        x_length = torch.unsqueeze(x_length, 2)
+        x_caps = F.relu(x_length - self.theta) * x_caps / (x_length + self.eps)
+        x = x_caps.view(x.shape[0], -1, x.shape[2], x.shape[3])
+        return x
+
+class Caps_Conv(nn.Module):
+    def __init__(self, in_C, in_D, out_C, out_D, kernel_size, stride=1, padding=0, dilation=1, bias=False):
+        super(Caps_Conv, self).__init__()
+        self.in_C = in_C
+        self.in_D = in_D
+        self.out_C = out_C
+        self.out_D = out_D
+        self.conv_D = nn.Conv2d(in_C * in_D, in_C * out_D, 1, groups=in_C, bias=False)
+        self.conv_C = nn.Conv2d(in_C, out_C, kernel_size, stride=stride, padding=padding, dilation=dilation, bias=bias)
+
+        m = self.conv_D.kernel_size[0] * self.conv_D.kernel_size[1] * self.conv_D.out_channels
+        self.conv_D.weight.data.normal_(0, math.sqrt(2. / m))
+        n = self.conv_C.kernel_size[0] * self.conv_C.kernel_size[1] * self.conv_C.out_channels
+        self.conv_C.weight.data.normal_(0, math.sqrt(2. / n))
+        if bias:
+            self.conv_C.bias.data.zero_()
+
+    def forward(self, x):
+        x = self.conv_D(x)
+        x = x.view(x.shape[0], self.in_C, self.out_D, x.shape[2], x.shape[3])
+        x = torch.transpose(x, 1, 2).contiguous()
+        x = x.view(-1, self.in_C, x.shape[3], x.shape[4])
+        x = self.conv_C(x)
+        x = x.view(-1, self.out_D, self.out_C, x.shape[2], x.shape[3])
+        x = torch.transpose(x, 1, 2).contiguous()
+        x = x.view(-1, self.out_C * self.out_D, x.shape[3], x.shape[4])
+
+        return x
+class Squash(nn.Module):
+    def __init__(self, num_C, num_D, eps=0.0001):
+        super(Squash, self).__init__()
+        self.num_C = num_C
+        self.num_D = num_D
+        self.eps = eps
+
+    def forward(self, x):
+        x_caps = x.view(x.shape[0], self.num_C, self.num_D, x.shape[2], x.shape[3])
+        x_length = torch.sqrt(torch.sum(x_caps * x_caps, dim=2))
+        x_length = torch.unsqueeze(x_length, 2)
+        x_caps = x_caps * x_length / (1 + self.eps + x_length * x_length)
+        x = x_caps.view(x.shape[0], -1, x.shape[2], x.shape[3])
+        return x
 
 class RARE(nn.Module):
 
@@ -18,7 +157,7 @@ class RARE(nn.Module):
         self.opt = opt
 
         # self.stn = SpatialTransformer(self.opt)
-        self.cnn = self.getCNN()
+        self.cnn = self.getCNN_cap()
         self.rnn = self.getEncoder()
         # n_class,hidden_size,num_embedding,input_size
         # self.attention = Attention(self.n_class,256, 128,256)
@@ -57,6 +196,45 @@ class RARE(nn.Module):
         x = F.grid_sample(x, grid)
 
         return x
+
+    def getCNN_cap(self):
+        return nn.Sequential(
+
+            nn.Conv2d(1, 64, 3, 1, 1),
+            nn.ReLU(True),
+
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(64, 128, 3, 1, 1),
+            nn.ReLU(True),
+
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(128, 256, 3, 1, 1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(True),
+
+            Caps_Conv(256, 1, 256, capsule_dim, 3, 1, 1),
+            Relu_Adpt(256, capsule_dim),
+
+            Caps_MaxPool(256, capsule_dim, (2, 2), (2, 1), (0, 1)),
+
+            Caps_Conv(256, capsule_dim, 512, capsule_dim, 3, 1, 1),
+            #  Squash(512, capsule_dim),
+            Caps_BN(512, capsule_dim),
+            Relu_Adpt(512, capsule_dim),
+
+            Caps_Conv(512, capsule_dim, 512, capsule_dim, 3, 1, 1),
+            #  Squash(512, capsule_dim),
+            # Caps_BN(512, capsule_dim),
+            Relu_Adpt(512, capsule_dim),
+
+            Caps_MaxPool(512, capsule_dim, (2, 2), (2, 1), (0, 1)),
+
+            Caps_Conv(512, capsule_dim, 512, 1, 2, 1, 0),
+            # Squash(512, capsule_dim),
+            Caps_BN(512, 1),
+        )
 
     def getCNN(self):
 
@@ -135,6 +313,11 @@ class RARE(nn.Module):
         # input = self.stn(input)
         result = self.cnn(input)
         # (bs,512,1,5)
+
+        # result = result.view(result.size(0), int(result.size(1) / capsule_dim), capsule_dim, result.size(2), result.size(3))
+        # result = torch.sqrt(torch.sum(result * result, dim=2))
+        # print(result.size())
+        # result = result.squeeze(2)
 
         # print('hi', result.size())
         B, C, H, W = result.size()

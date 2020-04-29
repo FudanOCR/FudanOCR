@@ -39,6 +39,8 @@ class CustomDataset(Dataset):
 
         for pair in pair_list:
 
+            pair = pair.replace('./','')
+
             items = pair.strip().split()
             if len(items) == 0:
                 print(items)

@@ -29,10 +29,16 @@ def getTransforms(cfg,split="train" ):
     elif cfg.BASE.MODEL == 'CRNN':
         transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
+    elif cfg.BASE.MODEL == 'CAPSOCR2':
+        transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+
     elif cfg.BASE.MODEL == 'RARE':
         transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
     elif cfg.BASE.MODEL == 'SAR':
+        transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
+
+    elif cfg.BASE.MODEL == 'CAPSOCR':
         transform = resizeNormalizeAndGray((cfg.IMAGE.IMG_W, cfg.IMAGE.IMG_H))
 
     elif cfg.BASE.MODEL == 'DAN':

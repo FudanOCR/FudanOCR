@@ -1,5 +1,5 @@
 from engine.trainer import Trainer
-class DAN_Trainer(Trainer):
+class CAPSOCR_Trainer(Trainer):
     '''
     重载训练器
 
@@ -39,15 +39,6 @@ class DAN_Trainer(Trainer):
         length = Variable(length)
 
         cpu_images, cpu_texts = data
-
-        # 限定cpu_texts的最大长度
-        for index in range(len(cpu_texts)):
-            # print(cpu_texts[index])
-            # if cpu_texts[i].size()> 45:
-            if len(cpu_texts[index]) > 45:
-                cpu_texts[index] = cpu_texts[index][:45] + '$'
-
-
         loadData(image, cpu_images)
         t, l = self.converter.encode(cpu_texts, scanned=True)
         loadData(text, t)

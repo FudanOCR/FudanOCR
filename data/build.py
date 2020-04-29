@@ -84,6 +84,7 @@ def get_dataset(cfg, name, data_dir, anno_dir, split, alphabet):
             return dataset
 
         elif 'custom' == name.lower():
+
             dataset = CUSTOM.CustomDataset(data_dir, anno_dir, transform=getTransforms(cfg))
 
             assert dataset
@@ -165,14 +166,17 @@ def get_dataloader(cfg, name, dataset, split):
         '''
         torch中sampler和shuffle是冲突的
         '''
-        if  split == 'train':
-            sampler = getSampler(cfg,dataset)
+        if split == 'train':
+            sampler = getSampler(cfg, dataset)
+            shuffle = True
         else:
             sampler = None
+            shuffle = False
 
         dataloader = torch.utils.data.DataLoader(dataset,
                                                    batch_size=cfg.MODEL.BATCH_SIZE,
-                                                    sampler=sampler,
+                                                    # sampler=sampler,
+                                                 shuffle=shuffle,
                                                    num_workers=cfg.BASE.WORKERS,
                                                  collate_fn=getCollate(cfg,dataset)
                                                  )

@@ -18,11 +18,17 @@ def getModel(model_name):
         from model.recognition_model.AON.models import AON
         return AON
     elif model_name == 'RARE':
-        from model.recognition_model.RARE.models import RARE
+        from model.recognition_model.RARE.models_cap_sr_pyramid import RARE
         return RARE
     elif model_name == 'SAR':
         from model.recognition_model.SAR.models import SAR
         return SAR
+    elif model_name == 'CAPSOCR':
+        from model.recognition_model.CAPSOCR.models import CAPSOCR
+        return CAPSOCR
+    elif model_name == 'CAPSOCR2':
+        from model.recognition_model.CAPSOCR2.models import CAPSOCR2
+        return CAPSOCR2
     elif model_name == 'DAN':
         from model.recognition_model.DAN.models import DAN
         return DAN

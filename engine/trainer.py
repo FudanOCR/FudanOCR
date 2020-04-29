@@ -85,6 +85,9 @@ class Trainer(object):
                 p.numel() for p in model.parameters() if p.requires_grad)
             print(f'{total_trainable_params:,} training parameters.')
 
+            for name, param in model.named_parameters():
+                print(name,param.numel())
+
             return model
         else:
 
@@ -114,7 +117,7 @@ class Trainer(object):
         '''
         if self.opt.BASE.TYPE == 'R':
             self.alphabet = Alphabet(self.opt.ADDRESS.ALPHABET)
-            if self.opt.BASE.MODEL == 'GRCNN' or self.opt.BASE.MODEL == 'CRNN':
+            if self.opt.BASE.MODEL == 'GRCNN' or self.opt.BASE.MODEL == 'CRNN' or self.opt.BASE.MODEL == 'CAPSOCR2':
                 from utils.strLabelConverterForCTC import strLabelConverterForCTC
                 self.converter = strLabelConverterForCTC(self.alphabet.str)
             else:
@@ -305,6 +308,12 @@ class Trainer(object):
         print("correct / total: %d / %d, " % (n_correct, n_total))
         print('levenshtein distance: %f' % (distance / n_total))
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
+
+        file_summary(self.opt.ADDRESS.LOGGER_DIR, "log.txt","correct / total: %d / %d, " % (n_correct, n_total))
+        file_summary(self.opt.ADDRESS.LOGGER_DIR, "log.txt",'levenshtein distance: %f' % (distance / n_total))
+        file_summary(self.opt.ADDRESS.LOGGER_DIR, "log.txt",'Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
+
+
         self.setModelState('train')
 
         '''结束可视化工作'''
@@ -434,7 +443,11 @@ class Trainer(object):
                 if iteration % self.opt.FREQ.SHOW_FREQ == 0:
                     t1 = time.time()
                     print('Epoch: %d/%d; iter: %d/%d; Loss: %f; time: %.2f s;' %
-                          (epoch, self.opt.MODEL.EPOCH, iteration, len(self.train_loader), loss_avg.val(), t1 - t0)),
+                          (epoch, self.opt.MODEL.EPOCH, iteration, len(self.train_loader), loss_avg.val(), t1 - t0))
+                    file_summary(self.opt.ADDRESS.LOGGER_DIR, "log.txt",
+                                 'Epoch: %d/%d; iter: %d/%d; Loss: %f; time: %.2f s;' %
+                          (epoch, self.opt.MODEL.EPOCH, iteration, len(self.train_loader), loss_avg.val(), t1 - t0))
+
                     loss_avg.reset()
                     t0 = time.time()
 

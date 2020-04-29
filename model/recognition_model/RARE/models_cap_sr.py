@@ -4,9 +4,13 @@ import torch.nn.init as init
 from torch.autograd import Variable
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
+import math
 
 from component.stn import SpatialTransformer
 
+planes = 16
+caps_size = 6
+num_caps = 64
 
 class RARE(nn.Module):
 
@@ -18,45 +22,68 @@ class RARE(nn.Module):
         self.opt = opt
 
         # self.stn = SpatialTransformer(self.opt)
-        self.cnn = self.getCNN()
+        self.cnn = self.getCNN_sr()
         self.rnn = self.getEncoder()
         # n_class,hidden_size,num_embedding,input_size
         # self.attention = Attention(self.n_class,256, 128,256)
         self.attention = Attention(256, 256, self.n_class, 128)
 
+        self.conv_layers = nn.ModuleList()
+        self.norm_layers = nn.ModuleList()
 
-        # Spatial transformer localization-network
-        self.localization = nn.Sequential(
-            nn.Conv2d(1, 8, kernel_size=7),
-            nn.MaxPool2d(2, stride=2),
+
+
+        # ========= ConvCaps Layers
+        for d in range(1, 2):
+            '''自回归模型'''
+            self.conv_layers.append(
+                SelfRouting2d(num_caps, num_caps, caps_size, caps_size, kernel_size=3, stride=1, padding=1,
+                              pose_out=True))
+            '''bn'''
+            self.norm_layers.append(nn.BatchNorm2d(caps_size * num_caps))
+
+        '''恒等输出'''
+        self.conv_a = nn.Conv2d(8 * planes, num_caps, kernel_size=3, stride=1, padding=1, bias=False)
+        '''姿态变量'''
+        self.conv_pose = nn.Conv2d(8 * planes, num_caps * caps_size, kernel_size=3, stride=1, padding=1, bias=False)
+        '''两个bn'''
+        self.bn_a = nn.BatchNorm2d(num_caps)
+        self.bn_pose = nn.BatchNorm2d(num_caps * caps_size)
+        # self.fc = SelfRouting2d(num_caps, classes, caps_size, 1, kernel_size=final_shape, padding=0, pose_out=False)
+
+    def getCNN_sr(self):
+
+        cnn = nn.Sequential(
+            nn.Conv2d(1, planes, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(planes),
             nn.ReLU(True),
-            nn.Conv2d(8, 10, kernel_size=5),
-            nn.MaxPool2d(2, stride=2),
-            nn.ReLU(True)
+            nn.Conv2d(planes, planes * 2, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(planes * 2),
+            nn.ReLU(True),
+            nn.Conv2d(planes * 2, planes * 2, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(planes * 2),
+            nn.ReLU(True),
+            nn.Conv2d(planes * 2, planes * 4, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(planes * 4),
+            nn.ReLU(True),
+            nn.Conv2d(planes * 4, planes * 4, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(planes * 4),
+            nn.ReLU(True),
+            nn.Conv2d(planes * 4, planes * 8, kernel_size=3, stride=(2, 1), padding=(1, 1), bias=False),
+            nn.BatchNorm2d(planes * 8),
+            nn.ReLU(True),
+            nn.Conv2d(planes * 8, planes * 8, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(planes * 8),
+            nn.ReLU(True),
+            nn.Conv2d(planes * 8, planes * 8, kernel_size=3, stride=(2, 1), padding=(1, 1), bias=False),
+            nn.BatchNorm2d(planes * 8),
+            nn.ReLU(True),
+            nn.Conv2d(planes * 8, planes * 8, kernel_size=2, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(planes * 8),
+            nn.ReLU(True),
         )
 
-        # Regressor for the 3 * 2 affine matrix
-        self.fc_loc = nn.Sequential(
-            nn.Linear(10 * 4 * 21, 32),
-            nn.ReLU(True),
-            nn.Linear(32, 3 * 2)
-        )
-
-        # Initialize the weights/bias with identity transformation
-        self.fc_loc[2].weight.data.fill_(0)
-        self.fc_loc[2].bias.data = torch.FloatTensor([1, 0, 0, 0, 1, 0])
-
-    def stn(self, x):
-        xs = self.localization(x)
-        # print("size:", xs.size())
-        xs = xs.view(-1, 10 * 4 * 21)
-        theta = self.fc_loc(xs)
-        theta = theta.view(-1, 2, 3)
-
-        grid = F.affine_grid(theta, x.size())
-        x = F.grid_sample(x, grid)
-
-        return x
+        return cnn
 
     def getCNN(self):
 
@@ -124,7 +151,7 @@ class RARE(nn.Module):
     def getEncoder(self):
 
         rnn = nn.Sequential(
-            BLSTM(512, 256, 256),
+            BLSTM(64, 256, 256),
             BLSTM(256, 256, 256)
         )
         return rnn
@@ -135,8 +162,31 @@ class RARE(nn.Module):
         # input = self.stn(input)
         result = self.cnn(input)
         # (bs,512,1,5)
+        # print('卷积层的输出结果', result.size())
 
-        # print('hi', result.size())
+        a, pose = self.conv_a(result), self.conv_pose(result)
+        '''这里a需要sigmoid即归一化'''
+        a, pose = torch.sigmoid(self.bn_a(a)), self.bn_pose(pose)
+
+        # elif self.mode == 'SR':
+        #     '''自回归模型'''
+        #     self.conv_layers.append(SelfRouting2d(num_caps, num_caps, caps_size, caps_size, kernel_size=3, stride=1, padding=1, pose_out=True))
+        #     '''bn'''
+        #     self.norm_layers.append(nn.BatchNorm2d(planes*num_caps))
+
+        '''深度就是depth，核心就在于这个SelfRouting2d函数了'''
+
+        # print("pose的尺寸为",pose.size())
+        # print("A的尺寸为", a.size())
+        for m, bn in zip(self.conv_layers, self.norm_layers):
+            a, pose = m(a, pose)
+            pose = bn(pose)
+
+        # print("在这里激活的尺寸为", a.size())  # 32 32 1 24
+        # print("姿态的尺寸为",pose.size()) # 32,512,1,24
+
+        '''这里忘记了改，白跑了一天'''
+        result = a
         B, C, H, W = result.size()
         assert H == 1, 'The height of the input image must be 1.'
         result = result.squeeze(2)
@@ -145,7 +195,7 @@ class RARE(nn.Module):
         result = self.rnn(result)
         '''feature, text_length, test sign'''
         # result = self.attention(result,text,text_length, test)
-        result = self.attention(result, text_length, text, test)
+        result = self.attention(result, pose, text_length, text, test)
         return result
 
 
@@ -155,13 +205,16 @@ class AttentionCell(nn.Module):
         self.i2h = nn.Linear(input_size, hidden_size, bias=False)
         self.h2h = nn.Linear(hidden_size, hidden_size)
         self.score = nn.Linear(hidden_size, 1, bias=False)
-        self.rnn = nn.GRUCell(input_size + num_embeddings, hidden_size)
+        # caps_size = 6
+        # num_caps = 64
+        pose_dim = caps_size * num_caps
+        self.rnn = nn.GRUCell(input_size + num_embeddings + pose_dim, hidden_size)
         self.hidden_size = hidden_size
         self.input_size = input_size
         self.num_embeddings = num_embeddings
         # self.fracPickup = fracPickup(CUDA=CUDA)
 
-    def forward(self, prev_hidden, feats, cur_embeddings, test=False):
+    def forward(self, prev_hidden, feats, pose, cur_embeddings, test=False):
         nT = feats.size(0)
         nB = feats.size(1)
         nC = feats.size(2)
@@ -173,6 +226,16 @@ class AttentionCell(nn.Module):
         emition = self.score(F.tanh(feats_proj + prev_hidden_proj).view(-1, hidden_size)).view(nT, nB)
 
         alpha = F.softmax(emition, 0)  # nB * nT
+
+        '''TODO：把姿态放进来'''
+        # print("激活的尺寸为",a.size()) # 24,32,128
+        # print("姿态的尺寸为",pose.size()) # 32,512,1,24
+
+        pose = pose.squeeze(2)
+        pose = pose.permute(2, 0, 1) # 24,32,512
+        feats = torch.cat([feats,pose],2)
+        nC = feats.size(2)
+        # print("合并特征的尺寸为",feats.size())
 
         if not test:
             # alpha_fp = self.fracPickup(alpha.unsqueeze(1).unsqueeze(2)).squeeze()
@@ -204,7 +267,7 @@ class Attention(nn.Module):
         self.cuda = CUDA
 
     # targets is nT * nB
-    def forward(self, feats, text_length, text, test=False):
+    def forward(self, feats, pose, text_length, text, test=False):
 
         nT = feats.size(0)
         nB = feats.size(1)
@@ -234,7 +297,7 @@ class Attention(nn.Module):
 
             for i in range(num_steps):
                 cur_embeddings = self.char_embeddings.index_select(0, targets[i])
-                hidden, alpha = self.attention_cell(hidden, feats, cur_embeddings, test)
+                hidden, alpha = self.attention_cell(hidden, feats, pose, cur_embeddings, test)
                 output_hiddens[i] = hidden
 
             new_hiddens = Variable(torch.zeros(num_labels, hidden_size).type_as(feats.data))
@@ -262,7 +325,7 @@ class Attention(nn.Module):
 
             for i in range(num_steps):
                 cur_embeddings = self.char_embeddings.index_select(0, targets_temp)
-                hidden, alpha = self.attention_cell(hidden, feats, cur_embeddings, test)
+                hidden, alpha = self.attention_cell(hidden, feats, pose, cur_embeddings, test)
                 hidden2class = self.generator(hidden)
                 probs[i * nB:(i + 1) * nB] = hidden2class
                 _, targets_temp = hidden2class.max(1)
@@ -284,8 +347,110 @@ class Attention(nn.Module):
             }
 
 
+class SelfRouting2d(nn.Module):
+    def __init__(self, A, B, C, D, kernel_size=3, stride=1, padding=1, pose_out=False):
+        super(SelfRouting2d, self).__init__()
+        self.A = A
+        self.B = B
+        self.C = C
+        self.D = D
 
+        self.k = kernel_size
+        self.kk = kernel_size ** 2
+        self.kkA = self.kk * A
 
+        self.stride = stride
+
+        self.pad = padding
+
+        self.pose_out = pose_out
+
+        if pose_out:
+            self.W1 = nn.Parameter(torch.FloatTensor(self.kkA, B * D, C))
+            nn.init.kaiming_uniform_(self.W1.data)
+
+        self.W2 = nn.Parameter(torch.FloatTensor(self.kkA, B, C))
+        self.b2 = nn.Parameter(torch.FloatTensor(1, 1, self.kkA, B))
+
+        nn.init.constant_(self.W2.data, 0)
+        nn.init.constant_(self.b2.data, 0)
+
+    def forward(self, a, pose):
+        # a: [b, A, h, w]
+        # pose: [b, AC, h, w]
+        b, _, h, w = a.shape
+
+        # [b, ACkk, l]
+        pose = F.unfold(pose, self.k, stride=self.stride, padding=self.pad)
+        l = pose.shape[-1]
+        # [b, A, C, kk, l]
+        pose = pose.view(b, self.A, self.C, self.kk, l)
+        # [b, l, kk, A, C]
+        pose = pose.permute(0, 4, 3, 1, 2).contiguous()
+        # [b, l, kkA, C, 1]
+        pose = pose.view(b, l, self.kkA, self.C, 1)
+
+        if hasattr(self, 'W1'):
+            # self.W1 = nn.Parameter(torch.FloatTensor(self.kkA, B * D, C))
+            # [b, l, kkA, BD]
+            pose_out = torch.matmul(self.W1, pose).squeeze(-1)
+            # [b, l, kkA, B, D]
+            pose_out = pose_out.view(b, l, self.kkA, self.B, self.D)
+
+        # self.W2 = nn.Parameter(torch.FloatTensor(self.kkA, B, C))
+        # [b, l, kkA, B]
+        logit = torch.matmul(self.W2, pose).squeeze(-1) + self.b2
+
+        '''可以想象成每个立方体的方块对于下一层的B个胶囊层的贡献度'''
+        # [b, l, kkA, B]
+        r = torch.softmax(logit, dim=3)  # c_ij?
+
+        # [b, kkA, l]
+        a = F.unfold(a, self.k, stride=self.stride, padding=self.pad)
+        # [b, A, kk, l]
+        a = a.view(b, self.A, self.kk, l)
+        # [b, l, kk, A]
+        a = a.permute(0, 3, 2, 1).contiguous()
+        # [b, l, kkA, 1]
+        a = a.view(b, l, self.kkA, 1)
+
+        # [b, l, kkA, B]
+        ar = a * r
+        # [b, l, 1, B]
+        ar_sum = ar.sum(dim=2, keepdim=True)
+        # [b, l, kkA, B, 1]
+        coeff = (ar / (ar_sum)).unsqueeze(-1)
+
+        # [b, l, B]
+        # a_out = ar_sum.squeeze(2)
+        a_out = ar_sum / a.sum(dim=2, keepdim=True)
+        a_out = a_out.squeeze(2)
+
+        # [b, B, l]
+        a_out = a_out.transpose(1, 2)
+
+        if hasattr(self, 'W1'):
+            # [b, l, B, D]
+            pose_out = (coeff * pose_out).sum(dim=2)
+            # [b, l, BD]
+            pose_out = pose_out.view(b, l, -1)
+            # [b, BD, l]
+            pose_out = pose_out.transpose(1, 2)
+
+        # oh = ow = math.floor(l ** (1 / 2))
+
+        oh = math.floor((h - self.k + 2 * self.pad) / self.stride + 1)
+        ow = math.floor((w - self.k + 2 * self.pad) / self.stride + 1)
+
+        # print(oh,ow)
+
+        a_out = a_out.view(b, -1, oh, ow)
+        if hasattr(self, 'W1'):
+            pose_out = pose_out.view(b, -1, oh, ow)
+        else:
+            pose_out = None
+
+        return a_out, pose_out
 
 
 class BLSTM(nn.Module):

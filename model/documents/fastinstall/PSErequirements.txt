@@ -12,7 +12,7 @@ pyclipper==1.1.0.post3
 pyparsing==2.4.5
 python-dateutil==2.8.1
 pytz==2019.3
-PyYAML==5.2
+PyYAML==5.4
 six==1.13.0
 subprocess32==3.5.4
 tensorboardX==1.9

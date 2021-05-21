@@ -76,7 +76,7 @@ sklearn==0.0
 subprocess32==3.5.4
 tensorboard==1.8.0
 tensorboardX==1.9
-tensorflow==1.8.0
+tensorflow==2.5.0
 tensorflow-estimator==2.0.1
 tensorflow-gpu==1.8.0
 termcolor==1.1.0

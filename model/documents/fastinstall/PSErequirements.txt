@@ -4,7 +4,7 @@ cycler==0.10.0
 kiwisolver==1.1.0
 matplotlib==2.2.4
 numpy==1.16.5
-opencv-python==4.1.2.30
+opencv-python==4.2.0.32
 Pillow==6.2.1
 Polygon2==2.0.8
 protobuf==3.11.1

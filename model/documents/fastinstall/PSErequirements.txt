@@ -5,7 +5,7 @@ kiwisolver==1.1.0
 matplotlib==2.2.4
 numpy==1.16.5
 opencv-python==4.1.2.30
-Pillow==6.2.1
+Pillow==9.3.0
 Polygon2==2.0.8
 protobuf==3.11.1
 pyclipper==1.1.0.post3
